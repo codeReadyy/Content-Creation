@@ -13,18 +13,22 @@ You don't need to keep any machine running — GitHub does it for free.
 
 ---
 
-## Step 1: Push This Repo to GitHub
+## Repo Structure (Monorepo)
 
-```bash
-cd assured-referral-autoposter
-git init
-git add .
-git commit -m "Initial commit: AutoPoster pipeline"
-git remote add origin https://github.com/YOUR_USERNAME/assured-referral-autoposter.git
-git push -u origin main
+This project lives inside a `Content-Creation-Flows` monorepo:
+
+```
+Content-Creation-Flows/               ← GitHub repo root
+├── .github/workflows/
+│   └── assured-referral-daily-post.yml   ← Workflow MUST be here (repo root)
+├── assured-referral-autoposter/          ← This project
+│   ├── main.py
+│   ├── config/ content/ slides/ publishers/
+│   └── ...
+└── (future projects go here)
 ```
 
-Use a **private repo** to keep your workflow secure.
+**Important:** The `.github/workflows/` folder is at the repo root, NOT inside the project folder. GitHub only detects workflows at the repo root.
 
 ---
 
