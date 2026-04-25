@@ -1,9 +1,10 @@
 """
 AI image generation for slide backgrounds.
-Supports Azure OpenAI DALL-E 3, Stability AI, and local gradient fallback.
+Supports Azure OpenAI gpt-image-1-mini, Stability AI, and local gradient fallback.
 """
 
 import io
+import base64
 import requests
 from pathlib import Path
 from openai import AzureOpenAI
@@ -11,7 +12,7 @@ from config.settings import Config
 
 
 def generate_image_azure(prompt: str, size: str = "1024x1024") -> bytes:
-    """Generate an image using Azure OpenAI DALL-E 3 and return raw bytes."""
+    """Generate an image using Azure OpenAI gpt-image-1-mini and return raw bytes."""
     client = AzureOpenAI(
         api_key=Config.AZURE_OPENAI_API_KEY,
         azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
@@ -19,19 +20,19 @@ def generate_image_azure(prompt: str, size: str = "1024x1024") -> bytes:
     )
 
     response = client.images.generate(
-        model=Config.AZURE_OPENAI_DALLE_DEPLOYMENT,
+        model=Config.AZURE_OPENAI_IMAGE_DEPLOYMENT,
         prompt=f"Abstract, clean, modern background for a social media slide. {prompt}. "
                f"No text, no words, no letters. Minimalist, professional, atmospheric. "
                f"Suitable as a background with text overlay. High contrast edges.",
         size=size,
-        quality="standard",
+        quality="low",
         n=1,
+        output_format="png",
     )
 
-    image_url = response.data[0].url
-    img_response = requests.get(image_url, timeout=30)
-    img_response.raise_for_status()
-    return img_response.content
+    # gpt-image-1 returns base64-encoded image data
+    b64_data = response.data[0].b64_json
+    return base64.b64decode(b64_data)
 
 
 def generate_image_stability(prompt: str) -> bytes:
