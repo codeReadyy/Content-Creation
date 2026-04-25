@@ -1,0 +1,7 @@
+# AssuredReferral AutoPoster — Dependencies
+openai>=1.30.0        # Azure OpenAI SDK (same package, uses AzureOpenAI client)
+requests>=2.31.0
+Pillow>=10.0.0
+python-dotenv>=1.0.0
+moviepy>=1.0.3        # For YouTube Shorts video generation
+schedule>=1.2.0       # Optional: for local scheduler (alternative to GitHub Actions)
