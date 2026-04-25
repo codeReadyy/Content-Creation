@@ -1,0 +1,84 @@
+# ============================================
+# AssuredReferral AutoPoster — Daily Pipeline
+# ============================================
+# Runs at 10:00 AM IST (4:30 AM UTC) every day.
+#
+# IMPORTANT: This file MUST live at .github/workflows/ in the REPO ROOT.
+# GitHub Actions ignores workflow files in subdirectories.
+#
+# SETUP:
+# 1. Go to: Settings → Secrets and variables → Actions → New repository secret
+# 2. Add each secret listed in the 'env' block below
+# 3. Go to: Actions tab → "AssuredReferral Daily Post" → Enable workflow
+# 4. Click "Run workflow" to test, then it runs daily automatically.
+
+name: AssuredReferral Daily Post
+
+on:
+  schedule:
+    # 4:30 AM UTC = 10:00 AM IST
+    - cron: '30 4 * * *'
+  workflow_dispatch:  # Manual trigger button in GitHub UI
+
+# All paths are relative to the project subdirectory
+defaults:
+  run:
+    working-directory: assured-referral-autoposter
+
+jobs:
+  generate-and-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: assured-referral-autoposter/requirements.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-dejavu ffmpeg
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the full pipeline
+        env:
+          # --- Azure OpenAI (REQUIRED) ---
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          AZURE_OPENAI_DALLE_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DALLE_DEPLOYMENT }}
+          IMAGE_PROVIDER: ${{ secrets.IMAGE_PROVIDER }}
+
+          # --- LinkedIn ---
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          LINKEDIN_ORG_ID: ${{ secrets.LINKEDIN_ORG_ID }}
+
+          # --- YouTube ---
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+
+          # --- Instagram (add when ready) ---
+          # INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          # INSTAGRAM_BUSINESS_ACCOUNT_ID: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}
+        run: python main.py
+
+      - name: Upload daily output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assured-referral-output-${{ github.run_id }}
+          path: assured-referral-autoposter/output/
+          retention-days: 30
