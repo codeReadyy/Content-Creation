@@ -62,7 +62,6 @@ jobs:
           # --- LinkedIn ---
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
-          LINKEDIN_ORG_ID: ${{ secrets.LINKEDIN_ORG_ID }}
 
           # --- YouTube ---
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}

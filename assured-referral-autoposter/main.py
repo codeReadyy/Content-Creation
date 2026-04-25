@@ -3,19 +3,22 @@
 AssuredReferral AutoPoster — Main Pipeline Orchestrator
 =======================================================
 Runs the full daily content pipeline:
-  1. Generate carousel content (text + image prompts)
-  2. Generate AI background images
-  3. Build carousel slide images
-  4. Convert slides to video (for YouTube Shorts)
-  5. Publish to LinkedIn (personal + company page)
-  6. Upload to YouTube as a Short
-  7. (Future) Publish to Instagram
+  1. Research trending signals (Google Trends, Reddit, Tavily)
+  2. Synthesize content brief from signals
+  3. Generate carousel content (text + image prompts)
+  4. Generate AI background images
+  5. Build carousel slide images
+  6. Convert slides to video (for YouTube Shorts)
+  7. Publish to LinkedIn (personal + company page)
+  8. Upload to YouTube as a Short
+  9. (Future) Publish to Instagram
 
 Usage:
   python main.py              # Run the full pipeline once
   python main.py --dry-run    # Generate content only, no publishing
   python main.py --slides 4   # Generate 4 slides instead of default 5
   python main.py --no-ai-images  # Use gradient backgrounds instead of AI
+  python main.py --no-research   # Skip research phase, use theme rotation
 """
 
 import sys
@@ -49,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_pipeline(num_slides: int = 5, dry_run: bool = False,
-                  use_ai_images: bool = True) -> dict:
+                  use_ai_images: bool = True, use_research: bool = True) -> dict:
     """
     Execute the full content pipeline.
 
@@ -57,6 +60,7 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         num_slides: Number of slides to generate (3-6)
         dry_run: If True, generate content but don't publish
         use_ai_images: Use AI-generated backgrounds vs simple gradients
+        use_research: Use research layer for trending content (vs theme rotation)
 
     Returns:
         Dict with results from each pipeline stage
@@ -75,20 +79,97 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         for issue in issues:
             logger.warning(f"⚠️  {issue}")
 
+    brief = None
+    signals = None
+
     # ==========================================
-    # STAGE 1: Generate Content
+    # STAGE 1: Research Trending Signals
+    # ==========================================
+    if use_research:
+        print("\n" + "=" * 50)
+        print("🔍 STAGE 1: Researching Trending Signals")
+        print("=" * 50)
+
+        try:
+            from research.trending import gather_all_signals, get_signals_summary
+
+            signals = gather_all_signals()
+            results["stages"]["research"] = "success"
+
+            # Print summary
+            print(get_signals_summary(signals))
+
+            # Save signals for reference
+            signals_path = Config.OUTPUT_DIR / f"{date.today().isoformat()}_signals.json"
+            with open(signals_path, "w") as f:
+                json.dump(signals, f, indent=2, default=str)
+            print(f"\n  💾 Signals saved to: {signals_path.name}")
+
+        except Exception as e:
+            logger.warning(f"Research phase failed, falling back to themes: {e}")
+            results["stages"]["research"] = f"fallback: {e}"
+            use_research = False  # Fall back to theme-based generation
+    else:
+        print("\n" + "=" * 50)
+        print("⏭️  STAGE 1: Research (skipped)")
+        print("=" * 50)
+        results["stages"]["research"] = "skipped (--no-research flag)"
+
+    # ==========================================
+    # STAGE 2: Synthesize Content Brief
+    # ==========================================
+    if use_research and signals:
+        print("\n" + "=" * 50)
+        print("🧠 STAGE 2: Synthesizing Content Brief")
+        print("=" * 50)
+
+        try:
+            from research.synthesizer import synthesize_brief
+
+            brief = synthesize_brief(signals)
+            results["stages"]["synthesis"] = "success"
+
+            print(f"  📌 Trending Angle: {brief.get('trending_angle', 'N/A')}")
+            print(f"  🎣 Hook: {brief.get('hook_headline', 'N/A')}")
+            print(f"  🎯 Carousel Angle: {brief.get('carousel_angle', 'N/A')}")
+            print(f"  🎨 Tone: {brief.get('tone', 'N/A')}")
+            print(f"  📊 Why Now: {brief.get('why_this_works_today', 'N/A')}")
+
+            # Save brief for reference
+            brief_path = Config.OUTPUT_DIR / f"{date.today().isoformat()}_brief.json"
+            with open(brief_path, "w") as f:
+                json.dump(brief, f, indent=2)
+            print(f"\n  💾 Brief saved to: {brief_path.name}")
+
+        except Exception as e:
+            logger.warning(f"Brief synthesis failed, falling back to themes: {e}")
+            results["stages"]["synthesis"] = f"fallback: {e}"
+            brief = None
+    else:
+        print("\n" + "=" * 50)
+        print("⏭️  STAGE 2: Synthesis (skipped)")
+        print("=" * 50)
+        results["stages"]["synthesis"] = "skipped (no research data)"
+
+    # ==========================================
+    # STAGE 3: Generate Content
     # ==========================================
     print("\n" + "=" * 50)
-    print("🚀 STAGE 1: Generating Content")
+    print("🚀 STAGE 3: Generating Content")
     print("=" * 50)
 
-    theme = get_todays_theme()
-    print(f"  📌 Theme: {theme['theme']}")
-    print(f"  🎯 Angle: {theme['angle']}")
-    print(f"  🎣 Hook: {theme['hook_style']}")
+    # Show what mode we're using
+    if brief:
+        print("  📋 Mode: Research-driven (using content brief)")
+    else:
+        theme = get_todays_theme()
+        print("  📋 Mode: Theme-driven (rotating themes)")
+        print(f"  📌 Theme: {theme['theme']}")
+        print(f"  🎯 Angle: {theme['angle']}")
+        print(f"  🎣 Hook: {theme['hook_style']}")
 
     try:
-        content = generate_content(num_slides=num_slides)
+        content = generate_content(num_slides=num_slides, brief=brief)
         results["stages"]["content_generation"] = "success"
 
         # Save content JSON for reference
@@ -109,10 +190,10 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         return results
 
     # ==========================================
-    # STAGE 2: Build Slides
+    # STAGE 4: Build Slides
     # ==========================================
     print("\n" + "=" * 50)
-    print("🎨 STAGE 2: Building Slides")
+    print("🎨 STAGE 4: Building Slides")
     print("=" * 50)
 
     try:
@@ -127,10 +208,10 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         return results
 
     # ==========================================
-    # STAGE 3: Create Video (for YouTube)
+    # STAGE 5: Create Video (for YouTube)
     # ==========================================
     print("\n" + "=" * 50)
-    print("🎬 STAGE 3: Creating Video")
+    print("🎬 STAGE 5: Creating Video")
     print("=" * 50)
 
     video_path = None
@@ -153,10 +234,10 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         return results
 
     # ==========================================
-    # STAGE 4: Publish to LinkedIn
+    # STAGE 6: Publish to LinkedIn
     # ==========================================
     print("\n" + "=" * 50)
-    print("📤 STAGE 4: Publishing to LinkedIn")
+    print("📤 STAGE 6: Publishing to LinkedIn")
     print("=" * 50)
 
     if Config.LINKEDIN_ACCESS_TOKEN:
@@ -175,11 +256,14 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         results["stages"]["linkedin"] = "skipped (not configured)"
 
     # ==========================================
-    # STAGE 5: Upload to YouTube
+    # STAGE 7: Upload to YouTube
     # ==========================================
     print("\n" + "=" * 50)
-    print("📺 STAGE 5: Uploading to YouTube")
+    print("📺 STAGE 7: Uploading to YouTube")
     print("=" * 50)
+
+    # Get theme for YouTube title fallback
+    theme = get_todays_theme()
 
     if Config.YOUTUBE_REFRESH_TOKEN and video_path:
         try:
@@ -199,10 +283,10 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         results["stages"]["youtube"] = f"skipped ({reason})"
 
     # ==========================================
-    # STAGE 6: Instagram (placeholder)
+    # STAGE 8: Instagram (placeholder)
     # ==========================================
     print("\n" + "=" * 50)
-    print("📸 STAGE 6: Instagram")
+    print("📸 STAGE 8: Instagram")
     print("=" * 50)
 
     if Config.INSTAGRAM_ACCESS_TOKEN:
@@ -239,6 +323,8 @@ def main():
                         help="Number of slides (3-6, default 5)")
     parser.add_argument("--no-ai-images", action="store_true",
                         help="Use gradient backgrounds instead of AI-generated images")
+    parser.add_argument("--no-research", action="store_true",
+                        help="Skip research phase, use theme rotation instead")
 
     args = parser.parse_args()
 
@@ -249,7 +335,8 @@ def main():
     results = run_pipeline(
         num_slides=args.slides,
         dry_run=args.dry_run,
-        use_ai_images=not args.no_ai_images
+        use_ai_images=not args.no_ai_images,
+        use_research=not args.no_research
     )
 
     if "error" in str(results.get("stages", {})):

@@ -212,21 +212,21 @@ def slides_to_video(slide_paths: list[Path], duration_per_slide: float = 3.0) ->
     Convert slide images into an MP4 video (for YouTube Shorts).
     Each slide is shown for `duration_per_slide` seconds.
 
-    Requires: pip install moviepy
+    Requires: pip install moviepy>=2.0
     """
     try:
-        from moviepy.editor import ImageClip, concatenate_videoclips
+        from moviepy import ImageClip, concatenate_videoclips, ColorClip, CompositeVideoClip
 
         clips = []
         for path in slide_paths:
             clip = ImageClip(str(path), duration=duration_per_slide)
-            # Resize to 1080x1920 (9:16 vertical for Shorts)
-            clip = clip.resize(height=1920).on_color(
-                size=(1080, 1920), color=(0, 0, 0), pos="center"
-            )
-            clips.append(clip)
+            # Resize to fit within 1080x1920 (9:16 vertical for Shorts)
+            clip = clip.resized(height=1920)
+            bg = ColorClip(size=(1080, 1920), color=(0, 0, 0), duration=duration_per_slide)
+            composite = CompositeVideoClip([bg, clip.with_position("center")])
+            clips.append(composite)
 
-        video = concatenate_videoclips(clips, method="compose")
+        video = concatenate_videoclips(clips)
 
         today = date.today().isoformat()
         video_path = Config.VIDEOS_DIR / f"{today}_short.mp4"
@@ -238,13 +238,15 @@ def slides_to_video(slide_paths: list[Path], duration_per_slide: float = 3.0) ->
             logger=None
         )
         video.close()
+        for clip in clips:
+            clip.close()
 
         print(f"  ✓ Video saved: {video_path.name}")
         return video_path
 
     except ImportError:
         print("  ⚠ moviepy not installed. Skipping video generation.")
-        print("    Install with: pip install moviepy")
+        print("    Install with: pip install 'moviepy>=2.0'")
         return None
 
 

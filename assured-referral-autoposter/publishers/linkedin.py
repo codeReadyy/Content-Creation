@@ -64,7 +64,7 @@ def _upload_image(upload_url: str, image_path: Path) -> None:
 
 
 def _create_carousel_post(owner_urn: str, image_urns: list[str],
-                           caption: str, is_org: bool = False) -> dict:
+                           caption: str) -> dict:
     """
     Create a multi-image (carousel) post on LinkedIn.
     """
@@ -96,6 +96,7 @@ def _create_carousel_post(owner_urn: str, image_urns: list[str],
         "isReshareDisabledByAuthor": False
     }
 
+
     resp = requests.post(url, headers=_headers(), json=post_body, timeout=30)
     resp.raise_for_status()
 
@@ -103,56 +104,45 @@ def _create_carousel_post(owner_urn: str, image_urns: list[str],
     return {"status": "published", "post_urn": post_urn}
 
 
-def post_carousel(slide_paths: list[Path], caption: str,
-                   post_to_personal: bool = True,
-                   post_to_company: bool = True) -> dict:
+def post_carousel(slide_paths: list[Path], caption: str) -> dict:
     """
-    Upload images and post a carousel to LinkedIn.
+    Upload images and post a carousel to the personal LinkedIn profile.
 
     Args:
         slide_paths: List of paths to slide PNG images
         caption: Post caption text
-        post_to_personal: Post to personal profile
-        post_to_company: Post to company page
 
     Returns:
-        Dict with results for each target
+        Dict with result
     """
     if not Config.LINKEDIN_ACCESS_TOKEN:
         return {"error": "LinkedIn access token not configured"}
+    if not Config.LINKEDIN_PERSON_URN:
+        return {"error": "LINKEDIN_PERSON_URN not configured"}
 
-    results = {}
+    try:
+        print(f"  📤 Uploading {len(slide_paths)} images...")
+        image_urns = []
 
-    targets = []
-    if post_to_personal and Config.LINKEDIN_PERSON_URN:
-        targets.append(("personal", Config.LINKEDIN_PERSON_URN, False))
-    if post_to_company and Config.LINKEDIN_ORG_ID:
-        org_urn = f"urn:li:organization:{Config.LINKEDIN_ORG_ID}"
-        targets.append(("company", org_urn, True))
+        for path in slide_paths:
+            upload_url, image_urn = _register_image_upload(Config.LINKEDIN_PERSON_URN)
+            _upload_image(upload_url, path)
+            image_urns.append(image_urn)
+            time.sleep(1)  # Rate limiting
 
-    for target_name, owner_urn, is_org in targets:
-        try:
-            print(f"  📤 Uploading {len(slide_paths)} images for {target_name}...")
-            image_urns = []
+        print("  📝 Creating carousel post...")
+        result = _create_carousel_post(Config.LINKEDIN_PERSON_URN, image_urns, caption)
+        print("  ✅ Published to LinkedIn!")
+        return result
 
-            for path in slide_paths:
-                upload_url, image_urn = _register_image_upload(owner_urn)
-                _upload_image(upload_url, path)
-                image_urns.append(image_urn)
-                time.sleep(1)  # Rate limiting
+    except requests.exceptions.HTTPError as e:
+        error_detail = e.response.text if e.response else str(e)
+        print(f"  ❌ Failed to post to LinkedIn: {error_detail}")
+        return {"error": error_detail}
 
-            print(f"  📝 Creating carousel post on {target_name}...")
-            result = _create_carousel_post(owner_urn, image_urns, caption, is_org)
-            results[target_name] = result
-            print(f"  ✅ Published to {target_name}!")
-
-        except requests.exceptions.HTTPError as e:
-            error_detail = e.response.text if e.response else str(e)
-            results[target_name] = {"error": error_detail}
-            print(f"  ❌ Failed to post to {target_name}: {error_detail}")
-
-        except Exception as e:
-            results[target_name] = {"error": str(e)}
+    except Exception as e:
+        print(f"  ❌ Failed to post to LinkedIn: {e}")
+        return {"error": str(e)}
             print(f"  ❌ Failed to post to {target_name}: {e}")
 
     return results
@@ -164,6 +154,8 @@ def post_carousel(slide_paths: list[Path], caption: str,
 
 def generate_auth_url(client_id: str, redirect_uri: str = "http://localhost:8080/callback") -> str:
     """Generate the LinkedIn OAuth authorization URL."""
+    # w_member_social — post on behalf of the signed-in member
+    # openid + profile  — needed to get person URN via /v2/userinfo
     scopes = "openid%20profile%20w_member_social"
     return (
         f"https://www.linkedin.com/oauth/v2/authorization?"

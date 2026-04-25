@@ -27,7 +27,6 @@ class Config:
     # --- LinkedIn ---
     LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
     LINKEDIN_PERSON_URN = os.getenv("LINKEDIN_PERSON_URN", "")
-    LINKEDIN_ORG_ID = os.getenv("LINKEDIN_ORG_ID", "")
 
     # --- YouTube ---
     YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID", "")

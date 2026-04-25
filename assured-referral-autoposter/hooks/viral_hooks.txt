@@ -1,0 +1,645 @@
+# Viral Hooks Database for Career/Job Content
+# Format: TYPE|TONE|HOOK
+# Types: stat, question, controversy, story, list, myth, secret, warning
+# Tones: inspirational, bold, empathetic, tactical, controversial, data-driven, storytelling
+# ---
+
+# STAT HOOKS - Data-driven openers
+stat|data-driven|80% of jobs are never posted online.
+stat|data-driven|Referred candidates are 4x more likely to get hired.
+stat|bold|The average job posting gets 250+ applicants. Only 4-6 get interviews.
+stat|data-driven|70% of jobs are filled through networking.
+stat|bold|Your resume gets 6 seconds. That's it.
+stat|data-driven|Employee referrals have a 46% retention rate after one year.
+stat|inspirational|Referred candidates get hired 55% faster.
+stat|data-driven|Only 2% of applicants get an interview.
+stat|bold|40% of hires come from referrals. Not job boards.
+stat|data-driven|Companies save $7,500 per hire through referrals.
+stat|bold|The hidden job market is worth $2 trillion.
+stat|data-driven|85% of jobs are filled through networking.
+stat|tactical|ATS systems reject 75% of resumes before a human sees them.
+stat|bold|Job seekers who use referrals are hired 10x faster.
+stat|data-driven|Referred employees stay 70% longer than job board hires.
+stat|inspirational|1 warm introduction > 100 cold applications.
+stat|bold|The average job search takes 5 months. With referrals: 3 weeks.
+stat|data-driven|88% of employers say referrals are their best source of candidates.
+stat|tactical|Your LinkedIn headline is worth 40% of your searchability.
+stat|bold|Only 15% of jobs are ever publicly advertised.
+stat|data-driven|Candidates with referrals have a 40% interview rate vs 3% cold apply.
+stat|inspirational|People who network get paid 5-10% more.
+stat|bold|50% of companies fill jobs before posting them.
+stat|data-driven|Internal referrals account for 30-50% of all hires.
+stat|tactical|Recruiters spend 23 hours per week sourcing candidates.
+stat|bold|The cost of a bad hire: 30% of annual salary.
+stat|data-driven|67% of hiring managers say quality of hire improves with referrals.
+stat|inspirational|Referrals have a 2.6% to 6.6% application-to-hire rate.
+stat|bold|Job boards deliver only 15% of all hires.
+stat|data-driven|Time-to-hire drops 40% with employee referrals.
+
+# QUESTION HOOKS - Thought-provoking openers
+question|empathetic|Why are you still applying to jobs the old way?
+question|bold|What if your resume is not the problem?
+question|tactical|Are you invisible to recruiters? Here's why.
+question|inspirational|What separates people who get hired from those who don't?
+question|controversial|Why do some people get job offers without applying?
+question|empathetic|Tired of applying and hearing nothing back?
+question|bold|What's stopping you from getting referred?
+question|tactical|Is your LinkedIn profile actually working for you?
+question|inspirational|What would change if you had an insider at your dream company?
+question|controversial|Why do referrals work better than cold applications?
+question|empathetic|Feeling stuck in your job search?
+question|bold|Why are you competing with 250+ applicants?
+question|tactical|What if the job you want doesn't exist yet?
+question|inspirational|Are you networking or just collecting connections?
+question|controversial|Is the job market broken or are you playing it wrong?
+question|empathetic|How many applications until you stop and try something different?
+question|bold|What if getting a job was actually easier than you think?
+question|tactical|Do you know what recruiters search for?
+question|inspirational|What's the one thing top candidates do differently?
+question|controversial|Why does everyone tell you to "just apply more"?
+question|empathetic|Have you given up on your dream job?
+question|bold|What if the perfect job is looking for you right now?
+question|tactical|Are you optimizing for the wrong things in your job search?
+question|inspirational|What would you do if you knew you couldn't fail?
+question|controversial|Why do extroverts seem to get all the jobs?
+question|empathetic|Do you feel like no one's reading your applications?
+question|bold|What if networking didn't have to feel slimy?
+question|tactical|Is your job search strategy from 2010?
+question|inspirational|What separates a 6-figure offer from a rejection?
+question|controversial|Are job boards actually working against you?
+
+# CONTROVERSY HOOKS - Bold, attention-grabbing statements
+controversy|bold|Your resume doesn't matter as much as you think.
+controversy|controversial|Applying online is the worst job search strategy.
+controversy|bold|LinkedIn connections are worthless. Networks aren't.
+controversy|controversial|The best candidates never apply for jobs.
+controversy|bold|Job descriptions are wish lists, not requirements.
+controversy|controversial|Recruiters don't want to help you. Here's who does.
+controversy|bold|Cover letters are dead.
+controversy|controversial|Your skills don't get you hired. Relationships do.
+controversy|bold|Applying to 100 jobs won't help you.
+controversy|controversial|"Networking events" are where careers go to die.
+controversy|bold|The hiring process is broken. Here's how to win anyway.
+controversy|controversial|HR doesn't decide who gets hired. Hiring managers do.
+controversy|bold|Your degree matters less than your network.
+controversy|controversial|Experience is overrated. Perception isn't.
+controversy|bold|Job search advice is keeping you unemployed.
+controversy|controversial|The "perfect resume" doesn't exist.
+controversy|bold|Being qualified isn't enough anymore.
+controversy|controversial|The 9-to-5 job search doesn't work.
+controversy|bold|Recruiters are not your allies. Here's who is.
+controversy|controversial|Stop applying. Start connecting.
+controversy|bold|The hidden job market isn't hidden. You're just not looking.
+controversy|controversial|Experience requirements are negotiable.
+controversy|bold|Your competition isn't other applicants. It's invisibility.
+controversy|controversial|Cold emailing works better than cold applying.
+controversy|bold|The best jobs don't need advertising.
+controversy|controversial|Passion doesn't pay. Positioning does.
+controversy|bold|Job boards are designed to keep you applying.
+controversy|controversial|Interviewing is not about selling yourself.
+controversy|bold|The more you apply, the more desperate you look.
+controversy|controversial|Your career is not a ladder. It's a web.
+
+# STORY HOOKS - Narrative-driven openers
+story|storytelling|I got rejected from 100 companies. Then I changed one thing.
+story|inspirational|From unemployed to dream job in 3 weeks. Here's how.
+story|storytelling|The email that got me hired without an interview.
+story|empathetic|I almost gave up. Then a stranger changed everything.
+story|storytelling|A recruiter told me I'd never get hired. She was wrong.
+story|inspirational|How I went from ghosted to 3 offers in one month.
+story|storytelling|One LinkedIn message changed my entire career.
+story|empathetic|I spent 8 months applying. Then I tried something different.
+story|storytelling|The rejection that led to my best job ever.
+story|inspirational|From layoff to 6-figure offer: my 30-day journey.
+story|storytelling|I didn't have the "right" experience. I got the job anyway.
+story|empathetic|After 500 applications, I finally learned the truth.
+story|storytelling|A coffee chat turned into a $150K job offer.
+story|inspirational|I was told I was "overqualified." Then I did this.
+story|storytelling|The worst interview of my life led to my best job.
+story|empathetic|I felt invisible until someone gave me a chance.
+story|storytelling|One referral changed my family's life.
+story|inspirational|From rejected everywhere to 3 competing offers.
+story|storytelling|I stopped applying and started getting interviews.
+story|empathetic|The job search that almost broke me. And what saved it.
+story|storytelling|A stranger on LinkedIn got me my dream job.
+story|inspirational|I didn't have connections. So I built them.
+story|storytelling|How a rejected application led to a better opportunity.
+story|empathetic|I was job searching wrong for 5 years.
+story|storytelling|The 15-minute call that changed my career.
+story|inspirational|From 0 interviews to 5 offers: here's what shifted.
+story|storytelling|I got my job through someone I barely knew.
+story|empathetic|The moment I realized I was the problem.
+story|storytelling|A single message opened doors I didn't know existed.
+story|inspirational|How I turned a "no" into a "when can you start?"
+
+# LIST HOOKS - Numbered/list-based openers
+list|tactical|5 things recruiters wish you knew.
+list|bold|3 job search mistakes keeping you unemployed.
+list|tactical|7 LinkedIn hacks that actually work.
+list|inspirational|4 mindset shifts that change your job search.
+list|bold|The 3 words that destroy your resume.
+list|tactical|5 signs you're not getting referred.
+list|inspirational|3 habits of people who always get hired.
+list|bold|4 reasons your applications are getting ignored.
+list|tactical|The 5-step referral request that works.
+list|inspirational|3 things I wish I knew before my job search.
+list|bold|5 lies job seekers believe.
+list|tactical|4 ways to stand out to hiring managers.
+list|inspirational|The 3 questions that reveal your dream job.
+list|bold|5 reasons you're not getting callbacks.
+list|tactical|7 things to never say in a job interview.
+list|inspirational|4 career moves that compound over time.
+list|bold|3 networking mistakes everyone makes.
+list|tactical|5 ways to find jobs before they're posted.
+list|inspirational|The 4 pillars of a successful job search.
+list|bold|3 red flags in job postings.
+list|tactical|5 templates for asking for a referral.
+list|inspirational|4 signs you're ready for a career change.
+list|bold|The 3 biggest resume myths debunked.
+list|tactical|5 questions to ask in every interview.
+list|inspirational|3 ways to future-proof your career.
+list|bold|4 things hiring managers notice immediately.
+list|tactical|The 5 stages of a winning job search.
+list|inspirational|3 unconventional job search strategies.
+list|bold|5 reasons referrals work (backed by data).
+list|tactical|4 ways to network without feeling awkward.
+
+# MYTH HOOKS - Myth-busting openers
+myth|bold|Myth: You need 10+ years of experience.
+myth|controversial|Myth: The best candidate gets the job.
+myth|bold|Myth: You should apply to as many jobs as possible.
+myth|controversial|Myth: Networking is only for extroverts.
+myth|bold|Myth: Your resume needs to be one page.
+myth|controversial|Myth: Entry-level jobs don't require experience.
+myth|bold|Myth: You need to meet 100% of job requirements.
+myth|controversial|Myth: LinkedIn is just a job board.
+myth|bold|Myth: Cold emailing doesn't work.
+myth|controversial|Myth: Recruiters find the best candidates.
+myth|bold|Myth: Switching industries is career suicide.
+myth|controversial|Myth: You need a perfect resume to get hired.
+myth|bold|Myth: Connections are just nepotism.
+myth|controversial|Myth: Job boards are the best way to find work.
+myth|bold|Myth: Follow up emails are annoying.
+myth|controversial|Myth: You're either qualified or you're not.
+myth|bold|Myth: Salary negotiation will cost you the offer.
+myth|controversial|Myth: The interview is about answering questions.
+myth|bold|Myth: You need a degree to succeed.
+myth|controversial|Myth: Being good at your job is enough.
+myth|bold|Myth: Career gaps kill your chances.
+myth|controversial|Myth: You should wait for the perfect job.
+myth|bold|Myth: Networking is just exchanging business cards.
+myth|controversial|Myth: Online applications work.
+myth|bold|Myth: You're too old/young for that job.
+myth|controversial|Myth: Referrals are just for people with connections.
+myth|bold|Myth: Cover letters are still important.
+myth|controversial|Myth: Your skills speak for themselves.
+myth|bold|Myth: Experience trumps everything.
+myth|controversial|Myth: The job market is too competitive.
+
+# SECRET HOOKS - Insider knowledge openers
+secret|tactical|The secret recruiters don't want you to know.
+secret|bold|What hiring managers really discuss behind closed doors.
+secret|tactical|The hidden job market explained.
+secret|inspirational|The secret to getting referred by strangers.
+secret|bold|What your rejection email really means.
+secret|tactical|The algorithm behind LinkedIn recommendations.
+secret|inspirational|The secret mindset of top candidates.
+secret|bold|What companies actually look for (not what they say).
+secret|tactical|The secret to perfect interview answers.
+secret|inspirational|How the best networkers operate.
+secret|bold|What ATS systems actually scan for.
+secret|tactical|The secret to writing emails that get replies.
+secret|inspirational|How to make hiring managers come to you.
+secret|bold|The real reason you're not getting interviews.
+secret|tactical|The secret to negotiating salary without fear.
+secret|inspirational|What separates the hired from the unemployed.
+secret|bold|The truth about "entry-level" positions.
+secret|tactical|How recruiters actually search LinkedIn.
+secret|inspirational|The secret weapon of successful job seekers.
+secret|bold|What companies don't tell you about their culture.
+secret|tactical|The formula behind viral job search content.
+secret|inspirational|How to become the "obvious choice" for any role.
+secret|bold|What happens to your resume after you submit it.
+secret|tactical|The secret to getting noticed by hiring managers.
+secret|inspirational|How referrals really work behind the scenes.
+secret|bold|The unwritten rules of salary negotiation.
+secret|tactical|How to find the hidden decision-maker.
+secret|inspirational|The secret to confident interviewing.
+secret|bold|What successful people never tell you about their careers.
+secret|tactical|The insider's guide to getting referred.
+
+# WARNING HOOKS - Urgency/warning-based openers
+warning|bold|Stop applying to jobs. Here's why.
+warning|empathetic|Your job search strategy is outdated. Fix this now.
+warning|bold|Warning: Your resume might be hurting you.
+warning|tactical|Don't make this common LinkedIn mistake.
+warning|bold|If you're doing this, you'll never get hired.
+warning|empathetic|This job search habit is wasting your time.
+warning|bold|Red flag: This means the company isn't serious.
+warning|tactical|Never say this in an interview.
+warning|bold|Warning: Most job search advice is wrong.
+warning|empathetic|Stop sending these types of applications.
+warning|bold|If you ignore this, your job search will fail.
+warning|tactical|This LinkedIn setting is killing your visibility.
+warning|bold|Never accept a job offer without asking this.
+warning|empathetic|This mindset is keeping you unemployed.
+warning|bold|Stop chasing job titles. Here's what matters.
+warning|tactical|Your resume headline is costing you interviews.
+warning|bold|Warning: These "hot tips" don't work anymore.
+warning|empathetic|You're networking wrong. Here's how to fix it.
+warning|bold|Never do this after an interview.
+warning|tactical|This email mistake makes you look desperate.
+warning|bold|If your job search is failing, check this first.
+warning|empathetic|Stop waiting for the "right time" to switch jobs.
+warning|bold|Warning: Job boards are not on your side.
+warning|tactical|Don't connect with recruiters like this.
+warning|bold|Never ask for a referral this way.
+warning|empathetic|This belief is holding your career back.
+warning|bold|Stop doing these things on LinkedIn.
+warning|tactical|Your "About" section is turning off recruiters.
+warning|bold|Warning: You're competing against yourself.
+warning|empathetic|These job search myths are keeping you stuck.
+
+# ADDITIONAL STAT HOOKS
+stat|bold|Companies with referral programs have 46% lower turnover.
+stat|data-driven|Referred candidates start 29% faster than other hires.
+stat|inspirational|A single referral is worth 100 applications.
+stat|bold|Only 1 in 100 cold applications leads to a job.
+stat|data-driven|Referral hires have 25% higher profit margins.
+stat|tactical|The average recruiter looks at a resume for 7.4 seconds.
+stat|bold|82% of employers rate referrals as the best ROI source.
+stat|data-driven|Networking accounts for 60-80% of all jobs.
+stat|inspirational|People with strong networks earn 10-20% more.
+stat|bold|The hidden job market makes up 70% of all opportunities.
+stat|data-driven|Internal mobility increases retention by 81%.
+stat|tactical|Jobs posted online receive 250 applications on average.
+stat|bold|Only 27% of employees are actively referred by their company.
+stat|data-driven|Referral programs reduce cost-per-hire by $3,000.
+stat|inspirational|75% of professionals say networking is important for success.
+
+# ADDITIONAL QUESTION HOOKS
+question|bold|Why do some people seem to get hired effortlessly?
+question|empathetic|What if your network is smaller than you think?
+question|tactical|Are you underselling yourself in interviews?
+question|inspirational|What's stopping you from reaching out to your dream company?
+question|controversial|Why are you still competing in the application pile?
+question|bold|Is your job search a sprint or a strategy?
+question|empathetic|Do you know why companies really hire?
+question|tactical|Are you following up the right way?
+question|inspirational|What would happen if you asked for help?
+question|controversial|Why haven't you asked for a referral yet?
+question|bold|What if the job market isn't the problem?
+question|empathetic|Are you measuring the wrong job search metrics?
+question|tactical|Do you know your interview weak spots?
+question|inspirational|What's the best career advice you've ignored?
+question|controversial|Why is everyone else getting offers except you?
+
+# ADDITIONAL CONTROVERSY HOOKS
+controversy|bold|You're not unemployed. You're under-networked.
+controversy|controversial|Hustling harder won't get you a job.
+controversy|bold|Skills don't get you hired. Visibility does.
+controversy|controversial|Most interview prep is counterproductive.
+controversy|bold|Your online presence matters more than your resume.
+controversy|controversial|Job searching alone is the slowest path.
+controversy|bold|The hiring process isn't fair. Win anyway.
+controversy|controversial|"Dream jobs" don't exist until you create them.
+controversy|bold|Your biggest competition isn't who you think.
+controversy|controversial|Companies don't hire the most qualified.
+controversy|bold|Following instructions keeps you unemployed.
+controversy|controversial|Job searching is a skill. Most people are terrible at it.
+controversy|bold|Waiting for opportunities is career suicide.
+controversy|controversial|Your network is your only real insurance.
+controversy|bold|The job market rewards boldness, not patience.
+
+# ADDITIONAL STORY HOOKS
+story|inspirational|A rejected candidate turned into our best hire.
+story|storytelling|The LinkedIn DM that bypassed the entire hiring process.
+story|empathetic|After 2 years of searching, he found his path.
+story|inspirational|She didn't have experience, but she had strategy.
+story|storytelling|One networking event changed his career trajectory.
+story|empathetic|The job search that taught me everything I know.
+story|inspirational|From intern to executive: the unconventional path.
+story|storytelling|A simple question led to a $30K salary increase.
+story|empathetic|When everything changed in my career search.
+story|inspirational|The advice that finally made job searching click.
+story|storytelling|How helping others led to my dream opportunity.
+story|empathetic|The career pivot that everyone said was impossible.
+story|inspirational|From overlooked to sought-after: one mindset shift.
+story|storytelling|The referral chain that spanned three companies.
+story|empathetic|I learned more from rejection than success.
+
+# ADDITIONAL LIST HOOKS
+list|bold|6 things that make referrals irresistible.
+list|tactical|The 4-part formula for networking messages.
+list|inspirational|5 career decisions you won't regret.
+list|bold|3 ways to become unforgettable to hiring managers.
+list|tactical|7 LinkedIn profile fixes in under 10 minutes.
+list|inspirational|4 uncomfortable truths about job searching.
+list|bold|5 negotiation phrases that increase offers.
+list|tactical|The 3-email follow-up sequence that works.
+list|inspirational|5 signs you're closer than you think.
+list|bold|4 conversations that lead to job offers.
+list|tactical|6 questions to ask your network.
+list|inspirational|3 ways to stand out in any market.
+list|bold|5 things every referred candidate does.
+list|tactical|The 4 phases of a successful job search.
+list|inspirational|3 risks that accelerate your career.
+
+# ADDITIONAL MYTH HOOKS
+myth|bold|Myth: Introverts can't network.
+myth|controversial|Myth: You need a personal brand.
+myth|bold|Myth: Senior roles are always external hires.
+myth|controversial|Myth: Rejected means unqualified.
+myth|bold|Myth: Companies will train you.
+myth|controversial|Myth: Just be patient with your job search.
+myth|bold|Myth: All recruiters are the same.
+myth|controversial|Myth: Salary is non-negotiable.
+myth|bold|Myth: Experience can't be substituted.
+myth|controversial|Myth: One good interview is enough.
+myth|bold|Myth: Certifications guarantee jobs.
+myth|controversial|Myth: Job hopping looks bad.
+myth|bold|Myth: Companies read cover letters.
+myth|controversial|Myth: The best time to job search is when you're unemployed.
+myth|bold|Myth: You need permission to switch careers.
+
+# ADDITIONAL SECRET HOOKS
+secret|bold|The one thing every successful job seeker does.
+secret|tactical|How top companies actually source candidates.
+secret|inspirational|The psychology behind getting referrals.
+secret|bold|What really happens after you hit "apply."
+secret|tactical|The back-channel reference check explained.
+secret|inspirational|How to engineer career luck.
+secret|bold|The real reason some candidates always get chosen.
+secret|tactical|How hiring managers make decisions.
+secret|inspirational|The networking principle nobody talks about.
+secret|bold|What "culture fit" actually means.
+secret|tactical|How to find unadvertised opportunities.
+secret|inspirational|The secret to building genuine connections.
+secret|bold|What your interviewer is really thinking.
+secret|tactical|The art of the subtle referral request.
+secret|inspirational|How to become the candidate they can't forget.
+
+# ADDITIONAL WARNING HOOKS
+warning|bold|Don't accept that job offer before reading this.
+warning|tactical|Your application is getting filtered. Here's why.
+warning|empathetic|This job search belief is holding you back.
+warning|bold|If you're doing this, stop immediately.
+warning|tactical|These resume keywords trigger instant rejection.
+warning|empathetic|Your approach is making you invisible.
+warning|bold|Warning: This common advice backfires.
+warning|tactical|Never send this type of follow-up.
+warning|empathetic|Stop waiting for permission to apply.
+warning|bold|These interview answers are red flags.
+warning|tactical|Your timing might be killing your chances.
+warning|empathetic|This fear is costing you opportunities.
+warning|bold|Don't fall for these job search scams.
+warning|tactical|Your profile picture might be hurting you.
+warning|empathetic|Stop letting rejection define you.
+
+# REFERRAL-SPECIFIC HOOKS
+stat|bold|A single referral beats 1000 applications.
+question|inspirational|What if asking for a referral wasn't awkward?
+controversy|bold|Referrals aren't about who you know. They're about who knows you.
+story|storytelling|How a stranger's referral changed my career.
+list|tactical|5 ways to ask for a referral without being pushy.
+myth|bold|Myth: You need to know someone personally to get referred.
+secret|tactical|The psychology behind why referrals work.
+warning|bold|Never ask for a referral like this.
+stat|data-driven|Referred candidates receive offers 40% faster.
+question|empathetic|Why are you afraid to ask for referrals?
+controversy|controversial|You don't find referrals. You earn them.
+story|inspirational|The referral that came from a complete stranger.
+list|bold|3 referral templates that actually get responses.
+myth|controversial|Myth: Asking for referrals is unprofessional.
+secret|inspirational|How to make people want to refer you.
+warning|empathetic|Stop asking for referrals the wrong way.
+stat|bold|Companies fill 40% of roles through referrals.
+question|bold|What's stopping you from being someone's referral?
+controversy|bold|The referral economy is the real job market.
+story|empathetic|I gave a referral to someone I barely knew. It changed both our lives.
+
+# LINKEDIN-SPECIFIC HOOKS
+stat|tactical|Profiles with photos get 21x more views.
+question|bold|Is your LinkedIn working for you or against you?
+controversy|bold|Your LinkedIn headline is costing you opportunities.
+list|tactical|7 LinkedIn mistakes killing your visibility.
+secret|tactical|How to appear in recruiter searches.
+warning|bold|These LinkedIn habits make you look desperate.
+stat|data-driven|87% of recruiters use LinkedIn to find candidates.
+question|empathetic|When did you last update your LinkedIn?
+controversy|controversial|LinkedIn connections mean nothing without strategy.
+list|bold|5 ways to make recruiters come to you.
+secret|inspirational|The LinkedIn algorithm, explained.
+warning|tactical|Don't do this on your LinkedIn profile.
+stat|bold|Complete profiles are 40x more likely to receive opportunities.
+question|tactical|Does your LinkedIn tell a story?
+controversy|bold|LinkedIn is not a resume. Stop treating it like one.
+
+# INTERVIEW-SPECIFIC HOOKS
+stat|data-driven|The first 90 seconds decide most interviews.
+question|empathetic|What's your interview weak spot?
+controversy|bold|The best interviews feel like conversations.
+story|storytelling|The interview answer that got me the job.
+list|tactical|5 questions you should always ask.
+myth|bold|Myth: You should have all the answers.
+secret|tactical|What interviewers actually evaluate.
+warning|bold|These phrases kill your chances.
+stat|bold|Body language accounts for 55% of communication.
+question|bold|Are you preparing for the wrong questions?
+controversy|controversial|Interviewing is not about performance.
+story|empathetic|The worst interview of my life taught me everything.
+list|inspirational|4 mindset shifts for confident interviews.
+myth|controversial|Myth: Interviews are about technical skills.
+secret|inspirational|How to make interviewers root for you.
+
+# SALARY NEGOTIATION HOOKS
+stat|bold|Negotiating can add $500K to your lifetime earnings.
+question|empathetic|Are you leaving money on the table?
+controversy|bold|Companies expect you to negotiate.
+story|inspirational|How I negotiated a 40% higher offer.
+list|tactical|5 phrases that increase your offer.
+myth|bold|Myth: Negotiating will cost you the job.
+secret|tactical|What companies can actually afford.
+warning|bold|Never say this during negotiation.
+stat|data-driven|Only 39% of workers negotiate their salary.
+question|bold|What's your number really worth?
+controversy|controversial|You're being underpaid. Here's proof.
+story|storytelling|The negotiation email that changed everything.
+list|bold|3 moves to negotiate without fear.
+myth|controversial|Myth: First offers are final offers.
+secret|inspirational|The psychology of successful negotiation.
+
+# CAREER CHANGE HOOKS
+stat|bold|The average person changes careers 5-7 times.
+question|inspirational|What career would you pursue with no fear?
+controversy|bold|It's never too late to pivot.
+story|storytelling|From lawyer to developer at 40.
+list|tactical|5 steps to a successful career pivot.
+myth|bold|Myth: You need to start over.
+secret|inspirational|How to position your transferable skills.
+warning|empathetic|This fear is keeping you stuck.
+stat|data-driven|49% of workers have made a dramatic career shift.
+question|empathetic|What's your career change really about?
+controversy|controversial|Your current job is preparing you for the next one.
+story|empathetic|The career change everyone told me was crazy.
+list|inspirational|4 signs you're ready for something new.
+myth|controversial|Myth: Career changes are risky.
+secret|tactical|How to tell your story as a career changer.
+
+# REMOTE WORK HOOKS
+stat|bold|Remote workers report 57% higher job satisfaction.
+question|bold|Is remote work dying or evolving?
+controversy|controversial|Remote jobs are harder to get. But worth it.
+story|inspirational|How I negotiated fully remote for an on-site role.
+list|tactical|5 ways to find legitimate remote jobs.
+myth|bold|Myth: Remote jobs pay less.
+secret|tactical|Where companies actually post remote roles.
+warning|bold|These "remote" jobs are actually hybrid.
+stat|data-driven|74% of companies plan to maintain remote options.
+question|empathetic|What does remote work really mean for your career?
+controversy|bold|The return to office is about control, not productivity.
+story|storytelling|Landing a remote job in a competitive market.
+list|bold|4 red flags in remote job postings.
+myth|controversial|Myth: You can't build relationships remotely.
+secret|inspirational|The future of work is flexible.
+
+# LAYOFF RECOVERY HOOKS
+stat|data-driven|Laid off workers take an average of 3 months to find work.
+question|empathetic|How do you move forward after a layoff?
+controversy|bold|Layoffs say nothing about your value.
+story|inspirational|From layoff to dream job in 6 weeks.
+list|tactical|5 things to do immediately after a layoff.
+myth|bold|Myth: Layoffs look bad on your resume.
+secret|empathetic|What companies are actually looking for post-layoff.
+warning|bold|Don't make these post-layoff mistakes.
+stat|bold|Laid-off employees often land better opportunities.
+question|inspirational|What if this layoff is your opportunity?
+controversy|controversial|Mass layoffs are rarely about performance.
+story|empathetic|The layoff that became my turning point.
+list|inspirational|4 ways to reframe a layoff.
+myth|controversial|Myth: You need to hide your layoff.
+secret|tactical|How to discuss layoffs in interviews.
+
+# NETWORKING HOOKS
+stat|bold|85% of jobs come through networking.
+question|bold|Are you networking or just connecting?
+controversy|bold|Networking is not about collecting contacts.
+story|inspirational|How one conversation changed my career trajectory.
+list|tactical|5 networking habits of successful people.
+myth|bold|Myth: Introverts can't network effectively.
+secret|tactical|The art of the networking follow-up.
+warning|bold|These networking behaviors turn people off.
+stat|data-driven|70% of people are hired at companies where they have connections.
+question|empathetic|Does networking feel uncomfortable?
+controversy|controversial|Networking is relationship building. Nothing more.
+story|storytelling|The networking strategy that landed me 3 offers.
+list|inspirational|4 ways to network without being salesy.
+myth|controversial|Myth: Networking events are the best way to network.
+secret|inspirational|How to become someone worth knowing.
+
+# RECRUITER INSIGHTS HOOKS
+stat|bold|Recruiters review a resume in 7.4 seconds on average.
+question|tactical|Do you know what recruiters actually search for?
+controversy|bold|Recruiters don't find the best candidates. Visible ones.
+story|storytelling|What I learned working with recruiters.
+list|tactical|5 things to never tell a recruiter.
+myth|bold|Myth: Recruiters work for candidates.
+secret|tactical|How recruiter incentives actually work.
+warning|bold|Don't trust every recruiter equally.
+stat|data-driven|83% of recruiters use LinkedIn daily.
+question|empathetic|Are recruiters ignoring you?
+controversy|controversial|External recruiters vs. internal recruiters: know the difference.
+story|empathetic|The recruiter tip that changed my search.
+list|bold|4 ways to get on a recruiter's radar.
+myth|controversial|Myth: Recruiters have your best interest.
+secret|inspirational|How to build relationships with recruiters.
+
+# RESUME HOOKS
+stat|bold|Your resume has 6 seconds to make an impression.
+question|tactical|Is your resume ATS-optimized?
+controversy|bold|Your resume isn't why you're not getting hired.
+list|tactical|7 resume fixes that take 5 minutes.
+myth|bold|Myth: Perfect resumes get jobs.
+secret|tactical|What ATS systems actually scan for.
+warning|bold|These resume mistakes trigger instant rejection.
+stat|data-driven|75% of resumes are rejected by ATS before humans see them.
+question|bold|When did you last update your resume?
+controversy|controversial|Resumes are table stakes, not differentiators.
+story|storytelling|The resume change that doubled my callbacks.
+list|bold|5 sections every resume needs.
+myth|controversial|Myth: One-page resumes are mandatory.
+secret|inspirational|How to make your resume unforgettable.
+warning|tactical|Stop using these outdated resume formats.
+
+# MOTIVATION/MINDSET HOOKS
+question|inspirational|What would you attempt if you knew you couldn't fail?
+story|empathetic|The job search that taught me resilience.
+controversy|bold|Confidence is a skill, not a trait.
+list|inspirational|4 mindset shifts for career breakthroughs.
+myth|bold|Myth: Successful people don't face rejection.
+secret|inspirational|The mindset of top performers.
+warning|empathetic|Self-doubt is keeping you stuck.
+question|bold|What story are you telling yourself?
+story|inspirational|From imposter syndrome to industry leader.
+controversy|controversial|Comfort zones are career killers.
+list|bold|5 fears holding you back from success.
+myth|controversial|Myth: Hard work alone leads to success.
+secret|empathetic|How to overcome job search burnout.
+warning|bold|Don't let fear make decisions for you.
+story|storytelling|The rejection that made me stronger.
+
+# AI AND FUTURE OF WORK HOOKS
+stat|bold|AI will impact 85 million jobs by 2025.
+question|bold|Is AI your competition or your advantage?
+controversy|controversial|AI won't replace you. Someone using AI will.
+list|tactical|5 AI tools every job seeker should use.
+myth|bold|Myth: AI hiring is unbeatable.
+secret|tactical|How to optimize your profile for AI screening.
+warning|bold|Ignoring AI in your job search is a mistake.
+stat|data-driven|67% of hiring managers use AI tools.
+question|inspirational|How are you preparing for the future of work?
+controversy|bold|The jobs of the future don't exist yet.
+story|storytelling|How I used AI to land my job faster.
+list|bold|4 skills AI can't replace.
+myth|controversial|Myth: AI makes hiring more fair.
+secret|inspirational|How to stand out in an AI-driven market.
+warning|tactical|These AI resume scanners are changing everything.
+
+# COMPANY CULTURE HOOKS
+question|bold|Do you know what you're really looking for?
+controversy|bold|Culture fit is code for something else.
+list|tactical|5 questions to uncover real company culture.
+myth|bold|Myth: Perks equal good culture.
+secret|tactical|How to research company culture before applying.
+warning|bold|These Glassdoor red flags matter.
+stat|data-driven|46% of new hires fail within 18 months due to culture mismatch.
+question|empathetic|Are you chasing titles or fulfillment?
+controversy|controversial|Company culture is set at the top.
+story|storytelling|The job I left because of culture.
+list|inspirational|4 signs of a toxic workplace.
+myth|controversial|Myth: You'll fit in anywhere.
+secret|empathetic|How to ask about culture without being obvious.
+warning|empathetic|Don't ignore these workplace warning signs.
+story|inspirational|Finding a culture that matched my values.
+
+# FINAL SECTION - MIXED HIGH-PERFORMERS
+stat|bold|The top 1% of job seekers don't apply—they get found.
+question|inspirational|What would your dream career actually look like?
+controversy|bold|Playing by the rules keeps you average.
+story|storytelling|The unconventional path to my current role.
+list|tactical|The 5-step job search framework that works.
+myth|bold|Myth: There's one right way to job search.
+secret|inspirational|What the most hireable people do differently.
+warning|bold|This one mistake extends your job search by months.
+stat|data-driven|Candidates who follow up are 22% more likely to hear back.
+question|bold|Are you job searching or career building?
+controversy|controversial|Loyalty doesn't pay. Positioning does.
+story|empathetic|The career risk that paid off.
+list|inspirational|3 truths about getting hired no one tells you.
+myth|controversial|Myth: Good things come to those who wait.
+secret|tactical|The morning routine of successful job seekers.
+warning|empathetic|Your comfort zone is your biggest obstacle.
+stat|bold|Passive candidates make up 70% of the workforce.
+question|tactical|What makes you memorable?
+controversy|bold|Job security is a myth. Career security isn't.
+story|inspirational|From overlooked to overbooked: my career shift.

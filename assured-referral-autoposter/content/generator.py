@@ -130,13 +130,17 @@ NO text in the image. NO people's faces. Just atmospheric backgrounds.
 """
 
 
-def generate_content(num_slides: int = 5) -> dict:
+def generate_content(num_slides: int = 5, brief: dict = None) -> dict:
     """
-    Generate carousel content for today's theme.
+    Generate carousel content for today's theme or from a research brief.
     Returns structured content with slide text, image prompts, and captions.
+
+    Args:
+        num_slides: Number of slides to generate (3-6)
+        brief: Optional content brief from research.synthesizer.synthesize_brief()
+               If provided, uses brief's hook, keywords, and tone.
     """
     num_slides = max(3, min(6, num_slides))
-    theme = get_todays_theme()
 
     client = AzureOpenAI(
         api_key=Config.AZURE_OPENAI_API_KEY,
@@ -144,7 +148,14 @@ def generate_content(num_slides: int = 5) -> dict:
         api_version=Config.AZURE_OPENAI_API_VERSION,
     )
 
-    user_prompt = f"""Create a {num_slides}-slide carousel post about:
+    # Build prompt based on whether we have a research brief
+    if brief:
+        user_prompt = _build_brief_prompt(num_slides, brief)
+        system_content = _get_brief_system_prompt()
+    else:
+        # Fallback to original theme-based generation
+        theme = get_todays_theme()
+        user_prompt = f"""Create a {num_slides}-slide carousel post about:
 Theme: {theme['theme']}
 Angle: {theme['angle']}
 Hook style: {theme['hook_style']}
@@ -157,11 +168,12 @@ Remember:
 - Keep each slide to 20-40 words
 - Make it feel like advice from a mentor, not an ad
 """
+        system_content = SYSTEM_PROMPT
 
     response = client.chat.completions.create(
         model=Config.AZURE_OPENAI_CHAT_DEPLOYMENT,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_content},
             {"role": "user", "content": user_prompt}
         ],
         response_format={"type": "json_object"},
@@ -175,7 +187,89 @@ Remember:
     assert "slides" in content, "Missing 'slides' in response"
     assert len(content["slides"]) == num_slides, f"Expected {num_slides} slides, got {len(content['slides'])}"
 
+    # If brief provided, override hashtags with brief's hashtags
+    if brief and brief.get("hashtags"):
+        content["hashtags"] = brief["hashtags"]
+
     return content
+
+
+def _get_brief_system_prompt() -> str:
+    """System prompt for brief-driven content generation."""
+    return """You are a viral content creator for LinkedIn and Instagram carousels.
+You create content for AssuredReferral — a free tool that:
+- Helps job seekers connect directly with professionals and get referrals at their dream companies
+- Gives recruiters AI-powered screening that processes 10,000+ CVs instantly to find high-intent, interview-ready candidates
+- Rewards referrers with bonuses by matching them with candidates most likely to crack interviews
+- Uses AI to screen profiles and set up AI interviews
+
+Brand: AssuredReferral
+Tagline: "Get Referred. Get Hired. Get Rewarded."
+Website: assuredreferral.com
+
+RULES:
+1. Generate EXACTLY the number of slides requested (between 3 and 6)
+2. Slide 1 MUST use the EXACT hook_headline provided — do NOT modify it
+3. Middle slides deliver genuine value aligned with the carousel_angle
+4. Naturally incorporate the keywords_to_use in the content
+5. Match the specified tone throughout all slides
+6. Last slide is ALWAYS a soft CTA that ties content back to AssuredReferral naturally
+   - Never be salesy. Frame it as "here's a tool that does this" or "this is why we built AssuredReferral"
+   - Always include: "🔗 assuredreferral.com" and the tagline
+7. Tone: Match the specified tone. Short sentences. Use line breaks for impact.
+8. Each slide should have 20-40 words MAX
+9. Use emojis sparingly but effectively (1-2 per slide max)
+
+OUTPUT FORMAT (strict JSON):
+{
+  "slides": [
+    {"slide_number": 1, "text": "...", "image_prompt": "..."},
+    ...
+  ],
+  "caption": "LinkedIn/Instagram caption text",
+  "hashtags": ["#tag1", "#tag2", ...],
+  "youtube_title": "Short catchy title for YouTube Short",
+  "youtube_description": "Brief description with link"
+}
+
+For image_prompt: describe a clean, modern, professional background image.
+Think: abstract gradients, minimalist office scenes, tech-inspired patterns.
+NO text in the image. NO people's faces. Just atmospheric backgrounds.
+"""
+
+
+def _build_brief_prompt(num_slides: int, brief: dict) -> str:
+    """Build the user prompt from a research brief."""
+    keywords = ", ".join(brief.get("keywords_to_use", []))
+    hashtags = " ".join(brief.get("hashtags", []))
+
+    return f"""Create a {num_slides}-slide carousel post based on this research brief:
+
+TRENDING ANGLE: {brief.get('trending_angle', 'Career growth strategies')}
+
+HOOK HEADLINE (use EXACTLY on Slide 1): {brief.get('hook_headline', 'Your job search strategy needs an upgrade.')}
+
+HOOK TYPE: {brief.get('hook_type', 'question')}
+
+CAROUSEL ANGLE: {brief.get('carousel_angle', 'Job search strategies')}
+
+TONE: {brief.get('tone', 'inspirational')}
+
+KEYWORDS TO WEAVE IN: {keywords}
+
+WHY THIS WORKS TODAY: {brief.get('why_this_works_today', 'Timely and relevant')}
+
+Today's date: {date.today().isoformat()}
+
+CRITICAL INSTRUCTIONS:
+- Slide 1 MUST be the EXACT hook_headline provided above (you can add emoji)
+- Slides 2 to {num_slides - 1} = pure value content matching the carousel_angle
+- Slide {num_slides} = soft AssuredReferral CTA with website link
+- Naturally use the keywords in the content
+- Match the {brief.get('tone', 'inspirational')} tone throughout
+- Keep each slide to 20-40 words
+- Make it feel like advice from a mentor, not an ad
+"""
 
 
 def generate_content_batch(days: int = 7, slides_per_post: int = 5) -> list[dict]:
