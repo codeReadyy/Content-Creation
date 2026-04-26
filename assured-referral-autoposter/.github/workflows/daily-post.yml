@@ -23,6 +23,9 @@ jobs:
   generate-and-post:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: assured-referral-autoposter
 
     steps:
       - name: Checkout repo
@@ -33,6 +36,7 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: assured-referral-autoposter/requirements.txt
 
       - name: Install system dependencies
         run: |
@@ -49,13 +53,21 @@ jobs:
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
           AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
-          AZURE_OPENAI_DALLE_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DALLE_DEPLOYMENT }}
+          AZURE_OPENAI_IMAGE_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_IMAGE_DEPLOYMENT }}
+
+          # --- Image Generation ---
           IMAGE_PROVIDER: ${{ secrets.IMAGE_PROVIDER }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+
+          # --- Research Layer (OPTIONAL - falls back to defaults) ---
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
 
           # --- LinkedIn ---
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
-          LINKEDIN_ORG_ID: ${{ secrets.LINKEDIN_ORG_ID }}
 
           # --- YouTube ---
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
@@ -63,9 +75,9 @@ jobs:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
 
-          # --- Instagram (add when ready) ---
-          # INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          # INSTAGRAM_BUSINESS_ACCOUNT_ID: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}
+          # --- Brand ---
+          BRAND_NAME: AssuredReferral
+          BRAND_URL: https://assuredreferral.com
         run: python main.py
 
       - name: Upload daily output as artifact
@@ -73,5 +85,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: daily-output-${{ github.run_id }}
-          path: output/
+          path: assured-referral-autoposter/output/
           retention-days: 30
