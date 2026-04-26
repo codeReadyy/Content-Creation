@@ -27,7 +27,8 @@ def _headers(restli: bool = True) -> dict:
         "Content-Type": "application/json",
     }
     if restli:
-        h["LinkedIn-Version"] = "202401"
+        # Use latest stable API version (updated April 2025)
+        h["LinkedIn-Version"] = "202504"
         h["X-Restli-Protocol-Version"] = "2.0.0"
     return h
 
@@ -177,17 +178,93 @@ def exchange_code_for_token(code: str, client_id: str, client_secret: str,
     return resp.json()
 
 
-if __name__ == "__main__":
-    print("LinkedIn OAuth Helper")
+def test_linkedin_credentials() -> dict:
+    """
+    Test LinkedIn credentials by checking token validity and person URN.
+    Run: python -c "from publishers.linkedin import test_linkedin_credentials; test_linkedin_credentials()"
+    """
+    print("Testing LinkedIn Credentials...")
     print("=" * 40)
-    client_id = input("Enter your LinkedIn App Client ID: ")
-    auth_url = generate_auth_url(client_id)
-    print(f"\n1. Open this URL in your browser:\n{auth_url}")
-    print("\n2. Authorize the app and copy the 'code' from the redirect URL")
-    code = input("\n3. Paste the authorization code here: ")
-    client_secret = input("4. Enter your Client Secret: ")
 
-    token_data = exchange_code_for_token(code, client_id, client_secret)
-    print(f"\n✅ Access Token: {token_data['access_token']}")
-    print(f"   Expires in: {token_data.get('expires_in', 'unknown')} seconds")
-    print(f"\nAdd this to your .env file as LINKEDIN_ACCESS_TOKEN")
+    if not Config.LINKEDIN_ACCESS_TOKEN:
+        print("❌ LINKEDIN_ACCESS_TOKEN not set")
+        return {"error": "No access token"}
+
+    if not Config.LINKEDIN_PERSON_URN:
+        print("❌ LINKEDIN_PERSON_URN not set")
+        return {"error": "No person URN"}
+
+    print(f"✓ Access Token: {Config.LINKEDIN_ACCESS_TOKEN[:20]}...")
+    print(f"✓ Person URN: {Config.LINKEDIN_PERSON_URN}")
+
+    # Test 1: Check if token is valid by getting user info
+    print("\n1. Testing token validity...")
+    try:
+        resp = requests.get(
+            "https://api.linkedin.com/v2/userinfo",
+            headers={"Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}"},
+            timeout=10
+        )
+        if resp.status_code == 200:
+            user_info = resp.json()
+            print(f"   ✅ Token valid! User: {user_info.get('name', 'Unknown')}")
+            print(f"   ℹ️  Your person ID (sub): {user_info.get('sub')}")
+            expected_urn = f"urn:li:person:{user_info.get('sub')}"
+            if Config.LINKEDIN_PERSON_URN != expected_urn:
+                print(f"   ⚠️  URN mismatch! Expected: {expected_urn}")
+        else:
+            print(f"   ❌ Token invalid: {resp.status_code} - {resp.text}")
+            return {"error": f"Token invalid: {resp.status_code}"}
+    except Exception as e:
+        print(f"   ❌ Error: {e}")
+        return {"error": str(e)}
+
+    # Test 2: Try to initialize image upload (this tests posting permissions)
+    print("\n2. Testing posting permissions...")
+    try:
+        resp = requests.post(
+            f"{RESTLI_BASE}/images?action=initializeUpload",
+            headers=_headers(),
+            json={"initializeUploadRequest": {"owner": Config.LINKEDIN_PERSON_URN}},
+            timeout=10
+        )
+        if resp.status_code == 200:
+            print("   ✅ Posting permissions OK!")
+            return {"status": "success", "message": "All tests passed"}
+        else:
+            print(f"   ❌ Posting failed: {resp.status_code} - {resp.text}")
+            return {"error": f"Posting failed: {resp.status_code}"}
+    except Exception as e:
+        print(f"   ❌ Error: {e}")
+        return {"error": str(e)}
+
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        # Run: python publishers/linkedin.py test
+        test_linkedin_credentials()
+    else:
+        print("LinkedIn OAuth Helper")
+        print("=" * 40)
+        print("\nOptions:")
+        print("  python publishers/linkedin.py test  - Test your credentials")
+        print("  python publishers/linkedin.py       - Generate new token")
+        print()
+
+        choice = input("Generate new token? (y/n): ").lower()
+        if choice != 'y':
+            sys.exit(0)
+
+        client_id = input("Enter your LinkedIn App Client ID: ")
+        auth_url = generate_auth_url(client_id)
+        print(f"\n1. Open this URL in your browser:\n{auth_url}")
+        print("\n2. Authorize the app and copy the 'code' from the redirect URL")
+        code = input("\n3. Paste the authorization code here: ")
+        client_secret = input("4. Enter your Client Secret: ")
+
+        token_data = exchange_code_for_token(code, client_id, client_secret)
+        print(f"\n✅ Access Token: {token_data['access_token']}")
+        print(f"   Expires in: {token_data.get('expires_in', 'unknown')} seconds")
+        print(f"\nAdd this to your .env file as LINKEDIN_ACCESS_TOKEN")
