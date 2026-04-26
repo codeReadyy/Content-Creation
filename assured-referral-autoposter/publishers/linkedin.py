@@ -27,29 +27,98 @@ def _headers(restli: bool = True) -> dict:
         "Content-Type": "application/json",
     }
     if restli:
-        # Use latest stable API version (updated April 2025)
-        h["LinkedIn-Version"] = "202504"
+        # LinkedIn API version - use stable version
+        # See: https://learn.microsoft.com/en-us/linkedin/marketing/versioning
+        h["LinkedIn-Version"] = "202401"
         h["X-Restli-Protocol-Version"] = "2.0.0"
     return h
+
+
+def _check_api_version() -> str:
+    """Try to find a working API version."""
+    versions = ["202401", "202312", "202306", "202301"]
+
+    for version in versions:
+        headers = {
+            "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+            "LinkedIn-Version": version,
+            "X-Restli-Protocol-Version": "2.0.0"
+        }
+        try:
+            resp = requests.post(
+                f"{RESTLI_BASE}/images?action=initializeUpload",
+                headers=headers,
+                json={"initializeUploadRequest": {"owner": Config.LINKEDIN_PERSON_URN}},
+                timeout=10
+            )
+            if resp.status_code != 426:
+                return version
+        except:
+            pass
+    return "202401"
 
 
 def _register_image_upload(owner_urn: str) -> tuple[str, str]:
     """
     Register an image upload with LinkedIn.
     Returns (upload_url, image_urn).
+
+    Tries REST API first, falls back to legacy v2 API if needed.
     """
-    url = f"{RESTLI_BASE}/images?action=initializeUpload"
-    payload = {
+    # Try REST API (newer)
+    rest_url = f"{RESTLI_BASE}/images?action=initializeUpload"
+    rest_payload = {
         "initializeUploadRequest": {
             "owner": owner_urn
         }
     }
 
-    resp = requests.post(url, headers=_headers(), json=payload, timeout=30)
+    resp = requests.post(rest_url, headers=_headers(), json=rest_payload, timeout=30)
+
+    # If REST API fails with 426, try legacy v2 API
+    if resp.status_code == 426:
+        print("  ℹ️  REST API unavailable, trying legacy API...")
+        return _register_image_upload_legacy(owner_urn)
+
     resp.raise_for_status()
     data = resp.json()["value"]
-
     return data["uploadUrl"], data["image"]
+
+
+def _register_image_upload_legacy(owner_urn: str) -> tuple[str, str]:
+    """
+    Legacy v2 API for image upload registration.
+    Used when REST API returns 426.
+    """
+    url = f"{API_BASE}/assets?action=registerUpload"
+
+    payload = {
+        "registerUploadRequest": {
+            "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+            "owner": owner_urn,
+            "serviceRelationships": [
+                {
+                    "relationshipType": "OWNER",
+                    "identifier": "urn:li:userGeneratedContent"
+                }
+            ]
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+    resp = requests.post(url, headers=headers, json=payload, timeout=30)
+    resp.raise_for_status()
+
+    data = resp.json()["value"]
+    upload_url = data["uploadMechanism"]["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"]["uploadUrl"]
+    asset_urn = data["asset"]
+
+    return upload_url, asset_urn
 
 
 def _upload_image(upload_url: str, image_path: Path) -> None:
@@ -68,10 +137,11 @@ def _create_carousel_post(owner_urn: str, image_urns: list[str],
                            caption: str) -> dict:
     """
     Create a multi-image (carousel) post on LinkedIn.
+    Tries REST API first, falls back to UGC API if needed.
     """
+    # Try REST API first
     url = f"{RESTLI_BASE}/posts"
 
-    # Build image array for carousel
     images = []
     for i, urn in enumerate(image_urns):
         images.append({
@@ -97,12 +167,64 @@ def _create_carousel_post(owner_urn: str, image_urns: list[str],
         "isReshareDisabledByAuthor": False
     }
 
-
     resp = requests.post(url, headers=_headers(), json=post_body, timeout=30)
+
+    # If REST API fails with 426, try legacy UGC API
+    if resp.status_code == 426:
+        print("  ℹ️  REST Posts API unavailable, trying UGC API...")
+        return _create_ugc_post(owner_urn, image_urns, caption)
+
     resp.raise_for_status()
 
     post_urn = resp.headers.get("x-restli-id", "unknown")
     return {"status": "published", "post_urn": post_urn}
+
+
+def _create_ugc_post(owner_urn: str, image_urns: list[str], caption: str) -> dict:
+    """
+    Create post using legacy UGC (User Generated Content) API.
+    """
+    url = f"{API_BASE}/ugcPosts"
+
+    # Build media array
+    media = []
+    for i, urn in enumerate(image_urns):
+        media.append({
+            "status": "READY",
+            "media": urn,
+            "title": {
+                "text": f"Slide {i + 1}"
+            }
+        })
+
+    post_body = {
+        "author": owner_urn,
+        "lifecycleState": "PUBLISHED",
+        "specificContent": {
+            "com.linkedin.ugc.ShareContent": {
+                "shareCommentary": {
+                    "text": caption
+                },
+                "shareMediaCategory": "IMAGE",
+                "media": media
+            }
+        },
+        "visibility": {
+            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+        "X-Restli-Protocol-Version": "2.0.0"
+    }
+
+    resp = requests.post(url, headers=headers, json=post_body, timeout=30)
+    resp.raise_for_status()
+
+    post_id = resp.json().get("id", "unknown")
+    return {"status": "published", "post_urn": post_id}
 
 
 def post_carousel(slide_paths: list[Path], caption: str) -> dict:
@@ -181,17 +303,17 @@ def exchange_code_for_token(code: str, client_id: str, client_secret: str,
 def test_linkedin_credentials() -> dict:
     """
     Test LinkedIn credentials by checking token validity and person URN.
-    Run: python -c "from publishers.linkedin import test_linkedin_credentials; test_linkedin_credentials()"
+    Run: cd assured-referral-autoposter && PYTHONPATH=. python publishers/linkedin.py test
     """
     print("Testing LinkedIn Credentials...")
-    print("=" * 40)
+    print("=" * 50)
 
     if not Config.LINKEDIN_ACCESS_TOKEN:
-        print("❌ LINKEDIN_ACCESS_TOKEN not set")
+        print("❌ LINKEDIN_ACCESS_TOKEN not set in .env")
         return {"error": "No access token"}
 
     if not Config.LINKEDIN_PERSON_URN:
-        print("❌ LINKEDIN_PERSON_URN not set")
+        print("❌ LINKEDIN_PERSON_URN not set in .env")
         return {"error": "No person URN"}
 
     print(f"✓ Access Token: {Config.LINKEDIN_ACCESS_TOKEN[:20]}...")
@@ -211,7 +333,9 @@ def test_linkedin_credentials() -> dict:
             print(f"   ℹ️  Your person ID (sub): {user_info.get('sub')}")
             expected_urn = f"urn:li:person:{user_info.get('sub')}"
             if Config.LINKEDIN_PERSON_URN != expected_urn:
-                print(f"   ⚠️  URN mismatch! Expected: {expected_urn}")
+                print(f"   ⚠️  URN mismatch!")
+                print(f"      Current:  {Config.LINKEDIN_PERSON_URN}")
+                print(f"      Expected: {expected_urn}")
         else:
             print(f"   ❌ Token invalid: {resp.status_code} - {resp.text}")
             return {"error": f"Token invalid: {resp.status_code}"}
@@ -219,8 +343,9 @@ def test_linkedin_credentials() -> dict:
         print(f"   ❌ Error: {e}")
         return {"error": str(e)}
 
-    # Test 2: Try to initialize image upload (this tests posting permissions)
-    print("\n2. Testing posting permissions...")
+    # Test 2: Try REST API for image upload
+    print("\n2. Testing REST API (images)...")
+    rest_works = False
     try:
         resp = requests.post(
             f"{RESTLI_BASE}/images?action=initializeUpload",
@@ -229,14 +354,62 @@ def test_linkedin_credentials() -> dict:
             timeout=10
         )
         if resp.status_code == 200:
-            print("   ✅ Posting permissions OK!")
-            return {"status": "success", "message": "All tests passed"}
+            print("   ✅ REST API works!")
+            rest_works = True
+        elif resp.status_code == 426:
+            print("   ⚠️  REST API returned 426 (Upgrade Required)")
+            print("      This usually means your app needs different products.")
+            print("      Trying legacy API...")
         else:
-            print(f"   ❌ Posting failed: {resp.status_code} - {resp.text}")
-            return {"error": f"Posting failed: {resp.status_code}"}
+            print(f"   ⚠️  REST API: {resp.status_code} - {resp.text[:100]}")
     except Exception as e:
-        print(f"   ❌ Error: {e}")
-        return {"error": str(e)}
+        print(f"   ⚠️  REST API error: {e}")
+
+    # Test 3: Try legacy v2 API
+    if not rest_works:
+        print("\n3. Testing Legacy v2 API (assets)...")
+        try:
+            resp = requests.post(
+                f"{API_BASE}/assets?action=registerUpload",
+                headers={
+                    "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "registerUploadRequest": {
+                        "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+                        "owner": Config.LINKEDIN_PERSON_URN,
+                        "serviceRelationships": [{
+                            "relationshipType": "OWNER",
+                            "identifier": "urn:li:userGeneratedContent"
+                        }]
+                    }
+                },
+                timeout=10
+            )
+            if resp.status_code == 200:
+                print("   ✅ Legacy API works! Pipeline will use this.")
+                return {"status": "success", "api": "legacy"}
+            else:
+                print(f"   ❌ Legacy API failed: {resp.status_code}")
+                print(f"      Response: {resp.text[:200]}")
+        except Exception as e:
+            print(f"   ❌ Legacy API error: {e}")
+
+        print("\n" + "=" * 50)
+        print("TROUBLESHOOTING:")
+        print("=" * 50)
+        print("1. Go to: https://www.linkedin.com/developers/apps")
+        print("2. Select your app")
+        print("3. Go to 'Products' tab")
+        print("4. Ensure these are added:")
+        print("   - 'Share on LinkedIn'")
+        print("   - 'Sign In with LinkedIn using OpenID Connect'")
+        print("5. After adding products, generate a NEW access token")
+        print("=" * 50)
+        return {"error": "Both APIs failed"}
+
+    return {"status": "success", "api": "rest"}
 
 
 if __name__ == "__main__":
