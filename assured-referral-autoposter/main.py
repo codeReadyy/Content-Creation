@@ -37,6 +37,7 @@ from slides.builder import build_carousel, slides_to_video, slides_to_pdf
 from publishers.linkedin import post_carousel as linkedin_post
 from publishers.youtube import upload_short as youtube_upload
 from publishers.instagram import post_carousel as instagram_post
+from publishers.telegram_notifier import notify_pipeline_result
 
 
 # Logging
@@ -343,6 +344,14 @@ def main():
         use_ai_images=not args.no_ai_images,
         use_research=not args.no_research
     )
+
+    # Send Telegram notification
+    print("\n📱 Sending Telegram notification...")
+    notify_result = notify_pipeline_result(results)
+    if "error" in notify_result:
+        print(f"  ⚠️  Telegram: {notify_result['error']}")
+    else:
+        print("  ✅ Telegram notification sent!")
 
     if "error" in str(results.get("stages", {})):
         sys.exit(1)

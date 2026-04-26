@@ -51,6 +51,10 @@ class Config:
     BRAND_URL = os.getenv("BRAND_URL", "https://assuredreferral.com")
     BRAND_TAGLINE = "Get Referred. Get Hired. Get Rewarded."
 
+    # --- Telegram Notifications ---
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+
     # --- Content ---
     POSTING_TIME = os.getenv("POSTING_TIME", "10:00")
     CONTENT_NICHE = os.getenv("CONTENT_NICHE", "business_startup")
