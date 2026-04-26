@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config.settings import Config
 from content.generator import generate_content, get_todays_theme
-from slides.builder import build_carousel, slides_to_video
+from slides.builder import build_carousel, slides_to_video, slides_to_pdf
 from publishers.linkedin import post_carousel as linkedin_post
 from publishers.youtube import upload_short as youtube_upload
 from publishers.instagram import post_carousel as instagram_post
@@ -201,6 +201,11 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
         results["stages"]["slide_generation"] = "success"
         results["slide_paths"] = [str(p) for p in slide_paths]
         print(f"\n  ✅ {len(slide_paths)} slides built!")
+
+        # Generate PDF for LinkedIn carousel
+        pdf_path = slides_to_pdf(slide_paths)
+        if pdf_path:
+            results["pdf_path"] = str(pdf_path)
 
     except Exception as e:
         logger.error(f"Slide generation failed: {e}")

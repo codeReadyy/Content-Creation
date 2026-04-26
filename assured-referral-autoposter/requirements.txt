@@ -5,3 +5,7 @@ Pillow>=10.0.0
 python-dotenv>=1.0.0
 moviepy>=2.0.0        # For YouTube Shorts video generation (v2.x API, NOT 1.x)
 schedule>=1.2.0       # Optional: for local scheduler (alternative to GitHub Actions)
+
+# Research layer dependencies
+pytrends>=4.9.0       # Google Trends data (no API key needed)
+praw>=7.7.0           # Reddit API wrapper (requires Reddit app credentials)

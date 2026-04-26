@@ -1,8 +1,10 @@
 """
 Content Brief Synthesizer — uses GPT-4o to turn research signals into a structured content brief.
-Selects the best matching viral hook from hooks/viral_hooks.txt based on trending angle.
+Selects the best matching viral hook from hooks/1000_hooks_categorized.csv based on trending angle.
+GPT-4o fills in the hook placeholders with relevant content.
 """
 
+import csv
 import json
 import logging
 import random
@@ -15,60 +17,126 @@ from config.settings import Config
 
 logger = logging.getLogger(__name__)
 
-# Path to viral hooks database
-HOOKS_FILE = Path(__file__).parent.parent / "hooks" / "viral_hooks.txt"
+# Path to viral hooks CSV database
+HOOKS_CSV_FILE = Path(__file__).parent.parent / "hooks" / "1000_hooks_categorized.csv"
+
+# Category mapping: maps trending signals/themes to hook categories
+# This helps select the most appropriate hook type based on content
+CATEGORY_MAPPING = {
+    # Trending themes -> Best hook categories
+    "referral": ["Educational", "Authority", "Listicle"],
+    "interview": ["Educational", "Listicle", "Authority"],
+    "salary": ["Money", "Controversial", "Educational"],
+    "negotiation": ["Money", "Authority", "Educational"],
+    "resume": ["Educational", "Listicle", "Controversial"],
+    "networking": ["Educational", "Relatable", "Authority"],
+    "layoff": ["Relatable", "Educational", "Controversial"],
+    "remote": ["Controversial", "Listicle", "Curiosity"],
+    "job search": ["Educational", "Relatable", "Listicle"],
+    "career change": ["Relatable", "Educational", "Curiosity"],
+    "hiring": ["Authority", "Curiosity", "Educational"],
+    "recruiter": ["Controversial", "Curiosity", "Authority"],
+    "linkedin": ["Educational", "Listicle", "Authority"],
+    "ai": ["Curiosity", "Educational", "Controversial"],
+    "skills": ["Educational", "Listicle", "Authority"],
+
+    # Sentiment signals -> Hook categories
+    "high_frustration": ["Relatable", "Controversial", "Educational"],
+    "success_stories_trending": ["Authority", "Curiosity", "Relatable"],
+    "advice_seeking": ["Educational", "Listicle", "Authority"],
+
+    # Content angles -> Hook categories
+    "tactical_tips": ["Educational", "Listicle", "Authority"],
+    "interview_mastery": ["Educational", "Listicle", "Authority"],
+    "referral_power": ["Educational", "Authority", "Curiosity"],
+    "empathy_and_solutions": ["Relatable", "Educational", "Listicle"],
+    "success_transformation": ["Relatable", "Curiosity", "Authority"],
+    "salary_negotiation": ["Money", "Educational", "Authority"],
+    "layoff_recovery": ["Relatable", "Educational", "Curiosity"],
+    "remote_work": ["Controversial", "Educational", "Listicle"],
+}
 
 
-def load_hooks() -> list[dict]:
+def load_hooks_csv() -> dict[str, list[str]]:
     """
-    Load viral hooks from the hooks database file.
-    Returns list of dicts with type, tone, and hook text.
+    Load viral hooks from the CSV database.
+    Returns dict mapping category -> list of hook templates.
     """
-    hooks = []
+    hooks_by_category = {}
 
-    if not HOOKS_FILE.exists():
-        logger.warning(f"Hooks file not found: {HOOKS_FILE}")
-        return hooks
+    if not HOOKS_CSV_FILE.exists():
+        logger.warning(f"Hooks CSV file not found: {HOOKS_CSV_FILE}")
+        return hooks_by_category
 
-    with open(HOOKS_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            # Skip comments and empty lines
-            if not line or line.startswith("#"):
-                continue
+    with open(HOOKS_CSV_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            category = row.get("category", "").strip()
+            hook = row.get("hook", "").strip()
 
-            parts = line.split("|")
-            if len(parts) == 3:
-                hooks.append({
-                    "type": parts[0].strip(),
-                    "tone": parts[1].strip(),
-                    "hook": parts[2].strip(),
-                })
+            if category and hook:
+                if category not in hooks_by_category:
+                    hooks_by_category[category] = []
+                # Avoid duplicates
+                if hook not in hooks_by_category[category]:
+                    hooks_by_category[category].append(hook)
 
-    return hooks
+    return hooks_by_category
 
 
-def filter_hooks(
-    hooks: list[dict],
-    hook_type: str = None,
-    tone: str = None,
-) -> list[dict]:
-    """Filter hooks by type and/or tone."""
-    filtered = hooks
+def get_recommended_categories(signals: dict) -> list[str]:
+    """
+    Determine the best hook categories based on research signals.
+    Returns ordered list of recommended categories.
+    """
+    category_scores = {}
 
-    if hook_type:
-        filtered = [h for h in filtered if h["type"] == hook_type]
+    # Score based on combined themes
+    for theme in signals.get("combined_themes", [])[:5]:
+        theme_name = theme.get("theme", "").lower()
+        score = theme.get("score", 1)
 
-    if tone:
-        filtered = [h for h in filtered if h["tone"] == tone]
+        for key, categories in CATEGORY_MAPPING.items():
+            if key in theme_name:
+                for i, cat in enumerate(categories):
+                    # Higher weight for first category, decreasing
+                    weight = (3 - i) * score
+                    category_scores[cat] = category_scores.get(cat, 0) + weight
 
-    return filtered
+    # Score based on recommended angles
+    for angle in signals.get("recommended_angles", [])[:3]:
+        angle_name = angle.get("angle", "").lower()
+
+        for key, categories in CATEGORY_MAPPING.items():
+            if key in angle_name:
+                for i, cat in enumerate(categories):
+                    weight = 3 - i
+                    category_scores[cat] = category_scores.get(cat, 0) + weight
+
+    # Score based on sentiment signals
+    reddit_data = signals.get("reddit", {})
+    for sentiment in reddit_data.get("sentiment_signals", []):
+        signal = sentiment.get("signal", "").lower()
+
+        if signal in CATEGORY_MAPPING:
+            for i, cat in enumerate(CATEGORY_MAPPING[signal]):
+                weight = 2 - i * 0.5
+                category_scores[cat] = category_scores.get(cat, 0) + weight
+
+    # Sort by score
+    sorted_categories = sorted(category_scores.items(), key=lambda x: x[1], reverse=True)
+
+    # Return top categories, default to Educational if none found
+    if sorted_categories:
+        return [cat for cat, score in sorted_categories[:3]]
+    else:
+        return ["Educational", "Listicle", "Relatable"]
 
 
 def synthesize_brief(signals: dict) -> dict:
     """
     Synthesize a content brief from research signals using GPT-4o.
-    Selects the best matching hook from the hooks database.
+    Selects the best matching hook from the CSV database and fills placeholders.
 
     Args:
         signals: Output from gather_all_signals()
@@ -77,8 +145,9 @@ def synthesize_brief(signals: dict) -> dict:
         Content brief dict:
         {
             "trending_angle": str,
-            "hook_headline": str,
-            "hook_type": str,
+            "hook_headline": str (filled template),
+            "hook_category": str,
+            "hook_template": str (original template),
             "keywords_to_use": list[str],
             "hashtags": list[str],
             "tone": str,
@@ -86,22 +155,29 @@ def synthesize_brief(signals: dict) -> dict:
             "why_this_works_today": str
         }
     """
-    # Load all hooks
-    all_hooks = load_hooks()
+    # Load all hooks from CSV
+    hooks_by_category = load_hooks_csv()
 
-    if not all_hooks:
-        logger.warning("No hooks loaded, using fallback")
+    if not hooks_by_category:
+        logger.warning("No hooks loaded from CSV, using fallback")
         return _get_fallback_brief()
+
+    # Get recommended categories based on signals
+    recommended_categories = get_recommended_categories(signals)
 
     # Prepare signals summary for GPT
     signals_summary = _prepare_signals_summary(signals)
 
-    # Prepare hook samples by type for GPT to select from
-    hook_samples = _prepare_hook_samples(all_hooks)
+    # Prepare hook samples from recommended categories
+    hook_samples = _prepare_hook_samples_from_categories(
+        hooks_by_category, recommended_categories
+    )
 
     # Call GPT-4o to synthesize the brief
     try:
-        brief = _call_gpt_synthesizer(signals_summary, hook_samples, all_hooks)
+        brief = _call_gpt_synthesizer(
+            signals_summary, hook_samples, recommended_categories, hooks_by_category
+        )
         return brief
     except Exception as e:
         logger.error(f"GPT synthesizer failed: {e}")
@@ -127,8 +203,6 @@ def _prepare_signals_summary(signals: dict) -> str:
         for a in angles[:3]:
             lines.append(f"  - {a['angle']}: {a['description']}")
             lines.append(f"    Why now: {a.get('why_now', 'trending')}")
-            lines.append(f"    Hook type: {a.get('hook_type', 'any')}")
-            lines.append(f"    Tone: {a.get('tone', 'any')}")
 
     # Reddit sentiment
     reddit = signals.get("reddit", {})
@@ -143,7 +217,7 @@ def _prepare_signals_summary(signals: dict) -> str:
     if hot_posts:
         lines.append("\nTRENDING REDDIT DISCUSSIONS:")
         for p in hot_posts[:5]:
-            lines.append(f"  - r/{p['subreddit']}: {p['title'][:80]}...")
+            lines.append(f"  - r/{p.get('subreddit', 'unknown')}: {p.get('title', '')[:80]}...")
 
     # Web search insights
     web = signals.get("web_search", {})
@@ -164,19 +238,35 @@ def _prepare_signals_summary(signals: dict) -> str:
     return "\n".join(lines)
 
 
-def _prepare_hook_samples(hooks: list[dict], samples_per_type: int = 5) -> str:
-    """Prepare hook samples organized by type for GPT."""
-    lines = ["AVAILABLE HOOK TYPES AND EXAMPLES:"]
+def _prepare_hook_samples_from_categories(
+    hooks_by_category: dict[str, list[str]],
+    recommended_categories: list[str],
+    samples_per_category: int = 8,
+) -> str:
+    """Prepare hook samples from recommended categories for GPT."""
+    lines = ["AVAILABLE HOOK TEMPLATES BY CATEGORY:"]
+    lines.append("(Select one template and fill in placeholders like (topic), (result), (skill), etc.)")
+    lines.append("")
 
-    hook_types = set(h["type"] for h in hooks)
+    # First show recommended categories
+    for category in recommended_categories:
+        if category in hooks_by_category:
+            hooks = hooks_by_category[category]
+            samples = random.sample(hooks, min(samples_per_category, len(hooks)))
 
-    for hook_type in sorted(hook_types):
-        type_hooks = [h for h in hooks if h["type"] == hook_type]
-        samples = random.sample(type_hooks, min(samples_per_type, len(type_hooks)))
+            lines.append(f"\n{category.upper()} (Recommended):")
+            for hook in samples:
+                lines.append(f"  - {hook}")
 
-        lines.append(f"\n{hook_type.upper()}:")
-        for h in samples:
-            lines.append(f"  [{h['tone']}] {h['hook']}")
+    # Then show a few from other categories
+    other_categories = [c for c in hooks_by_category.keys() if c not in recommended_categories]
+    for category in other_categories[:2]:
+        hooks = hooks_by_category[category]
+        samples = random.sample(hooks, min(4, len(hooks)))
+
+        lines.append(f"\n{category.upper()}:")
+        for hook in samples:
+            lines.append(f"  - {hook}")
 
     return "\n".join(lines)
 
@@ -184,9 +274,10 @@ def _prepare_hook_samples(hooks: list[dict], samples_per_type: int = 5) -> str:
 def _call_gpt_synthesizer(
     signals_summary: str,
     hook_samples: str,
-    all_hooks: list[dict],
+    recommended_categories: list[str],
+    hooks_by_category: dict[str, list[str]],
 ) -> dict:
-    """Call GPT-4o to synthesize the content brief."""
+    """Call GPT-4o to synthesize the content brief and fill hook placeholders."""
     client = AzureOpenAI(
         api_key=Config.AZURE_OPENAI_API_KEY,
         azure_endpoint=Config.AZURE_OPENAI_ENDPOINT,
@@ -200,19 +291,39 @@ def _call_gpt_synthesizer(
 
 Your job is to analyze trending signals and create a content brief for today's LinkedIn/Instagram carousel.
 
-IMPORTANT RULES:
-1. SELECT a hook from the provided hook samples — do NOT create new hooks
-2. Match the hook to today's trending angle and sentiment
-3. The hook_headline must be a DIRECT COPY from the samples (you can make minor adjustments for relevance)
-4. Consider the market sentiment when choosing tone
-5. Keywords should be trending terms that fit naturally in content
-6. Hashtags should be relevant and popular (5-7 hashtags)
+CRITICAL TASK:
+1. Analyze the trending signals to understand what's hot today
+2. SELECT the best hook TEMPLATE from the provided samples
+3. FILL IN the placeholders (topic), (result), (skill), (amount), (time), (action), (goal), etc. with SPECIFIC, RELEVANT content based on the trends
+4. The filled hook should be punchy, specific, and scroll-stopping
+
+PLACEHOLDER FILLING RULES:
+- (topic) → specific career/job topic (e.g., "job referrals", "salary negotiation", "remote interviews")
+- (result) → specific outcome (e.g., "land your dream job", "get 3x more interviews", "double your response rate")
+- (skill) → specific skill (e.g., "networking", "interview prep", "LinkedIn optimization")
+- (amount) → specific number/money (e.g., "$50K", "10 hours", "3 months")
+- (time) → time period (e.g., "30 days", "2 weeks", "6 months")
+- (action) → specific action (e.g., "cold applying", "networking on LinkedIn", "negotiating salary")
+- (goal) → specific goal (e.g., "getting hired", "landing referrals", "acing interviews")
+- (before) → before state (e.g., "rejected everywhere", "invisible to recruiters")
+- (after) → after state (e.g., "3 job offers", "recruiters reaching out daily")
+- (things) → what was analyzed (e.g., "job postings", "successful referrals", "LinkedIn profiles")
+- (problem) → specific problem (e.g., "getting ghosted", "low response rates")
+- (experience) → specific experience (e.g., "my job search", "100 interviews", "getting laid off")
+- (change) → what changed (e.g., "I started asking for referrals", "I optimized my LinkedIn")
+- (growth) → type of growth (e.g., "career growth", "network expansion", "skill development")
+- (improvement) → area of improvement (e.g., "interview performance", "application success")
+- (success) → type of success (e.g., "job search success", "networking success")
+- (pain point) → specific pain (e.g., "endless applications", "recruiter ghosting")
+- (common advice) → bad advice to counter (e.g., "apply to 100 jobs a day", "just be patient")
+- (role) → your role/expertise (e.g., "recruiter", "career coach", "hiring manager")
 
 OUTPUT FORMAT (strict JSON):
 {
     "trending_angle": "specific topic to build carousel around today",
-    "hook_headline": "EXACT hook from samples (max 10 words)",
-    "hook_type": "stat|question|controversy|story|list|myth|secret|warning",
+    "hook_template": "the EXACT template you selected from the samples",
+    "hook_headline": "the FILLED hook with all placeholders replaced (max 15 words)",
+    "hook_category": "Educational|Curiosity|Authority|Controversial|Money|Relatable|Listicle",
     "keywords_to_use": ["keyword1", "keyword2", "keyword3"],
     "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"],
     "tone": "inspirational|controversial|data-driven|storytelling|empathetic|tactical|bold",
@@ -224,6 +335,13 @@ OUTPUT FORMAT (strict JSON):
     user_prompt = f"""Analyze these trending signals and create today's content brief.
 Date: {date.today().isoformat()}
 
+BRAND CONTEXT:
+- AssuredReferral helps job seekers get referrals, recruiters find candidates, and referrers earn bonuses
+- Tagline: "Get Referred. Get Hired. Get Rewarded."
+- Focus areas: job search, referrals, interviews, networking, career growth
+
+RECOMMENDED HOOK CATEGORIES (based on signals): {', '.join(recommended_categories)}
+
 {signals_summary}
 
 ---
@@ -232,8 +350,11 @@ Date: {date.today().isoformat()}
 
 ---
 
-Based on the signals and available hooks, create the content brief JSON.
-Choose a hook that MATCHES the trending angle and market sentiment.
+Based on the signals and available hook templates:
+1. Choose the BEST hook template that matches today's trending angle
+2. FILL IN all placeholders with specific, relevant content
+3. Make the hook punchy and scroll-stopping (under 15 words)
+4. Return the complete content brief JSON
 """
 
     response = client.chat.completions.create(
@@ -243,15 +364,15 @@ Choose a hook that MATCHES the trending angle and market sentiment.
             {"role": "user", "content": user_prompt}
         ],
         response_format={"type": "json_object"},
-        temperature=0.7,
-        max_tokens=800,
+        temperature=0.8,
+        max_tokens=1000,
     )
 
     brief = json.loads(response.choices[0].message.content)
 
     # Validate required fields
     required_fields = [
-        "trending_angle", "hook_headline", "hook_type",
+        "trending_angle", "hook_headline", "hook_category",
         "keywords_to_use", "hashtags", "tone",
         "carousel_angle", "why_this_works_today"
     ]
@@ -261,10 +382,10 @@ Choose a hook that MATCHES the trending angle and market sentiment.
             logger.warning(f"Missing field in brief: {field}")
             brief[field] = _get_fallback_brief().get(field, "")
 
-    # Validate hook_type
-    valid_types = {"stat", "question", "controversy", "story", "list", "myth", "secret", "warning"}
-    if brief.get("hook_type") not in valid_types:
-        brief["hook_type"] = "question"
+    # Validate hook_category
+    valid_categories = {"Educational", "Curiosity", "Authority", "Controversial", "Money", "Relatable", "Listicle"}
+    if brief.get("hook_category") not in valid_categories:
+        brief["hook_category"] = recommended_categories[0] if recommended_categories else "Educational"
 
     # Validate tone
     valid_tones = {"inspirational", "controversial", "data-driven", "storytelling", "empathetic", "tactical", "bold"}
@@ -282,69 +403,52 @@ Choose a hook that MATCHES the trending angle and market sentiment.
 
 def _get_fallback_brief() -> dict:
     """Fallback brief when synthesis fails."""
-    # Load hooks and pick a random good one
-    hooks = load_hooks()
-    stat_hooks = [h for h in hooks if h["type"] == "stat" and h["tone"] in ("bold", "data-driven")]
+    hooks_by_category = load_hooks_csv()
 
-    if stat_hooks:
-        selected_hook = random.choice(stat_hooks)
-        hook_headline = selected_hook["hook"]
-        hook_type = selected_hook["type"]
-        tone = selected_hook["tone"]
+    # Pick a random Educational hook and fill it
+    if "Educational" in hooks_by_category and hooks_by_category["Educational"]:
+        template = random.choice(hooks_by_category["Educational"])
+        # Simple placeholder filling for fallback
+        filled_hook = template.replace("(topic)", "job referrals")
+        filled_hook = filled_hook.replace("(result)", "land your dream job")
+        filled_hook = filled_hook.replace("(skill)", "networking")
+        filled_hook = filled_hook.replace("(goal)", "getting hired faster")
     else:
-        hook_headline = "80% of jobs are never posted online."
-        hook_type = "stat"
-        tone = "bold"
+        template = "Here's what no one tells you about (topic)"
+        filled_hook = "Here's what no one tells you about job referrals"
 
     return {
         "trending_angle": "The power of referrals in today's job market",
-        "hook_headline": hook_headline,
-        "hook_type": hook_type,
+        "hook_template": template,
+        "hook_headline": filled_hook,
+        "hook_category": "Educational",
         "keywords_to_use": ["referral", "job search", "networking", "hiring"],
         "hashtags": [
             "#JobSearch", "#CareerTips", "#Referrals",
             "#Networking", "#HiringNow", "#CareerAdvice", "#JobHunt"
         ],
-        "tone": tone,
+        "tone": "educational",
         "carousel_angle": "Why referrals outperform cold applications",
         "why_this_works_today": "Referrals remain the most effective job search strategy",
     }
 
 
-def get_hook_for_angle(
-    angle: str,
-    hook_type: str = None,
-    tone: str = None,
-) -> str:
-    """
-    Get a matching hook for a specific angle.
-    Useful for manual hook selection.
-    """
-    hooks = load_hooks()
+def get_hooks_stats() -> dict:
+    """Get statistics about the hooks database."""
+    hooks_by_category = load_hooks_csv()
 
-    # Filter by type and tone if specified
-    filtered = filter_hooks(hooks, hook_type, tone)
+    stats = {
+        "total_hooks": 0,
+        "categories": {},
+        "unique_hooks_per_category": {},
+    }
 
-    if not filtered:
-        filtered = hooks
+    for category, hooks in hooks_by_category.items():
+        stats["categories"][category] = len(hooks)
+        stats["total_hooks"] += len(hooks)
+        stats["unique_hooks_per_category"][category] = len(set(hooks))
 
-    # Simple keyword matching
-    angle_words = set(angle.lower().split())
-    scored_hooks = []
-
-    for hook in filtered:
-        hook_words = set(hook["hook"].lower().split())
-        overlap = len(angle_words & hook_words)
-        scored_hooks.append((overlap, hook))
-
-    # Sort by overlap score
-    scored_hooks.sort(key=lambda x: x[0], reverse=True)
-
-    if scored_hooks:
-        return scored_hooks[0][1]["hook"]
-
-    # Random fallback
-    return random.choice(filtered)["hook"] if filtered else "Your job search strategy needs an upgrade."
+    return stats
 
 
 if __name__ == "__main__":
@@ -353,27 +457,22 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # Load and display hook stats
-    hooks = load_hooks()
-    print(f"Loaded {len(hooks)} hooks")
+    stats = get_hooks_stats()
+    print(f"Hooks database stats:")
+    print(f"  Total hooks: {stats['total_hooks']}")
+    print(f"  Categories: {stats['categories']}")
 
-    hook_types = {}
-    for h in hooks:
-        hook_types[h["type"]] = hook_types.get(h["type"], 0) + 1
-    print(f"Hook types: {hook_types}")
-
-    # Test with mock signals
+    # Test category recommendation
     mock_signals = {
         "combined_themes": [
             {"theme": "referral", "score": 10, "sources": ["google_trends", "reddit"]},
             {"theme": "interview", "score": 8, "sources": ["reddit"]},
-            {"theme": "layoff", "score": 5, "sources": ["web_search"]},
+            {"theme": "salary", "score": 5, "sources": ["web_search"]},
         ],
         "recommended_angles": [
             {
                 "angle": "referral_power",
                 "description": "Highlight the power of referrals",
-                "hook_type": "stat",
-                "tone": "bold",
                 "why_now": "Referrals trending",
             }
         ],
@@ -389,6 +488,10 @@ if __name__ == "__main__":
             ],
         },
     }
+
+    print("\nRecommended categories for mock signals:")
+    categories = get_recommended_categories(mock_signals)
+    print(f"  {categories}")
 
     print("\nSynthesizing brief from mock signals...")
     brief = synthesize_brief(mock_signals)

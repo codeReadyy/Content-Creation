@@ -21,8 +21,10 @@ class Config:
     AZURE_OPENAI_IMAGE_DEPLOYMENT = os.getenv("AZURE_OPENAI_IMAGE_DEPLOYMENT", "gpt-image-1-mini")
 
     # --- Image ---
-    IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", "azure")  # "azure", "stability", "gradient"
+    IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", "stock")  # "stock", "azure", "stability", "gradient"
     STABILITY_API_KEY = os.getenv("STABILITY_API_KEY", "")
+    UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "")  # unsplash.com/developers, free 50 req/hr
+    PEXELS_API_KEY = os.getenv("PEXELS_API_KEY", "")  # pexels.com/api, free 200 req/month
 
     # --- LinkedIn ---
     LINKEDIN_ACCESS_TOKEN = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
@@ -38,6 +40,11 @@ class Config:
     INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
     INSTAGRAM_BUSINESS_ACCOUNT_ID = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
     FACEBOOK_PAGE_ID = os.getenv("FACEBOOK_PAGE_ID", "")
+
+    # --- Research Layer ---
+    TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")  # tavily.com, free tier 1000/month
+    REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID", "")  # reddit.com/prefs/apps
+    REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "")
 
     # --- Brand ---
     BRAND_NAME = os.getenv("BRAND_NAME", "AssuredReferral")

@@ -143,9 +143,6 @@ def post_carousel(slide_paths: list[Path], caption: str) -> dict:
     except Exception as e:
         print(f"  ❌ Failed to post to LinkedIn: {e}")
         return {"error": str(e)}
-            print(f"  ❌ Failed to post to {target_name}: {e}")
-
-    return results
 
 
 # =============================================
