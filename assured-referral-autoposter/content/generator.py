@@ -4,33 +4,10 @@ Uses Azure OpenAI GPT to generate carousel slide content with a soft product CTA
 """
 
 import json
-import re
 import random
 from datetime import date
 from openai import AzureOpenAI
 from config.settings import Config
-
-
-def _strip_emojis(text: str) -> str:
-    """Remove emoji characters from text."""
-    # Remove emoji patterns
-    emoji_pattern = re.compile(
-        "["
-        "\U0001F600-\U0001F64F"  # emoticons
-        "\U0001F300-\U0001F5FF"  # symbols & pictographs
-        "\U0001F680-\U0001F6FF"  # transport & map symbols
-        "\U0001F1E0-\U0001F1FF"  # flags
-        "\U00002702-\U000027B0"  # dingbats
-        "\U000024C2-\U0001F251"  # enclosed characters
-        "\U0001F900-\U0001F9FF"  # supplemental symbols
-        "\U0001FA00-\U0001FA6F"  # chess symbols
-        "\U0001FA70-\U0001FAFF"  # symbols extended
-        "\U00002600-\U000026FF"  # misc symbols
-        "\U0001F700-\U0001F77F"  # alchemical symbols
-        "]+",
-        flags=re.UNICODE
-    )
-    return emoji_pattern.sub('', text).strip()
 
 # Rotating content themes — one per day, cycles through
 CONTENT_THEMES = [
@@ -209,11 +186,6 @@ Remember:
     # Validate structure
     assert "slides" in content, "Missing 'slides' in response"
     assert len(content["slides"]) == num_slides, f"Expected {num_slides} slides, got {len(content['slides'])}"
-
-    # Strip emojis from all slide text
-    for slide in content["slides"]:
-        if "text" in slide:
-            slide["text"] = _strip_emojis(slide["text"])
 
     # If brief provided, override hashtags with brief's hashtags
     if brief and brief.get("hashtags"):
