@@ -252,7 +252,9 @@ def run_pipeline(num_slides: int = 5, dry_run: bool = False,
             hashtags = " ".join(content.get("hashtags", []))
             full_caption = f"{caption}\n\n{hashtags}"
 
-            li_result = linkedin_post(slide_paths, full_caption)
+            # Use PDF path if available for proper carousel
+            pdf_path_for_linkedin = Path(results.get("pdf_path", "")) if results.get("pdf_path") else None
+            li_result = linkedin_post(slide_paths, full_caption, pdf_path=pdf_path_for_linkedin)
             results["stages"]["linkedin"] = li_result
         except Exception as e:
             logger.error(f"LinkedIn publishing failed: {e}")

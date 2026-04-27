@@ -4,10 +4,33 @@ Uses Azure OpenAI GPT to generate carousel slide content with a soft product CTA
 """
 
 import json
+import re
 import random
 from datetime import date
 from openai import AzureOpenAI
 from config.settings import Config
+
+
+def _strip_emojis(text: str) -> str:
+    """Remove emoji characters from text."""
+    # Remove emoji patterns
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags
+        "\U00002702-\U000027B0"  # dingbats
+        "\U000024C2-\U0001F251"  # enclosed characters
+        "\U0001F900-\U0001F9FF"  # supplemental symbols
+        "\U0001FA00-\U0001FA6F"  # chess symbols
+        "\U0001FA70-\U0001FAFF"  # symbols extended
+        "\U00002600-\U000026FF"  # misc symbols
+        "\U0001F700-\U0001F77F"  # alchemical symbols
+        "]+",
+        flags=re.UNICODE
+    )
+    return emoji_pattern.sub('', text).strip()
 
 # Rotating content themes — one per day, cycles through
 CONTENT_THEMES = [
@@ -107,10 +130,10 @@ RULES:
 3. Middle slides deliver genuine value — tips, insights, frameworks, stories
 4. Last slide is ALWAYS a soft CTA that ties the content back to AssuredReferral naturally
    - Never be salesy. Frame it as "here's a tool that does this" or "this is why we built AssuredReferral"
-   - Always include: "🔗 assuredreferral.com" and the tagline
+   - Always include: "assuredreferral.com" and the tagline
 5. Tone: Inspirational, bold, punchy. Short sentences. Use line breaks for impact.
 6. Each slide should have 20-40 words MAX
-7. Use emojis sparingly but effectively (1-2 per slide max)
+7. DO NOT use any emojis or special characters. Use plain text only.
 
 OUTPUT FORMAT (strict JSON):
 {
@@ -187,6 +210,11 @@ Remember:
     assert "slides" in content, "Missing 'slides' in response"
     assert len(content["slides"]) == num_slides, f"Expected {num_slides} slides, got {len(content['slides'])}"
 
+    # Strip emojis from all slide text
+    for slide in content["slides"]:
+        if "text" in slide:
+            slide["text"] = _strip_emojis(slide["text"])
+
     # If brief provided, override hashtags with brief's hashtags
     if brief and brief.get("hashtags"):
         content["hashtags"] = brief["hashtags"]
@@ -215,10 +243,10 @@ RULES:
 5. Match the specified tone throughout all slides
 6. Last slide is ALWAYS a soft CTA that ties content back to AssuredReferral naturally
    - Never be salesy. Frame it as "here's a tool that does this" or "this is why we built AssuredReferral"
-   - Always include: "🔗 assuredreferral.com" and the tagline
+   - Always include: "assuredreferral.com" and the tagline
 7. Tone: Match the specified tone. Short sentences. Use line breaks for impact.
 8. Each slide should have 20-40 words MAX
-9. Use emojis sparingly but effectively (1-2 per slide max)
+9. DO NOT use any emojis or special characters. Use plain text only.
 
 OUTPUT FORMAT (strict JSON):
 {

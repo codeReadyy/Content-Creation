@@ -227,13 +227,87 @@ def _create_ugc_post(owner_urn: str, image_urns: list[str], caption: str) -> dic
     return {"status": "published", "post_urn": post_id}
 
 
-def post_carousel(slide_paths: list[Path], caption: str) -> dict:
+def _register_document_upload(owner_urn: str) -> tuple[str, str]:
     """
-    Upload images and post a carousel to the personal LinkedIn profile.
+    Register a document upload with LinkedIn for PDF carousel.
+    Returns (upload_url, document_urn).
+    """
+    url = f"{RESTLI_BASE}/documents?action=initializeUpload"
+    payload = {
+        "initializeUploadRequest": {
+            "owner": owner_urn
+        }
+    }
+
+    resp = requests.post(url, headers=_headers(), json=payload, timeout=30)
+
+    # If REST API fails with 426, try without versioned headers
+    if resp.status_code == 426:
+        print("  ℹ️  REST API unavailable for documents, trying alternative...")
+        headers = {
+            "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+
+    resp.raise_for_status()
+    data = resp.json()["value"]
+    return data["uploadUrl"], data["document"]
+
+
+def _upload_document(upload_url: str, pdf_path: Path) -> None:
+    """Upload the PDF document to LinkedIn's upload URL."""
+    headers = {
+        "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+        "Content-Type": "application/octet-stream",
+    }
+
+    with open(pdf_path, "rb") as f:
+        resp = requests.put(upload_url, headers=headers, data=f.read(), timeout=120)
+        resp.raise_for_status()
+
+
+def _create_document_post(owner_urn: str, document_urn: str, caption: str, title: str = "Carousel") -> dict:
+    """
+    Create a document post on LinkedIn (PDF carousel).
+    """
+    url = f"{RESTLI_BASE}/posts"
+
+    post_body = {
+        "author": owner_urn,
+        "commentary": caption,
+        "visibility": "PUBLIC",
+        "distribution": {
+            "feedDistribution": "MAIN_FEED",
+            "targetEntities": [],
+            "thirdPartyDistributionChannels": []
+        },
+        "content": {
+            "document": {
+                "document": document_urn,
+                "title": title
+            }
+        },
+        "lifecycleState": "PUBLISHED",
+        "isReshareDisabledByAuthor": False
+    }
+
+    resp = requests.post(url, headers=_headers(), json=post_body, timeout=30)
+    resp.raise_for_status()
+
+    post_urn = resp.headers.get("x-restli-id", "unknown")
+    return {"status": "published", "post_urn": post_urn}
+
+
+def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None) -> dict:
+    """
+    Post a carousel to LinkedIn. Uses PDF document if provided (swipeable carousel),
+    otherwise falls back to multi-image post.
 
     Args:
-        slide_paths: List of paths to slide PNG images
+        slide_paths: List of paths to slide PNG images (fallback)
         caption: Post caption text
+        pdf_path: Optional path to PDF file for document carousel
 
     Returns:
         Dict with result
@@ -244,6 +318,22 @@ def post_carousel(slide_paths: list[Path], caption: str) -> dict:
         return {"error": "LINKEDIN_PERSON_URN not configured"}
 
     try:
+        # Prefer PDF upload for proper carousel experience
+        if pdf_path and pdf_path.exists():
+            print(f"  📤 Uploading PDF carousel: {pdf_path.name}")
+            upload_url, document_urn = _register_document_upload(Config.LINKEDIN_PERSON_URN)
+            _upload_document(upload_url, pdf_path)
+            print("  📝 Creating document post...")
+            result = _create_document_post(
+                Config.LINKEDIN_PERSON_URN,
+                document_urn,
+                caption,
+                title="Career Tips"
+            )
+            print("  ✅ Published PDF carousel to LinkedIn!")
+            return result
+
+        # Fallback to multi-image post
         print(f"  📤 Uploading {len(slide_paths)} images...")
         image_urns = []
 
