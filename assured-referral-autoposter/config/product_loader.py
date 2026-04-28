@@ -31,9 +31,10 @@ class ProductConfig:
         if not account:
             return {}
         key = account["credentials_key"]
+        # Try product-specific first, fall back to legacy
         return {
-            "access_token": os.getenv(f"LINKEDIN_ACCESS_TOKEN_{key}", ""),
-            "person_urn": os.getenv(f"LINKEDIN_PERSON_URN_{key}", ""),
+            "access_token": os.getenv(f"LINKEDIN_ACCESS_TOKEN_{key}") or os.getenv("LINKEDIN_ACCESS_TOKEN", ""),
+            "person_urn": os.getenv(f"LINKEDIN_PERSON_URN_{key}") or os.getenv("LINKEDIN_PERSON_URN", ""),
         }
 
     def get_youtube_credentials(self, account_id: str = "main") -> dict:
@@ -42,11 +43,12 @@ class ProductConfig:
         if not account:
             return {}
         key = account["credentials_key"]
+        # Try product-specific first, fall back to legacy
         return {
-            "client_id": os.getenv(f"YOUTUBE_CLIENT_ID_{key}", ""),
-            "client_secret": os.getenv(f"YOUTUBE_CLIENT_SECRET_{key}", ""),
-            "refresh_token": os.getenv(f"YOUTUBE_REFRESH_TOKEN_{key}", ""),
-            "channel_id": os.getenv(f"YOUTUBE_CHANNEL_ID_{key}", ""),
+            "client_id": os.getenv(f"YOUTUBE_CLIENT_ID_{key}") or os.getenv("YOUTUBE_CLIENT_ID", ""),
+            "client_secret": os.getenv(f"YOUTUBE_CLIENT_SECRET_{key}") or os.getenv("YOUTUBE_CLIENT_SECRET", ""),
+            "refresh_token": os.getenv(f"YOUTUBE_REFRESH_TOKEN_{key}") or os.getenv("YOUTUBE_REFRESH_TOKEN", ""),
+            "channel_id": os.getenv(f"YOUTUBE_CHANNEL_ID_{key}") or os.getenv("YOUTUBE_CHANNEL_ID", ""),
         }
 
     def get_instagram_credentials(self, account_id: str = "main") -> dict:
@@ -55,10 +57,11 @@ class ProductConfig:
         if not account:
             return {}
         key = account["credentials_key"]
+        # Try product-specific first, fall back to legacy
         return {
-            "access_token": os.getenv(f"INSTAGRAM_ACCESS_TOKEN_{key}", ""),
-            "business_account_id": os.getenv(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{key}", ""),
-            "facebook_page_id": os.getenv(f"FACEBOOK_PAGE_ID_{key}", ""),
+            "access_token": os.getenv(f"INSTAGRAM_ACCESS_TOKEN_{key}") or os.getenv("INSTAGRAM_ACCESS_TOKEN", ""),
+            "business_account_id": os.getenv(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{key}") or os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", ""),
+            "facebook_page_id": os.getenv(f"FACEBOOK_PAGE_ID_{key}") or os.getenv("FACEBOOK_PAGE_ID", ""),
         }
 
     def _get_account(self, platform: str, account_id: str) -> dict | None:
