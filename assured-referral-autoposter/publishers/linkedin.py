@@ -337,13 +337,16 @@ def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None,
     try:
         # Prefer PDF upload for proper carousel experience
         if pdf_path and pdf_path.exists():
-            print(f"  📤 Uploading PDF carousel: {pdf_path.name}")
-            upload_url, document_urn = _register_document_upload_v2(person_urn, access_token)
-            _upload_document_v2(upload_url, pdf_path, access_token)
-            print("  📝 Creating document post...")
-            result = _create_document_post_v2(person_urn, document_urn, caption, access_token)
-            print("  ✅ Published PDF carousel to LinkedIn!")
-            return result
+            try:
+                print(f"  📤 Uploading PDF carousel: {pdf_path.name}")
+                upload_url, document_urn = _register_document_upload_v2(person_urn, access_token)
+                _upload_document_v2(upload_url, pdf_path, access_token)
+                print("  📝 Creating document post...")
+                result = _create_document_post_v2(person_urn, document_urn, caption, access_token)
+                print("  ✅ Published PDF carousel to LinkedIn!")
+                return result
+            except Exception as e:
+                print(f"  ⚠️  PDF upload failed ({e}), falling back to images...")
 
         # Fallback to multi-image post
         print(f"  📤 Uploading {len(slide_paths)} images...")
@@ -407,7 +410,12 @@ def _create_document_post_v2(owner_urn: str, document_urn: str, caption: str,
         "commentary": caption,
         "visibility": "PUBLIC",
         "distribution": {"feedDistribution": "MAIN_FEED", "targetEntities": [], "thirdPartyDistributionChannels": []},
-        "content": {"document": {"document": document_urn, "title": title}},
+        "content": {
+            "media": {
+                "id": document_urn,
+                "title": title
+            }
+        },
         "lifecycleState": "PUBLISHED",
         "isReshareDisabledByAuthor": False
     }
