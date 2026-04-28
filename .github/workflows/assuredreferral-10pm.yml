@@ -1,0 +1,25 @@
+# AssuredReferral — 10:00 PM IST Post
+# Instagram (2nd post of the day)
+
+name: AssuredReferral 10PM
+
+on:
+  schedule:
+    # 4:30 PM UTC = 10:00 PM IST
+    - cron: "30 16 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no publishing)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  post:
+    uses: ./.github/workflows/_pipeline.yml
+    with:
+      product: assuredreferral
+      platforms: "instagram"
+      dry_run: ${{ inputs.dry_run || false }}
+    secrets: inherit

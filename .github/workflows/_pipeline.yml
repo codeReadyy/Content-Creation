@@ -1,0 +1,114 @@
+# ============================================
+# Reusable Pipeline Workflow
+# ============================================
+# This is the core pipeline logic. Called by schedule-specific workflows.
+# DO NOT call this directly - use the caller workflows instead.
+
+name: _Content Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: "Product ID (e.g., assuredreferral)"
+        required: true
+        type: string
+      platforms:
+        description: "Comma-separated platforms (e.g., linkedin,youtube,instagram)"
+        required: true
+        type: string
+      dry_run:
+        description: "Generate content without publishing"
+        required: false
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: assured-referral-autoposter
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: assured-referral-autoposter/requirements.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-dejavu ffmpeg
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          # --- Azure OpenAI (shared across products) ---
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          AZURE_OPENAI_IMAGE_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_IMAGE_DEPLOYMENT }}
+
+          # --- Image Generation (shared) ---
+          IMAGE_PROVIDER: ${{ secrets.IMAGE_PROVIDER }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+
+          # --- Research Layer (shared) ---
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+          # --- Telegram Notifications (shared) ---
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+          # --- Product-specific credentials ---
+          # LinkedIn (per product)
+          LINKEDIN_ACCESS_TOKEN_ASSUREDREFERRAL: ${{ secrets.LINKEDIN_ACCESS_TOKEN_ASSUREDREFERRAL }}
+          LINKEDIN_PERSON_URN_ASSUREDREFERRAL: ${{ secrets.LINKEDIN_PERSON_URN_ASSUREDREFERRAL }}
+
+          # YouTube (per product)
+          YOUTUBE_CLIENT_ID_ASSUREDREFERRAL: ${{ secrets.YOUTUBE_CLIENT_ID_ASSUREDREFERRAL }}
+          YOUTUBE_CLIENT_SECRET_ASSUREDREFERRAL: ${{ secrets.YOUTUBE_CLIENT_SECRET_ASSUREDREFERRAL }}
+          YOUTUBE_REFRESH_TOKEN_ASSUREDREFERRAL: ${{ secrets.YOUTUBE_REFRESH_TOKEN_ASSUREDREFERRAL }}
+          YOUTUBE_CHANNEL_ID_ASSUREDREFERRAL: ${{ secrets.YOUTUBE_CHANNEL_ID_ASSUREDREFERRAL }}
+
+          # Instagram (per product)
+          INSTAGRAM_ACCESS_TOKEN_ASSUREDREFERRAL: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_ASSUREDREFERRAL }}
+          INSTAGRAM_BUSINESS_ACCOUNT_ID_ASSUREDREFERRAL: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_ASSUREDREFERRAL }}
+          FACEBOOK_PAGE_ID_ASSUREDREFERRAL: ${{ secrets.FACEBOOK_PAGE_ID_ASSUREDREFERRAL }}
+
+          # --- Legacy fallback (for backward compatibility) ---
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python runner.py --product ${{ inputs.product }} --platforms ${{ inputs.platforms }} --dry-run
+          else
+            python runner.py --product ${{ inputs.product }} --platforms ${{ inputs.platforms }}
+          fi
+
+      - name: Upload output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.product }}-output-${{ github.run_id }}
+          path: assured-referral-autoposter/output/${{ inputs.product }}/
+          retention-days: 30

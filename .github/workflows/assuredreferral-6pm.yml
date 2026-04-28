@@ -1,0 +1,25 @@
+# AssuredReferral — 6:00 PM IST Post
+# YouTube (2nd post of the day)
+
+name: AssuredReferral 6PM
+
+on:
+  schedule:
+    # 12:30 PM UTC = 6:00 PM IST
+    - cron: "30 12 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no publishing)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  post:
+    uses: ./.github/workflows/_pipeline.yml
+    with:
+      product: assuredreferral
+      platforms: "youtube"
+      dry_run: ${{ inputs.dry_run || false }}
+    secrets: inherit

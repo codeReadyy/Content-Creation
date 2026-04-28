@@ -1,0 +1,35 @@
+{
+  "assuredreferral": {
+    "linkedin": [
+      {
+        "time": "10:00",
+        "timezone": "Asia/Kolkata",
+        "accounts": ["main"]
+      }
+    ],
+    "youtube": [
+      {
+        "time": "10:00",
+        "timezone": "Asia/Kolkata",
+        "accounts": ["main"]
+      },
+      {
+        "time": "18:00",
+        "timezone": "Asia/Kolkata",
+        "accounts": ["main"]
+      }
+    ],
+    "instagram": [
+      {
+        "time": "10:00",
+        "timezone": "Asia/Kolkata",
+        "accounts": ["main"]
+      },
+      {
+        "time": "22:00",
+        "timezone": "Asia/Kolkata",
+        "accounts": ["main"]
+      }
+    ]
+  }
+}

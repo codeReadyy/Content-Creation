@@ -21,14 +21,29 @@ from config.settings import Config
 GRAPH_API_BASE = "https://graph.facebook.com/v19.0"
 
 
-def _upload_image_to_container(image_url: str, caption: str = None,
-                                 is_carousel_item: bool = True) -> str:
+def _get_credentials(account_id: str = "main") -> dict:
+    """Get Instagram credentials for the specified account."""
+    product = Config.get_product()
+
+    if product:
+        return product.get_instagram_credentials(account_id)
+
+    # Legacy mode - use direct config
+    return {
+        "access_token": Config.INSTAGRAM_ACCESS_TOKEN,
+        "business_account_id": Config.INSTAGRAM_BUSINESS_ACCOUNT_ID,
+        "facebook_page_id": Config.FACEBOOK_PAGE_ID,
+    }
+
+
+def _upload_image_to_container(image_url: str, creds: dict,
+                                 caption: str = None, is_carousel_item: bool = True) -> str:
     """Create a media container for a single image."""
-    url = f"{GRAPH_API_BASE}/{Config.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media"
+    url = f"{GRAPH_API_BASE}/{creds['business_account_id']}/media"
 
     params = {
         "image_url": image_url,
-        "access_token": Config.INSTAGRAM_ACCESS_TOKEN,
+        "access_token": creds["access_token"],
         "is_carousel_item": is_carousel_item,
     }
     if caption and not is_carousel_item:
@@ -39,15 +54,15 @@ def _upload_image_to_container(image_url: str, caption: str = None,
     return resp.json()["id"]
 
 
-def _create_carousel_container(children_ids: list[str], caption: str) -> str:
+def _create_carousel_container(children_ids: list[str], caption: str, creds: dict) -> str:
     """Create a carousel container from individual image containers."""
-    url = f"{GRAPH_API_BASE}/{Config.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media"
+    url = f"{GRAPH_API_BASE}/{creds['business_account_id']}/media"
 
     params = {
         "media_type": "CAROUSEL",
         "children": ",".join(children_ids),
         "caption": caption,
-        "access_token": Config.INSTAGRAM_ACCESS_TOKEN,
+        "access_token": creds["access_token"],
     }
 
     resp = requests.post(url, params=params, timeout=30)
@@ -55,13 +70,13 @@ def _create_carousel_container(children_ids: list[str], caption: str) -> str:
     return resp.json()["id"]
 
 
-def _publish_container(container_id: str) -> dict:
+def _publish_container(container_id: str, creds: dict) -> dict:
     """Publish a media container."""
-    url = f"{GRAPH_API_BASE}/{Config.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish"
+    url = f"{GRAPH_API_BASE}/{creds['business_account_id']}/media_publish"
 
     params = {
         "creation_id": container_id,
-        "access_token": Config.INSTAGRAM_ACCESS_TOKEN,
+        "access_token": creds["access_token"],
     }
 
     resp = requests.post(url, params=params, timeout=30)
@@ -69,7 +84,7 @@ def _publish_container(container_id: str) -> dict:
     return resp.json()
 
 
-def post_carousel(image_urls: list[str], caption: str) -> dict:
+def post_carousel(image_urls: list[str], caption: str, account_id: str = "main") -> dict:
     """
     Post a carousel to Instagram.
 
@@ -80,11 +95,14 @@ def post_carousel(image_urls: list[str], caption: str) -> dict:
     Args:
         image_urls: List of public URLs to the slide images
         caption: Post caption with hashtags
+        account_id: Account ID to use (for multi-account support)
 
     Returns:
         Dict with post ID and status
     """
-    if not Config.INSTAGRAM_ACCESS_TOKEN:
+    creds = _get_credentials(account_id)
+
+    if not creds.get("access_token"):
         return {
             "status": "skipped",
             "reason": "Instagram not configured yet. "
@@ -95,18 +113,18 @@ def post_carousel(image_urls: list[str], caption: str) -> dict:
         # Step 1: Create containers for each image
         children_ids = []
         for i, url in enumerate(image_urls):
-            container_id = _upload_image_to_container(url)
+            container_id = _upload_image_to_container(url, creds)
             children_ids.append(container_id)
             print(f"  📤 Uploaded image {i + 1} to Instagram container")
             time.sleep(2)  # Rate limiting
 
         # Step 2: Create carousel container
-        carousel_id = _create_carousel_container(children_ids, caption)
+        carousel_id = _create_carousel_container(children_ids, caption, creds)
         print(f"  🎠 Carousel container created")
 
         # Step 3: Wait for processing, then publish
         time.sleep(5)  # Instagram needs time to process
-        result = _publish_container(carousel_id)
+        result = _publish_container(carousel_id, creds)
 
         print(f"  ✅ Published to Instagram!")
         return {"status": "published", "post_id": result.get("id")}

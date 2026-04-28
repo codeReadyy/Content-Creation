@@ -1,0 +1,25 @@
+# AssuredReferral — 10:00 AM IST Post
+# LinkedIn (daily), YouTube (1st), Instagram (1st)
+
+name: AssuredReferral 10AM
+
+on:
+  schedule:
+    # 4:30 AM UTC = 10:00 AM IST
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no publishing)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  post:
+    uses: ./.github/workflows/_pipeline.yml
+    with:
+      product: assuredreferral
+      platforms: "linkedin,youtube,instagram"
+      dry_run: ${{ inputs.dry_run || false }}
+    secrets: inherit

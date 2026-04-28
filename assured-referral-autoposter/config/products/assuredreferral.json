@@ -1,0 +1,30 @@
+{
+  "id": "assuredreferral",
+  "name": "AssuredReferral",
+  "url": "https://assuredreferral.com",
+  "tagline": "Get Referred. Get Hired. Get Rewarded.",
+  "description": "A free tool that helps job seekers connect with professionals for referrals, gives recruiters AI-powered screening, and rewards referrers with bonuses.",
+  "niche": "career_jobs",
+  "tone": "inspirational_bold",
+
+  "accounts": {
+    "linkedin": [
+      {
+        "id": "main",
+        "credentials_key": "ASSUREDREFERRAL"
+      }
+    ],
+    "youtube": [
+      {
+        "id": "main",
+        "credentials_key": "ASSUREDREFERRAL"
+      }
+    ],
+    "instagram": [
+      {
+        "id": "main",
+        "credentials_key": "ASSUREDREFERRAL"
+      }
+    ]
+  }
+}

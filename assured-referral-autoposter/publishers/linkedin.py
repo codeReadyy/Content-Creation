@@ -17,13 +17,25 @@ from pathlib import Path
 from config.settings import Config
 
 
+def _get_credentials(account_id: str = "main") -> tuple[str, str]:
+    """Get LinkedIn credentials for the specified account."""
+    product = Config.get_product()
+
+    if product:
+        creds = product.get_linkedin_credentials(account_id)
+        return creds.get("access_token", ""), creds.get("person_urn", "")
+
+    # Legacy mode - use direct config
+    return Config.LINKEDIN_ACCESS_TOKEN, Config.LINKEDIN_PERSON_URN
+
+
 API_BASE = "https://api.linkedin.com/v2"
 RESTLI_BASE = "https://api.linkedin.com/rest"
 
 
-def _headers(restli: bool = True) -> dict:
+def _headers(access_token: str, restli: bool = True) -> dict:
     h = {
-        "Authorization": f"Bearer {Config.LINKEDIN_ACCESS_TOKEN}",
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
     if restli:
@@ -299,7 +311,8 @@ def _create_document_post(owner_urn: str, document_urn: str, caption: str, title
     return {"status": "published", "post_urn": post_urn}
 
 
-def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None) -> dict:
+def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None,
+                  account_id: str = "main") -> dict:
     """
     Post a carousel to LinkedIn. Uses PDF document if provided (swipeable carousel),
     otherwise falls back to multi-image post.
@@ -308,28 +321,27 @@ def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None) 
         slide_paths: List of paths to slide PNG images (fallback)
         caption: Post caption text
         pdf_path: Optional path to PDF file for document carousel
+        account_id: Account ID to use (for multi-account support)
 
     Returns:
         Dict with result
     """
-    if not Config.LINKEDIN_ACCESS_TOKEN:
+    # Get credentials (supports both legacy and multi-product mode)
+    access_token, person_urn = _get_credentials(account_id)
+
+    if not access_token:
         return {"error": "LinkedIn access token not configured"}
-    if not Config.LINKEDIN_PERSON_URN:
+    if not person_urn:
         return {"error": "LINKEDIN_PERSON_URN not configured"}
 
     try:
         # Prefer PDF upload for proper carousel experience
         if pdf_path and pdf_path.exists():
             print(f"  📤 Uploading PDF carousel: {pdf_path.name}")
-            upload_url, document_urn = _register_document_upload(Config.LINKEDIN_PERSON_URN)
-            _upload_document(upload_url, pdf_path)
+            upload_url, document_urn = _register_document_upload_v2(person_urn, access_token)
+            _upload_document_v2(upload_url, pdf_path, access_token)
             print("  📝 Creating document post...")
-            result = _create_document_post(
-                Config.LINKEDIN_PERSON_URN,
-                document_urn,
-                caption,
-                title="Career Tips"
-            )
+            result = _create_document_post_v2(person_urn, document_urn, caption, access_token)
             print("  ✅ Published PDF carousel to LinkedIn!")
             return result
 
@@ -338,13 +350,13 @@ def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None) 
         image_urns = []
 
         for path in slide_paths:
-            upload_url, image_urn = _register_image_upload(Config.LINKEDIN_PERSON_URN)
-            _upload_image(upload_url, path)
+            upload_url, image_urn = _register_image_upload_v2(person_urn, access_token)
+            _upload_image_v2(upload_url, path, access_token)
             image_urns.append(image_urn)
             time.sleep(1)  # Rate limiting
 
         print("  📝 Creating carousel post...")
-        result = _create_carousel_post(Config.LINKEDIN_PERSON_URN, image_urns, caption)
+        result = _create_carousel_post_v2(person_urn, image_urns, caption, access_token)
         print("  ✅ Published to LinkedIn!")
         return result
 
@@ -356,6 +368,130 @@ def post_carousel(slide_paths: list[Path], caption: str, pdf_path: Path = None) 
     except Exception as e:
         print(f"  ❌ Failed to post to LinkedIn: {e}")
         return {"error": str(e)}
+
+
+# =============================================
+# V2 Functions - Accept credentials as params
+# =============================================
+
+def _register_document_upload_v2(owner_urn: str, access_token: str) -> tuple[str, str]:
+    """Register a document upload with LinkedIn for PDF carousel."""
+    url = f"{RESTLI_BASE}/documents?action=initializeUpload"
+    payload = {"initializeUploadRequest": {"owner": owner_urn}}
+
+    resp = requests.post(url, headers=_headers(access_token), json=payload, timeout=30)
+
+    if resp.status_code == 426:
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+
+    resp.raise_for_status()
+    data = resp.json()["value"]
+    return data["uploadUrl"], data["document"]
+
+
+def _upload_document_v2(upload_url: str, pdf_path: Path, access_token: str) -> None:
+    """Upload the PDF document to LinkedIn's upload URL."""
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/octet-stream"}
+    with open(pdf_path, "rb") as f:
+        resp = requests.put(upload_url, headers=headers, data=f.read(), timeout=120)
+        resp.raise_for_status()
+
+
+def _create_document_post_v2(owner_urn: str, document_urn: str, caption: str,
+                              access_token: str, title: str = "Carousel") -> dict:
+    """Create a document post on LinkedIn (PDF carousel)."""
+    url = f"{RESTLI_BASE}/posts"
+    post_body = {
+        "author": owner_urn,
+        "commentary": caption,
+        "visibility": "PUBLIC",
+        "distribution": {"feedDistribution": "MAIN_FEED", "targetEntities": [], "thirdPartyDistributionChannels": []},
+        "content": {"document": {"document": document_urn, "title": title}},
+        "lifecycleState": "PUBLISHED",
+        "isReshareDisabledByAuthor": False
+    }
+    resp = requests.post(url, headers=_headers(access_token), json=post_body, timeout=30)
+    resp.raise_for_status()
+    return {"status": "published", "post_urn": resp.headers.get("x-restli-id", "unknown")}
+
+
+def _register_image_upload_v2(owner_urn: str, access_token: str) -> tuple[str, str]:
+    """Register an image upload with LinkedIn."""
+    rest_url = f"{RESTLI_BASE}/images?action=initializeUpload"
+    rest_payload = {"initializeUploadRequest": {"owner": owner_urn}}
+
+    resp = requests.post(rest_url, headers=_headers(access_token), json=rest_payload, timeout=30)
+
+    if resp.status_code == 426:
+        return _register_image_upload_legacy_v2(owner_urn, access_token)
+
+    resp.raise_for_status()
+    data = resp.json()["value"]
+    return data["uploadUrl"], data["image"]
+
+
+def _register_image_upload_legacy_v2(owner_urn: str, access_token: str) -> tuple[str, str]:
+    """Legacy v2 API for image upload registration."""
+    url = f"{API_BASE}/assets?action=registerUpload"
+    payload = {
+        "registerUploadRequest": {
+            "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+            "owner": owner_urn,
+            "serviceRelationships": [{"relationshipType": "OWNER", "identifier": "urn:li:userGeneratedContent"}]
+        }
+    }
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+    resp = requests.post(url, headers=headers, json=payload, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()["value"]
+    return data["uploadMechanism"]["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"]["uploadUrl"], data["asset"]
+
+
+def _upload_image_v2(upload_url: str, image_path: Path, access_token: str) -> None:
+    """Upload the actual image bytes to LinkedIn's upload URL."""
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/octet-stream"}
+    with open(image_path, "rb") as f:
+        resp = requests.put(upload_url, headers=headers, data=f.read(), timeout=60)
+        resp.raise_for_status()
+
+
+def _create_carousel_post_v2(owner_urn: str, image_urns: list[str], caption: str, access_token: str) -> dict:
+    """Create a multi-image post on LinkedIn."""
+    url = f"{RESTLI_BASE}/posts"
+    images = [{"id": urn, "altText": f"Slide {i + 1}"} for i, urn in enumerate(image_urns)]
+    post_body = {
+        "author": owner_urn,
+        "commentary": caption,
+        "visibility": "PUBLIC",
+        "distribution": {"feedDistribution": "MAIN_FEED", "targetEntities": [], "thirdPartyDistributionChannels": []},
+        "content": {"multiImage": {"images": images}},
+        "lifecycleState": "PUBLISHED",
+        "isReshareDisabledByAuthor": False
+    }
+    resp = requests.post(url, headers=_headers(access_token), json=post_body, timeout=30)
+
+    if resp.status_code == 426:
+        return _create_ugc_post_v2(owner_urn, image_urns, caption, access_token)
+
+    resp.raise_for_status()
+    return {"status": "published", "post_urn": resp.headers.get("x-restli-id", "unknown")}
+
+
+def _create_ugc_post_v2(owner_urn: str, image_urns: list[str], caption: str, access_token: str) -> dict:
+    """Create post using legacy UGC API."""
+    url = f"{API_BASE}/ugcPosts"
+    media = [{"status": "READY", "media": urn, "title": {"text": f"Slide {i + 1}"}} for i, urn in enumerate(image_urns)]
+    post_body = {
+        "author": owner_urn,
+        "lifecycleState": "PUBLISHED",
+        "specificContent": {"com.linkedin.ugc.ShareContent": {"shareCommentary": {"text": caption}, "shareMediaCategory": "IMAGE", "media": media}},
+        "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"}
+    }
+    headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0"}
+    resp = requests.post(url, headers=headers, json=post_body, timeout=30)
+    resp.raise_for_status()
+    return {"status": "published", "post_urn": resp.json().get("id", "unknown")}
 
 
 # =============================================

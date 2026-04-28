@@ -1,6 +1,10 @@
 """
 Central configuration loader for the AutoPoster pipeline.
 Reads from .env (local) or environment variables (GitHub Actions).
+
+Supports both:
+- Legacy mode: Single product using environment variables directly
+- Multi-product mode: Load product config from JSON files
 """
 
 import os
@@ -65,22 +69,60 @@ class Config:
     SLIDES_DIR = OUTPUT_DIR / "slides"
     VIDEOS_DIR = OUTPUT_DIR / "videos"
 
+    # Active product (set when running in multi-product mode)
+    _active_product = None
+
+    @classmethod
+    def set_product(cls, product_id: str):
+        """Set the active product and update paths accordingly."""
+        from config.product_loader import load_product
+        cls._active_product = load_product(product_id)
+
+        # Update brand info from product config
+        cls.BRAND_NAME = cls._active_product.name
+        cls.BRAND_URL = cls._active_product.url
+        cls.BRAND_TAGLINE = cls._active_product.tagline
+        cls.CONTENT_NICHE = cls._active_product.niche
+        cls.TONE = cls._active_product.tone
+
+        # Update output directories to be product-specific
+        cls.OUTPUT_DIR = PROJECT_ROOT / "output" / product_id
+        cls.SLIDES_DIR = cls.OUTPUT_DIR / "slides"
+        cls.VIDEOS_DIR = cls.OUTPUT_DIR / "videos"
+
+    @classmethod
+    def get_product(cls):
+        """Get the active product config."""
+        return cls._active_product
+
     @classmethod
     def ensure_dirs(cls):
-        cls.OUTPUT_DIR.mkdir(exist_ok=True)
+        cls.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         cls.SLIDES_DIR.mkdir(exist_ok=True)
         cls.VIDEOS_DIR.mkdir(exist_ok=True)
 
     @classmethod
-    def validate(cls):
+    def validate(cls, product_id: str = None):
         """Check that critical keys are set."""
         issues = []
         if not cls.AZURE_OPENAI_API_KEY:
             issues.append("AZURE_OPENAI_API_KEY is missing")
         if not cls.AZURE_OPENAI_ENDPOINT:
             issues.append("AZURE_OPENAI_ENDPOINT is missing")
-        if not cls.LINKEDIN_ACCESS_TOKEN:
-            issues.append("LINKEDIN_ACCESS_TOKEN is missing (LinkedIn posting disabled)")
-        if not cls.YOUTUBE_REFRESH_TOKEN:
-            issues.append("YOUTUBE_REFRESH_TOKEN is missing (YouTube posting disabled)")
+
+        # If product specified, check product-specific credentials
+        if product_id and cls._active_product:
+            li_creds = cls._active_product.get_linkedin_credentials()
+            if not li_creds.get("access_token"):
+                issues.append(f"LINKEDIN_ACCESS_TOKEN_{cls._active_product.accounts.get('linkedin', [{}])[0].get('credentials_key', '')} is missing")
+            yt_creds = cls._active_product.get_youtube_credentials()
+            if not yt_creds.get("refresh_token"):
+                issues.append(f"YOUTUBE_REFRESH_TOKEN_{cls._active_product.accounts.get('youtube', [{}])[0].get('credentials_key', '')} is missing")
+        else:
+            # Legacy mode - check default credentials
+            if not cls.LINKEDIN_ACCESS_TOKEN:
+                issues.append("LINKEDIN_ACCESS_TOKEN is missing (LinkedIn posting disabled)")
+            if not cls.YOUTUBE_REFRESH_TOKEN:
+                issues.append("YOUTUBE_REFRESH_TOKEN is missing (YouTube posting disabled)")
+
         return issues

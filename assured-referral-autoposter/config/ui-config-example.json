@@ -1,0 +1,177 @@
+{
+  "_comment": "This is a reference for future UI. Shows the full config structure that a UI would manage.",
+
+  "products": [
+    {
+      "id": "assuredreferral",
+      "name": "AssuredReferral",
+      "url": "https://assuredreferral.com",
+      "tagline": "Get Referred. Get Hired. Get Rewarded.",
+      "description": "A free tool that helps job seekers connect with professionals for referrals, gives recruiters AI-powered screening, and rewards referrers with bonuses.",
+      "niche": "career_jobs",
+      "tone": "inspirational_bold",
+      "enabled": true,
+
+      "accounts": {
+        "linkedin": [
+          {
+            "id": "main",
+            "label": "AssuredReferral LinkedIn",
+            "credentials_key": "ASSUREDREFERRAL",
+            "enabled": true
+          }
+        ],
+        "youtube": [
+          {
+            "id": "main",
+            "label": "AssuredReferral YouTube",
+            "credentials_key": "ASSUREDREFERRAL",
+            "enabled": true
+          }
+        ],
+        "instagram": [
+          {
+            "id": "main",
+            "label": "AssuredReferral Instagram",
+            "credentials_key": "ASSUREDREFERRAL",
+            "enabled": false
+          }
+        ]
+      },
+
+      "schedules": {
+        "linkedin": [
+          {
+            "time": "10:00",
+            "timezone": "Asia/Kolkata",
+            "accounts": ["main"],
+            "enabled": true
+          }
+        ],
+        "youtube": [
+          {
+            "time": "10:00",
+            "timezone": "Asia/Kolkata",
+            "accounts": ["main"],
+            "enabled": true
+          },
+          {
+            "time": "18:00",
+            "timezone": "Asia/Kolkata",
+            "accounts": ["main"],
+            "enabled": true
+          }
+        ],
+        "instagram": [
+          {
+            "time": "10:00",
+            "timezone": "Asia/Kolkata",
+            "accounts": ["main"],
+            "enabled": false
+          },
+          {
+            "time": "22:00",
+            "timezone": "Asia/Kolkata",
+            "accounts": ["main"],
+            "enabled": false
+          }
+        ]
+      },
+
+      "content_settings": {
+        "num_slides": 5,
+        "use_ai_images": true,
+        "use_research": true
+      }
+    },
+
+    {
+      "id": "product2",
+      "name": "Another Product",
+      "url": "https://example.com",
+      "tagline": "Your tagline here",
+      "description": "Description of what the product does.",
+      "niche": "technology",
+      "tone": "professional",
+      "enabled": false,
+
+      "accounts": {
+        "linkedin": [
+          {
+            "id": "main",
+            "label": "Product2 LinkedIn",
+            "credentials_key": "PRODUCT2",
+            "enabled": true
+          },
+          {
+            "id": "secondary",
+            "label": "Product2 LinkedIn (Founder)",
+            "credentials_key": "PRODUCT2_FOUNDER",
+            "enabled": false
+          }
+        ],
+        "youtube": [],
+        "instagram": []
+      },
+
+      "schedules": {
+        "linkedin": [
+          {
+            "time": "09:00",
+            "timezone": "America/New_York",
+            "accounts": ["main"],
+            "enabled": true
+          }
+        ],
+        "youtube": [],
+        "instagram": []
+      },
+
+      "content_settings": {
+        "num_slides": 4,
+        "use_ai_images": true,
+        "use_research": false
+      }
+    }
+  ],
+
+  "shared_services": {
+    "azure_openai": {
+      "configured": true
+    },
+    "image_generation": {
+      "provider": "stock",
+      "unsplash_configured": true,
+      "pexels_configured": true
+    },
+    "research": {
+      "tavily_configured": true,
+      "reddit_configured": false
+    },
+    "notifications": {
+      "telegram_configured": true
+    }
+  },
+
+  "credentials_reference": {
+    "_comment": "This shows what credentials are needed per product. In a real UI, these would be stored encrypted in a database.",
+
+    "ASSUREDREFERRAL": {
+      "linkedin": {
+        "access_token": "LINKEDIN_ACCESS_TOKEN_ASSUREDREFERRAL",
+        "person_urn": "LINKEDIN_PERSON_URN_ASSUREDREFERRAL"
+      },
+      "youtube": {
+        "client_id": "YOUTUBE_CLIENT_ID_ASSUREDREFERRAL",
+        "client_secret": "YOUTUBE_CLIENT_SECRET_ASSUREDREFERRAL",
+        "refresh_token": "YOUTUBE_REFRESH_TOKEN_ASSUREDREFERRAL",
+        "channel_id": "YOUTUBE_CHANNEL_ID_ASSUREDREFERRAL"
+      },
+      "instagram": {
+        "access_token": "INSTAGRAM_ACCESS_TOKEN_ASSUREDREFERRAL",
+        "business_account_id": "INSTAGRAM_BUSINESS_ACCOUNT_ID_ASSUREDREFERRAL",
+        "facebook_page_id": "FACEBOOK_PAGE_ID_ASSUREDREFERRAL"
+      }
+    }
+  }
+}

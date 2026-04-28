@@ -20,12 +20,31 @@ YOUTUBE_UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 YOUTUBE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 
 
-def _get_fresh_access_token() -> str:
-    """Exchange refresh token for a fresh access token."""
-    data = {
+def _get_credentials(account_id: str = "main") -> dict:
+    """Get YouTube credentials for the specified account."""
+    product = Config.get_product()
+
+    if product:
+        return product.get_youtube_credentials(account_id)
+
+    # Legacy mode - use direct config
+    return {
         "client_id": Config.YOUTUBE_CLIENT_ID,
         "client_secret": Config.YOUTUBE_CLIENT_SECRET,
         "refresh_token": Config.YOUTUBE_REFRESH_TOKEN,
+        "channel_id": Config.YOUTUBE_CHANNEL_ID,
+    }
+
+
+def _get_fresh_access_token(creds: dict = None) -> str:
+    """Exchange refresh token for a fresh access token."""
+    if creds is None:
+        creds = _get_credentials()
+
+    data = {
+        "client_id": creds["client_id"],
+        "client_secret": creds["client_secret"],
+        "refresh_token": creds["refresh_token"],
         "grant_type": "refresh_token"
     }
 
@@ -35,7 +54,7 @@ def _get_fresh_access_token() -> str:
 
 
 def upload_short(video_path: Path, title: str, description: str,
-                  tags: list[str] = None) -> dict:
+                  tags: list[str] = None, account_id: str = "main") -> dict:
     """
     Upload a video as a YouTube Short.
 
@@ -44,15 +63,18 @@ def upload_short(video_path: Path, title: str, description: str,
         title: Video title (max 100 chars)
         description: Video description
         tags: List of tags
+        account_id: Account ID to use (for multi-account support)
 
     Returns:
         Dict with video ID and status
     """
-    if not Config.YOUTUBE_REFRESH_TOKEN:
+    creds = _get_credentials(account_id)
+
+    if not creds.get("refresh_token"):
         return {"error": "YouTube credentials not configured"}
 
     try:
-        access_token = _get_fresh_access_token()
+        access_token = _get_fresh_access_token(creds)
     except Exception as e:
         return {"error": f"Failed to get YouTube access token: {e}"}
 
