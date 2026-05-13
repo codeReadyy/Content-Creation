@@ -1,12 +1,11 @@
-# AssuredReferral — 10:00 AM IST Post
-# YouTube (1st), Instagram (1st)
+# AssuredReferral — LinkedIn Weekly Post (Tuesday 10:00 AM IST)
 
-name: AssuredReferral 10AM
+name: AssuredReferral LinkedIn Tuesday
 
 on:
   schedule:
-    # 4:30 AM UTC = 10:00 AM IST
-    - cron: "30 4 * * *"
+    # 4:30 AM UTC = 10:00 AM IST, Tuesday only (day-of-week 2)
+    - cron: "30 4 * * 2"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -20,6 +19,6 @@ jobs:
     uses: ./.github/workflows/_pipeline.yml
     with:
       product: assuredreferral
-      platforms: "youtube,instagram"
+      platforms: "linkedin"
       dry_run: ${{ inputs.dry_run || false }}
     secrets: inherit
