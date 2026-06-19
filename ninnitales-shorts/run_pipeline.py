@@ -24,7 +24,6 @@ import argparse
 import itertools
 import json
 import os
-import random
 from datetime import datetime
 from pathlib import Path
 
@@ -37,21 +36,56 @@ WORK_DIR = HERE / "work"
 QUEUE_DIR = HERE / "queue"
 
 # Fallback titles when a hook has no generated line (i.e. scraped hooks).
-TITLES = [
-    "Bedtime stories in YOUR voice, even when you're away ❤️",
-    "She hears Mom's voice every night 🥹 #bedtime",
-    "Record once. Read forever. #parenting",
-    "The bedtime hack every traveling parent needs",
-    "Your voice. Their bedtime. Anywhere. ✨",
+# Waitlist for now (pre-launch). Swap to the app-store links at launch.
+WAITLIST_URL = "https://ninnitales.com"
+
+# Title + description rotate through these sets (round-robin), independent of the
+# on-screen hook. Rotating avoids YouTube's duplicate-metadata spam throttling.
+# At launch: change the CTA line + WAITLIST_URL to the store link.
+POSTS = [
+    {
+        "title": "She falls asleep to my voice — even when I'm not home 🌙",
+        "description": (
+            "Work trips. Late shifts. Bedtime shouldn't have to wait.\n\n"
+            "NinniTales reads bedtime stories in YOUR real voice — record once, "
+            "play any night, anywhere.\n\n"
+            f"✨ Join the early-access waitlist → {WAITLIST_URL}\n\n"
+            "#bedtimestories #momlife #dadlife #parentinghacks #toddlermom #bedtime #storytime"
+        ),
+    },
+    {
+        "title": "Record your voice ONCE → bedtime stories in your voice forever",
+        "description": (
+            "90 seconds of your voice today = endless bedtime stories in YOUR voice, "
+            "every night — even when you can't be there.\n\n"
+            f"✨ Be first to try it → {WAITLIST_URL}\n\n"
+            "#parenting #bedtime #newparents #storytime #kidsbedtime #momlife"
+        ),
+    },
+    {
+        "title": 'My toddler won\'t sleep without "one more story" 🥹 (in my voice)',
+        "description": (
+            "The magic isn't the story — it's hearing Mom or Dad tell it.\n\n"
+            "NinniTales narrates bedtime stories in your own voice, so goodnight "
+            "always sounds like home.\n\n"
+            f"✨ Join the waitlist → {WAITLIST_URL}\n\n"
+            "#toddlermom #momlife #bedtimestories #parentinghacks #dadlife"
+        ),
+    },
+    {
+        "title": "How my kid hears my voice at bedtime — even miles away",
+        "description": (
+            "The bedtime hack every busy & traveling parent needs: record your voice "
+            "once, and NinniTales reads stories in YOUR voice anywhere, any night.\n\n"
+            f"✨ Get early access → {WAITLIST_URL}\n\n"
+            "#parenting #dadlife #bedtime #momhacks #storytime #toddlermom"
+        ),
+    },
 ]
-DESCRIPTION = (
-    "NinniTales lets you record 90 seconds of your voice once, then narrates "
-    "bedtime stories to your child in YOUR voice — anywhere, any night.\n\n"
-    "Try it free 👉 ninnitales (link in bio)\n\n"
-    "#bedtimestories #parenting #toddlermom #dadlife #kids #bedtime"
-)
 TAGS = ["bedtime stories", "parenting", "toddler", "kids", "bedtime",
         "mom", "dad", "ninnitales", "kids audio", "storytime"]
+# Fallbacks for approve.py when a queued clip has no sidecar metadata.
+DESCRIPTION = POSTS[0]["description"]
 
 
 def _load_env() -> None:
@@ -112,6 +146,7 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
     WORK_DIR.mkdir(exist_ok=True)
     QUEUE_DIR.mkdir(exist_ok=True)
     ctas = cta_cycle()
+    posts = itertools.cycle(POSTS)  # title+description rotation, independent of the hook
     made = 0
 
     for i in range(count):
@@ -131,17 +166,18 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
             print(f"  ⚠️  stitch failed, skipping: {e}")
             continue
 
-        title = hook["title"] or random.choice(TITLES)
+        post = next(posts)  # rotating title + description (not the on-screen hook)
+        title, description = post["title"], post["description"]
         if stitch_only:
             # Stash the metadata next to the clip so approve.py can publish it later
             # with the right title without re-deriving anything.
             out.with_suffix(".json").write_text(json.dumps(
-                {"title": title, "description": DESCRIPTION, "tags": TAGS}, indent=2))
+                {"title": title, "description": description, "tags": TAGS}, indent=2))
             print(f"  📦 queued (no upload): {out}")
             made += 1
             continue
 
-        result = upload_youtube.upload(out, title, DESCRIPTION, tags=TAGS)
+        result = upload_youtube.upload(out, title, description, tags=TAGS)
         if "error" in result:
             print(f"  ⚠️  upload failed: {result['error']}")
             continue

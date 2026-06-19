@@ -21,9 +21,11 @@ and set NINNITALES_IMAGE_DEPLOYMENT=gpt-image-1 (the repo default is the mini).
 """
 
 import base64
+import csv
 import io
 import json
 import os
+import random
 import re
 import subprocess
 from pathlib import Path
@@ -33,6 +35,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).parent
 FONT_PATH = HERE / "assets" / "fonts" / "Anton-Regular.ttf"
+# Proven viral short-video hook FORMATS (templates with placeholders). We don't
+# invent hooks from scratch — we pick a format here and rewrite it for NinniTales.
+HOOK_FORMATS_FILE = HERE / "hooks" / "hook_formats.csv"
 
 W, H = 1080, 1920
 HOOK_SECONDS = 3.5
@@ -113,22 +118,56 @@ def _image_creds() -> tuple[str, str]:
     return f"{host}/openai/v1", key
 
 
+def _load_hook_formats() -> list[str]:
+    """Read the viral hook-format templates (the `hook` column of hook_formats.csv)."""
+    if not HOOK_FORMATS_FILE.exists():
+        return []
+    formats = []
+    with HOOK_FORMATS_FILE.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            h = (row.get("hook") or "").strip()
+            if h:
+                formats.append(h)
+    return formats
+
+
+def _user_prompt(formats: list[str]) -> str:
+    """Build the per-call instruction. If we have viral formats, adapt one; else freestyle."""
+    if not formats:
+        return "Write one fresh hook for today's Short. JSON only."
+    sample = random.sample(formats, min(12, len(formats)))
+    block = "\n".join(f"- {s}" for s in sample)
+    return (
+        "Here are proven viral short-video hook FORMATS (templates; placeholders like "
+        "(topic)/(result)/(X5) are slots to fill):\n"
+        f"{block}\n\n"
+        "Choose the ONE format that best fits a NinniTales bedtime / parent's-voice angle, "
+        "then rewrite it into our hook by filling the slots with our context (record your "
+        "voice once; bedtime stories in your own voice; being away at night; a familiar "
+        "voice as comfort). KEEP the format's structure and punch — don't invent a new "
+        "shape. If none fit, use a curiosity or relatable structure. Then write a matching "
+        "image_prompt per the rules. JSON only."
+    )
+
+
 def write_hook_copy(attempts: int = 5) -> dict:
     """GPT writes today's hook line + image prompt. Returns {hook_text, image_prompt}.
 
-    Azure's text filter occasionally false-trips on bedtime/child phrasing and returns
-    no content (finish_reason=content_filter). Output varies with temperature, so we
-    just retry a few times before giving up.
+    The hook is modeled on a proven viral format (hook_formats.csv) rewritten for
+    NinniTales — not invented from scratch. Azure's text filter occasionally
+    false-trips on bedtime/child phrasing and returns no content
+    (finish_reason=content_filter); output varies with temperature, so we retry.
     """
     client = _client()
     deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
                   or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    formats = _load_hook_formats()
     for i in range(attempts):
         resp = client.chat.completions.create(
             model=deployment,
             messages=[
                 {"role": "system", "content": HOOK_SYSTEM},
-                {"role": "user", "content": "Write one fresh hook for today's Short. JSON only."},
+                {"role": "user", "content": _user_prompt(formats)},
             ],
             temperature=1.0,
             response_format={"type": "json_object"},
