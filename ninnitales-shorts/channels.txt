@@ -1,0 +1,13 @@
+# Source channels to scrape Shorts hooks from — ONE per line.
+# Use @handles or full channel URLs. Lines starting with # are ignored.
+#
+# Pick large, high-engagement channels whose audience overlaps NinniTales
+# (parents of 2-8 year olds): parenting, kids, family, bedtime, storytelling.
+# The first ~3s of their best Shorts become your hooks.
+#
+@livjowen
+
+# Examples (REPLACE these with channels you actually want):
+# @CoComelon
+# @MsRachel
+# https://www.youtube.com/@LittleBabyBum

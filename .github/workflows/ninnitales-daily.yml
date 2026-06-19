@@ -1,0 +1,95 @@
+# NinniTales — daily Shorts drip (scrape hook -> stitch CTA -> upload)
+#
+# Required repo secrets:
+#   YOUTUBE_CLIENT_ID_NINNITALES
+#   YOUTUBE_CLIENT_SECRET_NINNITALES
+#   YOUTUBE_REFRESH_TOKEN_NINNITALES
+# Optional:
+#   YOUTUBE_COOKIES  — contents of a cookies.txt (helps if YouTube blocks the
+#                      Actions runner IP during scraping). Paste the file body.
+#
+# NOTE: GitHub Actions runs on datacenter IPs that YouTube sometimes blocks for
+# scraping. If the scrape step fails with 403 / "Sign in to confirm", add the
+# YOUTUBE_COOKIES secret, or run `python run_pipeline.py` locally instead.
+
+name: NinniTales Daily
+
+on:
+  # Daily auto-post is DISABLED during the manual-approval period. To turn on
+  # automation later, uncomment the two `schedule` lines below.
+  # schedule:
+  #   # 3:30 AM UTC = 9:00 AM IST
+  #   - cron: "30 3 * * *"
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "How many Shorts to publish"
+        required: false
+        default: "1"
+      source:
+        description: "Hook source"
+        required: false
+        type: choice
+        options: ["generated", "scraped", "mix"]
+        default: "generated"
+      stitch_only:
+        description: "Build only, do not upload"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  drip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # to commit state.json (dedupe) back
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system + python deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --upgrade pip yt-dlp -r requirements.txt
+
+      - name: Write cookies (optional)
+        if: ${{ secrets.YOUTUBE_COOKIES != '' }}
+        run: printf '%s' "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
+
+      - name: Run pipeline
+        env:
+          YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
+          YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
+          YOUTUBE_REFRESH_TOKEN_NINNITALES: ${{ secrets.YOUTUBE_REFRESH_TOKEN_NINNITALES }}
+          # Azure OpenAI — needed for generated hooks (GPT copy + gpt-image-1)
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          # Image model lives in its OWN Foundry resource (v1 API) — separate endpoint + key.
+          NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
+          NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
+          NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+        run: |
+          ARGS="--count ${{ github.event.inputs.count || '1' }} --source ${{ github.event.inputs.source || 'generated' }}"
+          [ -f cookies.txt ] && ARGS="$ARGS --cookies cookies.txt"
+          [ "${{ github.event.inputs.stitch_only }}" = "true" ] && ARGS="$ARGS --stitch-only"
+          python run_pipeline.py $ARGS
+
+      - name: Persist dedupe state
+        if: always()
+        run: |
+          if ! git diff --quiet state.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore(ninnitales): update used-hooks dedupe state [skip ci]"
+            git push
+          fi

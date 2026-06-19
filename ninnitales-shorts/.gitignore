@@ -1,0 +1,22 @@
+# Secrets — never commit.
+.env
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Scraped hooks + stitched outputs — regenerated, never commit.
+work/
+queue/
+posted/
+cookies.txt
+*.part
+*.ytdl
+
+# Remotion build artifacts (CTA source project)
+cta-remotion/node_modules/
+cta-remotion/out/
+
+# NOTE: state.json (dedupe of used video IDs) is intentionally TRACKED so the
+# GitHub Actions cron can persist which hooks it already used across runs.
