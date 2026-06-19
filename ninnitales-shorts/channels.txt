@@ -6,8 +6,10 @@
 # The first ~3s of their best Shorts become your hooks.
 #
 @livjowen
+@babiesbarks
+@Kyoot
 
-# Examples (REPLACE these with channels you actually want):
+# Add more over time (parenting / kids / family / bedtime channels):
 # @CoComelon
 # @MsRachel
 # https://www.youtube.com/@LittleBabyBum

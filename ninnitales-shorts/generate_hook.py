@@ -118,8 +118,8 @@ def _image_creds() -> tuple[str, str]:
     return f"{host}/openai/v1", key
 
 
-def _load_hook_formats() -> list[str]:
-    """Read the viral hook-format templates (the `hook` column of hook_formats.csv)."""
+def _load_hook_formats() -> list[tuple[str, str]]:
+    """Read viral hook-format templates as (category, hook) from hook_formats.csv."""
     if not HOOK_FORMATS_FILE.exists():
         return []
     formats = []
@@ -127,15 +127,23 @@ def _load_hook_formats() -> list[str]:
         for row in csv.DictReader(f):
             h = (row.get("hook") or "").strip()
             if h:
-                formats.append(h)
+                formats.append(((row.get("category") or "").strip(), h))
     return formats
 
 
-def _user_prompt(formats: list[str]) -> str:
-    """Build the per-call instruction. If we have viral formats, adapt one; else freestyle."""
+def _user_prompt(formats: list[tuple[str, str]]) -> str:
+    """Build the per-call instruction. If we have viral formats, adapt one; else freestyle.
+
+    We over-sample the niche-native "Parenting" formats so generated hooks feel native
+    to the audience, then mix in general viral structures for variety.
+    """
     if not formats:
         return "Write one fresh hook for today's Short. JSON only."
-    sample = random.sample(formats, min(12, len(formats)))
+    parenting = [h for c, h in formats if c.lower() == "parenting"]
+    general = [h for c, h in formats if c.lower() != "parenting"]
+    sample = (random.sample(parenting, min(6, len(parenting)))
+              + random.sample(general, min(6, len(general))))
+    random.shuffle(sample)
     block = "\n".join(f"- {s}" for s in sample)
     return (
         "Here are proven viral short-video hook FORMATS (templates; placeholders like "
