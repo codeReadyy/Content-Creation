@@ -7,7 +7,8 @@ No scraping, no copyright risk, on-brand, fully automated. Pipeline:
   gpt-image-1  → renders a vertical anime scene (parent + 2-8yo child, bedtime)
   PIL          → composites the bold caption as a CRISP STATIC overlay (Anton font)
   ffmpeg       → gentle Ken Burns zoom on the image BEHIND the static text
-                 → 3.5s 1080x1920 hook clip (silent; stitch_cta fills the audio)
+                 → 3.5s 1080x1920 hook clip (silent; stitch_cta extends the CTA's
+                   own music back over the hook so the whole Short has one track)
 
 Config (env vars; falls back to the AssuredReferral Azure deployment):
   AZURE_OPENAI_API_KEY / _ENDPOINT / _API_VERSION   (required, shared)
@@ -66,6 +67,10 @@ Rotate across these emotional angles for freshness:
 - the warm moment a story begins and the room settles
 - record once, read every night
 - bedtime that feels like the parent is right there, even from far away
+- the BEDTIME BATTLE: a cranky, overtired kid who won't settle and an exhausted,
+  frustrated parent at the end of their rope — until the familiar voice finally calms
+  the room (the relatable pain, then the relief NinniTales brings)
+- the "one more story" stand-off and the worn-out parent who just needs bedtime to end
 
 STRICT CONTENT RULES (a safety filter will block violations):
 - Keep everything wholesome and family-friendly.
@@ -74,6 +79,12 @@ STRICT CONTENT RULES (a safety filter will block violations):
   a neatly made small bed with a teddy bear, a warm smart speaker glowing on a shelf,
   a starry window, a storybook on a blanket, a parent's silhouette or hands, a parent
   at an airport/desk at night looking at a phone. At most a tiny distant silhouette.
+- For the BEDTIME BATTLE angle, convey the chaos and the parent's frustration through
+  the ENVIRONMENT and the PARENT only: an exhausted parent slumped against the nursery
+  door or rubbing their temples, toys and storybooks scattered across the floor, a
+  half-collapsed pillow fort, tangled blankets, a clock reading very late, a parent
+  sitting on the floor in a dim hallway with head in hands. Keep it warm and wholesome,
+  never distressing — tired, not scary. Still NO child's body or face.
 - Do NOT describe a child in bed, a child's body, faces of minors, or anyone undressed.
 
 Return STRICT JSON, no markdown:

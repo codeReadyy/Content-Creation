@@ -24,6 +24,7 @@ import requests
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
+VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 
 
 def _env(name: str) -> str | None:
@@ -105,6 +106,31 @@ def upload(video_path: Path, title: str, description: str,
     when = f"scheduled for {publish_at}" if publish_at else "public now"
     print(f"  ✅ uploaded ({when}): {url}")
     return {"status": "uploaded", "video_id": vid, "url": url}
+
+
+def delete(video_id: str) -> dict:
+    """Delete a video (used by the Telegram ❌ veto to cancel a scheduled Short).
+
+    Requires the youtube.force-ssl scope — re-mint the token with
+    get_youtube_token.py if this 403s. Returns {status} or {error}.
+    """
+    creds = _credentials()
+    if not creds.get("refresh_token"):
+        return {"error": "YOUTUBE_REFRESH_TOKEN(_NINNITALES) not set"}
+    try:
+        token = _access_token(creds)
+    except Exception as e:
+        return {"error": f"token refresh failed: {e}"}
+
+    r = requests.delete(VIDEOS_URL, params={"id": video_id},
+                        headers={"Authorization": f"Bearer {token}"}, timeout=30)
+    if r.status_code in (200, 204):
+        print(f"  🗑️  deleted (vetoed): {video_id}")
+        return {"status": "deleted", "video_id": video_id}
+    if r.status_code == 403 and "insufficient" in r.text.lower():
+        return {"error": "delete needs youtube.force-ssl scope — re-mint the token "
+                         "with get_youtube_token.py"}
+    return {"error": f"delete failed ({r.status_code}): {r.text[:200]}"}
 
 
 if __name__ == "__main__":

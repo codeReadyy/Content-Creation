@@ -8,8 +8,10 @@ BOTH segments to one identical target in a single ffmpeg filter_complex pass:
     1080x1920, 30fps, h264 (yuv420p), AAC 44100 stereo
 
 Both segments are scaled to COVER the 1080x1920 frame and then cropped (full-bleed,
-no letterbox bars). Hooks that have no audio track get a generated silent track so
-the concat audio stream stays continuous.
+no letterbox bars). Hooks that have no audio track (e.g. the generated cozy-anime
+hooks) get the CTA's OWN music extended back over them — a faded intro slice of the
+CTA audio plays under the hook so the whole Short carries one continuous track,
+with no separate music files to manage.
 """
 
 import json
@@ -60,23 +62,27 @@ def stitch(hook_path: Path, cta_path: Path, out_path: Path) -> Path:
     hook_dur = _duration(hook_info)
 
     cmd = ["ffmpeg", "-y", "-i", str(hook_path), "-i", str(cta_path)]
-    # Input indices: 0 = hook, 1 = cta. A synthetic silent source (when the hook
-    # lacks audio) is appended as the next index.
+    # Input indices: 0 = hook, 1 = cta.
     parts = [
         f"[0:v]{_VFILTER}[v0]",
         f"[1:v]{_VFILTER}[v1]",
     ]
 
     if hook_has_audio:
+        # Scraped hooks bring their own audio — keep it under the hook segment.
         parts.append(f"[0:a]{_AFILTER}[a0]")
+        parts.append(f"[1:a]{_AFILTER}[a1]")
     else:
-        # Generate silence matching the hook's duration so the concat A stream
-        # stays aligned with the V stream.
-        cmd += ["-f", "lavfi", "-t", f"{hook_dur:.3f}",
-                "-i", f"anullsrc=channel_layout=stereo:sample_rate={SAR}"]
-        parts.append(f"[2:a]{_AFILTER}[a0]")
+        # Silent (generated) hook: extend the CTA's own music back over it. Split
+        # the CTA audio — a fade-in intro slice trimmed to the hook's length covers
+        # [a0], the full CTA track stays under the CTA at [a1] in its original sync.
+        fade = min(0.5, hook_dur)
+        parts.append("[1:a]asplit=2[cta_a][cta_b]")
+        parts.append(
+            f"[cta_a]atrim=0:{hook_dur:.3f},asetpts=PTS-STARTPTS,"
+            f"afade=t=in:st=0:d={fade:.3f},{_AFILTER}[a0]")
+        parts.append(f"[cta_b]{_AFILTER}[a1]")
 
-    parts.append(f"[1:a]{_AFILTER}[a1]")
     parts.append("[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]")
 
     cmd += [

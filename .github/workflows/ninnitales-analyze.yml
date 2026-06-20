@@ -1,0 +1,61 @@
+# NinniTales — daily performance analysis.
+#
+# Reads analytics/ledger.json, measures each Short ~24h after posting (views +
+# search-driven views), writes analytics/winners.json, and commits both back so
+# run_pipeline can double down on the winning keyword themes on the next run.
+#
+# Requires the SAME YouTube secrets as ninnitales-daily.yml. The refresh token
+# must include the yt-analytics.readonly scope (re-mint with get_youtube_token.py)
+# for search attribution; without it the job still records total views.
+
+name: NinniTales Analyze
+
+on:
+  # 13:00 UTC = 9am ET — measures yesterday's posts after they've had ~a day.
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      min_age:
+        description: "Only measure videos at least N hours old"
+        required: false
+        default: "24"
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # commit ledger.json + winners.json back
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: python -m pip install --upgrade pip -r requirements.txt
+
+      - name: Measure + pick winners
+        env:
+          YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
+          YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
+          YOUTUBE_REFRESH_TOKEN_NINNITALES: ${{ secrets.YOUTUBE_REFRESH_TOKEN_NINNITALES }}
+        run: python analyze.py --min-age "${{ github.event.inputs.min_age || '24' }}"
+
+      - name: Persist ledger + winners
+        if: always()
+        run: |
+          git add analytics/ledger.json analytics/winners.json 2>/dev/null || true
+          # --cached catches first-run untracked files too (plain git diff misses them).
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(ninnitales): update analytics ledger + winners [skip ci]"
+            # Rebase onto any commit the daily post cron pushed, then push.
+            git pull --rebase --autostash origin main || true
+            git push
+          fi

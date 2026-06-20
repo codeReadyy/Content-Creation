@@ -24,68 +24,142 @@ import argparse
 import itertools
 import json
 import os
+import random
 from datetime import datetime
 from pathlib import Path
 
 import stitch_cta
 import upload_youtube
+from analytics import ledger
 
 HERE = Path(__file__).parent
 CTA_DIR = HERE / "cta"
 WORK_DIR = HERE / "work"
 QUEUE_DIR = HERE / "queue"
 
-# Fallback titles when a hook has no generated line (i.e. scraped hooks).
 # Waitlist for now (pre-launch). Swap to the app-store links at launch.
 WAITLIST_URL = "https://ninnitales.com"
 
-# Title + description rotate through these sets (round-robin), independent of the
-# on-screen hook. Rotating avoids YouTube's duplicate-metadata spam throttling.
-# At launch: change the CTA line + WAITLIST_URL to the store link.
+# ── SEARCH-FIRST TITLES ──────────────────────────────────────────────────────
+# Titles lead with a phrase parents actually type into YouTube search (sourced
+# from YouTube autocomplete, US), because Shorts surface heavily in search and a
+# keyword title ("best way to put kids to sleep") out-pulls a clever one
+# ("this changed everything") by ~100x in this niche. Keep the keyword in the
+# FIRST ~40 chars (mobile truncates). Each post carries a `theme` (keyword bucket)
+# so analyze.py can attribute views back to it and run_pipeline can double down on
+# the winners. The on-screen hook is independent of this metadata.
+def _desc(lead: str, tags: str) -> str:
+    return (
+        f"{lead}\n\n"
+        "NinniTales reads bedtime stories in YOUR own voice — record once, play any "
+        "night, anywhere. The familiar voice settles them faster than any screen.\n\n"
+        f"✨ Join the early-access waitlist → {WAITLIST_URL}\n\n"
+        f"{tags}"
+    )
+
+
 POSTS = [
-    {
-        "title": "She falls asleep to my voice — even when I'm not home 🌙",
-        "description": (
-            "Work trips. Late shifts. Bedtime shouldn't have to wait.\n\n"
-            "NinniTales reads bedtime stories in YOUR real voice — record once, "
-            "play any night, anywhere.\n\n"
-            f"✨ Join the early-access waitlist → {WAITLIST_URL}\n\n"
-            "#bedtimestories #momlife #dadlife #parentinghacks #toddlermom #bedtime #storytime"
-        ),
-    },
-    {
-        "title": "Record your voice ONCE → bedtime stories in your voice forever",
-        "description": (
-            "90 seconds of your voice today = endless bedtime stories in YOUR voice, "
-            "every night — even when you can't be there.\n\n"
-            f"✨ Be first to try it → {WAITLIST_URL}\n\n"
-            "#parenting #bedtime #newparents #storytime #kidsbedtime #momlife"
-        ),
-    },
-    {
-        "title": 'My toddler won\'t sleep without "one more story" 🥹 (in my voice)',
-        "description": (
-            "The magic isn't the story — it's hearing Mom or Dad tell it.\n\n"
-            "NinniTales narrates bedtime stories in your own voice, so goodnight "
-            "always sounds like home.\n\n"
-            f"✨ Join the waitlist → {WAITLIST_URL}\n\n"
-            "#toddlermom #momlife #bedtimestories #parentinghacks #dadlife"
-        ),
-    },
-    {
-        "title": "How my kid hears my voice at bedtime — even miles away",
-        "description": (
-            "The bedtime hack every busy & traveling parent needs: record your voice "
-            "once, and NinniTales reads stories in YOUR voice anywhere, any night.\n\n"
-            f"✨ Get early access → {WAITLIST_URL}\n\n"
-            "#parenting #dadlife #bedtime #momhacks #storytime #toddlermom"
-        ),
-    },
+    {"theme": "sleep_fast",
+     "title": "How to get your toddler to sleep fast 😴",
+     "description": _desc(
+         "Looking for the fastest way to get your toddler to sleep? The secret most "
+         "parents miss: kids settle quickest to a familiar voice.",
+         "#toddlersleep #howtogettoddlertosleep #bedtime #momlife #parentinghacks")},
+    {"theme": "sleep_fast",
+     "title": "Best way to put a toddler to sleep (no fight)",
+     "description": _desc(
+         "The best way to put a toddler to sleep without a bedtime fight — and why "
+         "your voice does the heavy lifting.",
+         "#toddlersleep #bedtimeroutine #toddlermom #parentinghacks #momsofyoutube")},
+    {"theme": "wont_sleep",
+     "title": "Toddler won't sleep at night? Try this tonight",
+     "description": _desc(
+         "If your toddler won't sleep at night, try this before you give up: a "
+         "bedtime story in a voice they trust.",
+         "#toddlerwontsleep #bedtimebattle #toddlermom #parenting #sleeptips")},
+    {"theme": "own_bed",
+     "title": "How to get your toddler to sleep in their own bed",
+     "description": _desc(
+         "How to get your toddler to sleep in their own bed — the gentle trick that "
+         "makes the room feel safe even when you step out.",
+         "#toddlersleep #ownbed #sleeptraining #gentleparenting #toddlermom")},
+    {"theme": "through_night",
+     "title": "How to get your baby to sleep through the night",
+     "description": _desc(
+         "How to help your baby sleep through the night — a calmer wind-down that "
+         "doesn't depend on you being in the room.",
+         "#babysleep #sleepthroughthenight #newmom #babysleeptips #momlife")},
+    {"theme": "make_sleep",
+     "title": "How to make kids fall asleep faster (bedtime hack)",
+     "description": _desc(
+         "The bedtime hack to make kids fall asleep faster — no screens, just a "
+         "story in a voice they love.",
+         "#kidssleep #bedtimehack #parentinghacks #momhacks #toddlersleep")},
+    {"theme": "bedtime_routine",
+     "title": "The toddler bedtime routine that actually works",
+     "description": _desc(
+         "A toddler bedtime routine that actually works — the one step that finally "
+         "ends the 'one more story' stand-off.",
+         "#bedtimeroutine #toddlerbedtime #momlife #parentinghacks #toddlermom")},
+    {"theme": "bedtime_stories",
+     "title": "Bedtime stories for kids that help them sleep",
+     "description": _desc(
+         "Bedtime stories for kids that actually help them fall asleep — read in "
+         "the one voice that calms them down.",
+         "#bedtimestories #storytime #kidsbedtime #toddlermom #parenting")},
+    {"theme": "sleep_training",
+     "title": "Gentle toddler sleep training that actually works",
+     "description": _desc(
+         "Gentle toddler sleep training without the tears — let a familiar voice do "
+         "the soothing, even when you can't be there.",
+         "#sleeptraining #gentleparenting #toddlersleep #momlife #bedtime")},
+    {"theme": "calm_before_bed",
+     "title": "How to calm a toddler before bed (every night)",
+     "description": _desc(
+         "How to calm an overtired toddler before bed — the wind-down that works "
+         "even on the worst bedtime-battle nights.",
+         "#calmtoddler #bedtimebattle #toddlermom #parentinghacks #overtired")},
 ]
-TAGS = ["bedtime stories", "parenting", "toddler", "kids", "bedtime",
-        "mom", "dad", "ninnitales", "kids audio", "storytime"]
+TAGS = ["bedtime stories", "how to get toddler to sleep", "toddler won't sleep",
+        "toddler sleep", "bedtime routine", "how to make kids sleep", "kids sleep",
+        "toddler bedtime", "bedtime stories for kids", "ninnitales"]
 # Fallbacks for approve.py when a queued clip has no sidecar metadata.
 DESCRIPTION = POSTS[0]["description"]
+
+# analyze.py writes per-theme weights here after measuring 24h performance.
+WINNERS_PATH = HERE / "analytics" / "winners.json"
+# Share of picks reserved for EXPLORING themes regardless of past results, so a
+# new keyword still gets a fair shot and we don't over-fit to early noise.
+EXPLORE_RATE = 0.20
+
+
+def _theme_weights() -> dict[str, float]:
+    """Load per-theme weights produced by analyze.py (empty until it has run)."""
+    if not WINNERS_PATH.exists():
+        return {}
+    try:
+        data = json.loads(WINNERS_PATH.read_text())
+        return {k: float(v) for k, v in data.get("theme_weights", {}).items()}
+    except (json.JSONDecodeError, ValueError, AttributeError):
+        return {}
+
+
+def choose_post(rng: random.Random) -> dict:
+    """Pick a post, biased toward themes that earned views (explore/exploit).
+
+    With probability EXPLORE_RATE (or before analyze.py has any data) pick
+    uniformly so every theme keeps getting tested; otherwise pick a theme with
+    probability proportional to its measured weight, then a random title in it.
+    """
+    weights = _theme_weights()
+    if not weights or rng.random() < EXPLORE_RATE:
+        return rng.choice(POSTS)
+    themes = sorted({p["theme"] for p in POSTS})
+    scored = [max(weights.get(t, 0.0), 0.0) for t in themes]
+    if sum(scored) <= 0:
+        return rng.choice(POSTS)
+    theme = rng.choices(themes, weights=scored, k=1)[0]
+    return rng.choice([p for p in POSTS if p["theme"] == theme])
 
 
 def _load_env() -> None:
@@ -146,7 +220,7 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
     WORK_DIR.mkdir(exist_ok=True)
     QUEUE_DIR.mkdir(exist_ok=True)
     ctas = cta_cycle()
-    posts = itertools.cycle(POSTS)  # title+description rotation, independent of the hook
+    rng = random.Random()  # performance-weighted title selection (see choose_post)
     made = 0
 
     for i in range(count):
@@ -166,13 +240,15 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
             print(f"  ⚠️  stitch failed, skipping: {e}")
             continue
 
-        post = next(posts)  # rotating title + description (not the on-screen hook)
-        title, description = post["title"], post["description"]
+        post = choose_post(rng)  # keyword title, weighted toward proven themes
+        title, description, theme = post["title"], post["description"], post["theme"]
+        print(f"  title: {title!r}  (theme={theme})")
         if stitch_only:
             # Stash the metadata next to the clip so approve.py can publish it later
-            # with the right title without re-deriving anything.
+            # with the right title + theme without re-deriving anything.
             out.with_suffix(".json").write_text(json.dumps(
-                {"title": title, "description": description, "tags": TAGS}, indent=2))
+                {"title": title, "description": description, "tags": TAGS,
+                 "theme": theme}, indent=2))
             print(f"  📦 queued (no upload): {out}")
             made += 1
             continue
@@ -181,6 +257,7 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
         if "error" in result:
             print(f"  ⚠️  upload failed: {result['error']}")
             continue
+        ledger.log_upload(result["video_id"], title, theme, result["url"])
         made += 1
 
     print(f"\nDone. {made}/{count} video(s) "

@@ -1,48 +1,29 @@
-# NinniTales — daily Shorts drip (scrape hook -> stitch CTA -> upload)
+# NinniTales — daily Short: build → schedule 7pm ET → Telegram veto preview.
+#
+# daily.py builds one generated Short, uploads it PRIVATE with publishAt = the next
+# 7pm ET slot (YouTube auto-publishes it), and sends a Telegram preview with a ❌
+# Cancel button. Ignore it and it goes live; tap ❌ and ninnitales-telegram-poll.yml
+# deletes it before then. Runs at 14:00 UTC (10am ET) to give a ~9h veto window.
 #
 # Required repo secrets:
-#   YOUTUBE_CLIENT_ID_NINNITALES
-#   YOUTUBE_CLIENT_SECRET_NINNITALES
-#   YOUTUBE_REFRESH_TOKEN_NINNITALES
-# Optional:
-#   YOUTUBE_COOKIES  — contents of a cookies.txt (helps if YouTube blocks the
-#                      Actions runner IP during scraping). Paste the file body.
-#
-# NOTE: GitHub Actions runs on datacenter IPs that YouTube sometimes blocks for
-# scraping. If the scrape step fails with 403 / "Sign in to confirm", add the
-# YOUTUBE_COOKIES secret, or run `python run_pipeline.py` locally instead.
+#   YOUTUBE_CLIENT_ID_NINNITALES / _SECRET_NINNITALES / _REFRESH_TOKEN_NINNITALES
+#     (refresh token must have youtube.force-ssl — re-mint with get_youtube_token.py)
+#   AZURE_OPENAI_* + NINNITALES_IMAGE_*   (generated-hook image + copy)
+#   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (reused from AssuredReferral)
 
 name: NinniTales Daily
 
 on:
-  # Daily auto-post is DISABLED during the manual-approval period. To turn on
-  # automation later, uncomment the two `schedule` lines below.
-  # schedule:
-  #   # 3:30 AM UTC = 9:00 AM IST
-  #   - cron: "30 3 * * *"
+  schedule:
+    # 14:00 UTC = 10am ET — build now, publish at 7pm ET, ~9h veto window between.
+    - cron: "0 14 * * *"
   workflow_dispatch:
-    inputs:
-      count:
-        description: "How many Shorts to publish"
-        required: false
-        default: "1"
-      source:
-        description: "Hook source"
-        required: false
-        type: choice
-        options: ["generated", "scraped", "mix"]
-        default: "generated"
-      stitch_only:
-        description: "Build only, do not upload"
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   drip:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # to commit state.json (dedupe) back
+      contents: write   # to commit the ledger back
     defaults:
       run:
         working-directory: ninnitales-shorts
@@ -57,39 +38,33 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python -m pip install --upgrade pip yt-dlp -r requirements.txt
+          python -m pip install --upgrade pip -r requirements.txt
 
-      - name: Write cookies (optional)
-        if: ${{ secrets.YOUTUBE_COOKIES != '' }}
-        run: printf '%s' "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
-
-      - name: Run pipeline
+      - name: Build + schedule + Telegram preview
         env:
           YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
           YOUTUBE_REFRESH_TOKEN_NINNITALES: ${{ secrets.YOUTUBE_REFRESH_TOKEN_NINNITALES }}
-          # Azure OpenAI — needed for generated hooks (GPT copy + gpt-image-1)
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
           AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
-          # Image model lives in its OWN Foundry resource (v1 API) — separate endpoint + key.
           NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
           NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
           NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
-        run: |
-          ARGS="--count ${{ github.event.inputs.count || '1' }} --source ${{ github.event.inputs.source || 'generated' }}"
-          [ -f cookies.txt ] && ARGS="$ARGS --cookies cookies.txt"
-          [ "${{ github.event.inputs.stitch_only }}" = "true" ] && ARGS="$ARGS --stitch-only"
-          python run_pipeline.py $ARGS
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python daily.py
 
-      - name: Persist dedupe state
+      - name: Persist ledger
         if: always()
         run: |
-          if ! git diff --quiet state.json; then
+          # ledger.json records the scheduled video so analyze + poll can find it.
+          git add analytics/ledger.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add state.json
-            git commit -m "chore(ninnitales): update used-hooks dedupe state [skip ci]"
+            git commit -m "chore(ninnitales): log scheduled Short to ledger [skip ci]"
+            git pull --rebase --autostash origin main || true
             git push
           fi

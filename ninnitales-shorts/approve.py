@@ -19,21 +19,23 @@ from pathlib import Path
 
 import run_pipeline
 import upload_youtube
+from analytics import ledger
 
 HERE = Path(__file__).parent
 QUEUE = HERE / "queue"
 POSTED = HERE / "posted"
 
 
-def _meta(mp4: Path) -> tuple[str | None, str, list[str]]:
-    """Return (title, description, tags) from the sidecar json, with sane fallbacks."""
+def _meta(mp4: Path) -> tuple[str | None, str, list[str], str]:
+    """Return (title, description, tags, theme) from the sidecar, with fallbacks."""
     sidecar = mp4.with_suffix(".json")
     if sidecar.exists():
         d = json.loads(sidecar.read_text())
         return (d.get("title"),
                 d.get("description", run_pipeline.DESCRIPTION),
-                d.get("tags", run_pipeline.TAGS))
-    return None, run_pipeline.DESCRIPTION, run_pipeline.TAGS
+                d.get("tags", run_pipeline.TAGS),
+                d.get("theme", "untagged"))
+    return None, run_pipeline.DESCRIPTION, run_pipeline.TAGS, "untagged"
 
 
 def _list() -> list[Path]:
@@ -44,8 +46,8 @@ def _list() -> list[Path]:
         return vids
     print("Queued Shorts:")
     for i, v in enumerate(vids, 1):
-        title, *_ = _meta(v)
-        print(f"  [{i}] {v.name}  —  {title or '(no title; pass --title)'}")
+        title, _d, _t, theme = _meta(v)
+        print(f"  [{i}] {v.name}  —  {title or '(no title; pass --title)'}  [{theme}]")
     return vids
 
 
@@ -80,16 +82,19 @@ def main() -> None:
     if not mp4.exists():
         raise SystemExit(f"❌ not found: {mp4}")
 
-    title, description, tags = _meta(mp4)
+    title, description, tags, theme = _meta(mp4)
     title = args.title or title
     if not title:
         raise SystemExit("❌ no title in sidecar; pass --title \"...\".")
 
-    print(f"\npublishing {mp4.name}\n  title: {title!r}")
+    print(f"\npublishing {mp4.name}\n  title: {title!r}  (theme={theme})")
     result = upload_youtube.upload(mp4, title, description, tags=tags,
                                    publish_at=args.publish_at)
     if "error" in result:
         raise SystemExit(f"❌ {result['error']}")
+
+    # Record it so analyze.py can measure this title's pull at the 24h mark.
+    ledger.log_upload(result["video_id"], title, theme, result["url"])
 
     if not args.keep:
         POSTED.mkdir(exist_ok=True)
