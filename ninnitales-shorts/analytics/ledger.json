@@ -8,5 +8,15 @@
     "status": "scheduled",
     "posted_at": "2026-06-20T23:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "rRXkVORjih4",
+    "platform": "youtube",
+    "title": "Best way to put a toddler to sleep (no fight)",
+    "theme": "sleep_fast",
+    "url": "https://youtube.com/shorts/rRXkVORjih4",
+    "status": "scheduled",
+    "posted_at": "2026-06-20T23:00:00Z",
+    "finalized": false
   }
 ]
