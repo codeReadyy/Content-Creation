@@ -61,7 +61,14 @@ def run() -> int:
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
     rng = random.Random()
 
-    hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None, 0)
+    # Pick the keyword post first so its title drives the on-screen caption too.
+    post = run_pipeline.choose_post(rng)
+    title, description, theme = post["title"], post["description"], post["theme"]
+    slot = next_slot_utc()
+    print(f"title: {title!r}  (theme={theme})  → schedule {slot}")
+
+    hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None, 0,
+                                 caption_override=title)
     if not hook:
         print("❌ hook generation failed — nothing to post today.")
         return 1
@@ -70,11 +77,6 @@ def run() -> int:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out = run_pipeline.QUEUE_DIR / f"short_{stamp}_{hook['slug']}.mp4"
     stitch_cta.stitch(hook["path"], cta, out)
-
-    post = run_pipeline.choose_post(rng)
-    title, description, theme = post["title"], post["description"], post["theme"]
-    slot = next_slot_utc()
-    print(f"title: {title!r}  (theme={theme})  → schedule {slot}")
 
     result = upload_youtube.upload(out, title, description,
                                    tags=run_pipeline.TAGS, publish_at=slot)

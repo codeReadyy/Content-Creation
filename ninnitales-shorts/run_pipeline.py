@@ -49,11 +49,21 @@ WAITLIST_URL = "https://ninnitales.com"
 # so analyze.py can attribute views back to it and run_pipeline can double down on
 # the winners. The on-screen hook is independent of this metadata.
 def _desc(lead: str, tags: str) -> str:
+    """Build a description that ECHOES the on-screen keyword and earns the tap.
+
+    `lead` repeats the title's keyword (so a viewer who saw it on screen finds it
+    again here) and ends with a curiosity gap — YouTube shows just this first line
+    above the "...more" fold, so it's what makes parents open the description. The
+    ninnitales.com mention stays soft, lower down, not salesy.
+    """
     return (
-        f"{lead}\n\n"
-        "NinniTales reads bedtime stories in YOUR own voice — record once, play any "
-        "night, anywhere. The familiar voice settles them faster than any screen.\n\n"
-        f"✨ Join the early-access waitlist → {WAITLIST_URL}\n\n"
+        f"{lead} 👇\n\n"
+        "Here's what actually helps: little ones settle fastest to a familiar "
+        "voice — not another screen. Keep the wind-down calm and let the story carry "
+        "them down.\n\n"
+        "🌙 That's the whole idea behind NinniTales — bedtime stories read in your "
+        "OWN voice, even on the nights you can't be there. Try it free → "
+        f"{WAITLIST_URL}\n\n"
         f"{tags}"
     )
 
@@ -187,11 +197,14 @@ def cta_cycle():
     return itertools.cycle(ctas)
 
 
-def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int) -> dict | None:
+def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int,
+             caption_override: str | None = None) -> dict | None:
     """
     Return a hook for one video: {"path", "slug", "title"}.
 
     source: "generated" | "scraped" | "mix" (mix alternates, starting generated).
+    caption_override: the keyword title to burn on-screen (generated hooks only),
+    so the on-screen text matches the YouTube title + description keyword.
     """
     if source == "mix":
         source = "generated" if idx % 2 == 0 else "scraped"
@@ -201,7 +214,8 @@ def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int) -> dict
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         out = work_dir / f"genhook_{stamp}.mp4"
         try:
-            res = generate_hook.generate_hook(out, work_dir=work_dir)
+            res = generate_hook.generate_hook(out, work_dir=work_dir,
+                                              caption_override=caption_override)
         except Exception as e:
             print(f"  ⚠️  hook generation failed: {e}")
             return None
@@ -225,7 +239,12 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
 
     for i in range(count):
         print(f"\n=== video {i + 1}/{count} (source={source}) ===")
-        hook = get_hook(source, WORK_DIR, cookies, i)
+        # Pick the keyword post FIRST so its title can drive the on-screen caption.
+        post = choose_post(rng)  # keyword title, weighted toward proven themes
+        title, description, theme = post["title"], post["description"], post["theme"]
+        print(f"  title: {title!r}  (theme={theme})")
+
+        hook = get_hook(source, WORK_DIR, cookies, i, caption_override=title)
         if not hook:
             print("no hook available — skipping.")
             continue
@@ -240,9 +259,6 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
             print(f"  ⚠️  stitch failed, skipping: {e}")
             continue
 
-        post = choose_post(rng)  # keyword title, weighted toward proven themes
-        title, description, theme = post["title"], post["description"], post["theme"]
-        print(f"  title: {title!r}  (theme={theme})")
         if stitch_only:
             # Stash the metadata next to the clip so approve.py can publish it later
             # with the right title + theme without re-deriving anything.

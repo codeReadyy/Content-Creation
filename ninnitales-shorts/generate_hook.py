@@ -283,20 +283,34 @@ def _wrap_lines(text: str, font: ImageFont.FreeTypeFont, max_w: int, draw: Image
     return lines
 
 
+# Keep on-screen captions to glyphs the Anton display font can render — strip
+# emojis/symbols (titles carry 😴🌙 etc. that would render as tofu boxes).
+_CAPTION_STRIP = re.compile(r"[^A-Za-z0-9 '\"?!.,:;()&%/+-]+")
+
+
+def clean_caption(text: str) -> str:
+    """Drop characters the display font can't draw; collapse whitespace."""
+    return re.sub(r"\s+", " ", _CAPTION_STRIP.sub("", text)).strip()
+
+
 def _text_overlay(hook_text: str) -> Image.Image:
-    """RGBA 1080x1920 overlay: top scrim + bold wrapped caption with stroke."""
+    """RGBA 1080x1920 overlay: BOTTOM scrim + bold wrapped caption with stroke.
+
+    The caption sits at the bottom to match the CTA clip (whose text is also at the
+    bottom), so the on-screen text stays in one consistent place across the Short.
+    """
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Top scrim: fades dark→transparent so text reads over any image.
-    scrim_h = int(H * 0.42)
+    # Bottom scrim: fades transparent(top)→dark(bottom) so text reads over any image.
+    scrim_h = int(H * 0.46)
     scrim = Image.new("L", (1, scrim_h))
     for y in range(scrim_h):
-        scrim.putpixel((0, y), int(165 * (1 - y / scrim_h)))
+        scrim.putpixel((0, y), int(180 * (y / scrim_h)))  # darker toward the bottom
     scrim = scrim.resize((W, scrim_h))
     black = Image.new("RGBA", (W, scrim_h), (0, 0, 0, 255))
     black.putalpha(scrim)
-    overlay.alpha_composite(black, (0, 0))
+    overlay.alpha_composite(black, (0, H - scrim_h))
 
     margin = 70
     max_w = W - 2 * margin
@@ -312,8 +326,10 @@ def _text_overlay(hook_text: str) -> Image.Image:
     font = ImageFont.truetype(str(FONT_PATH), size)
     lines = _wrap_lines(text, font, max_w, draw)
 
+    # Bottom-anchor the block, clearing the Shorts bottom UI (handle/title bar).
     line_h = int(size * 1.12)
-    y = int(H * 0.10)
+    bottom_margin = int(H * 0.17)
+    y = H - bottom_margin - line_h * len(lines)
     for line in lines:
         lw = draw.textlength(line, font=font)
         x = (W - lw) / 2
@@ -345,12 +361,18 @@ def _ken_burns(base_png: Path, text_png: Path, out_path: Path) -> Path:
     return out_path
 
 
-def generate_hook(out_path: Path, work_dir: Path | None = None) -> dict:
+def generate_hook(out_path: Path, work_dir: Path | None = None,
+                  caption_override: str | None = None) -> dict:
     """
     Full hook generation. Returns {"path", "hook_text", "image_prompt"}.
 
     Writes a sidecar <out>.json with the metadata so run_pipeline can use the
     hook line as the video title.
+
+    caption_override: if given (e.g. the chosen keyword TITLE), it becomes the
+    on-screen caption instead of GPT's emotional hook line — so the text burned
+    into the video matches the YouTube title + description keyword. GPT is still
+    used for the background image prompt.
     """
     out_path = Path(out_path)
     work_dir = Path(work_dir or out_path.parent)
@@ -358,7 +380,8 @@ def generate_hook(out_path: Path, work_dir: Path | None = None) -> dict:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     copy = write_hook_copy()
-    print(f"  hook: {copy['hook_text']!r}")
+    caption = clean_caption(caption_override) if caption_override else copy["hook_text"]
+    print(f"  hook caption: {caption!r}")
     img_bytes = generate_image(copy["image_prompt"])
 
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
@@ -367,11 +390,11 @@ def generate_hook(out_path: Path, work_dir: Path | None = None) -> dict:
     base.save(base_png)
 
     text_png = work_dir / f"{out_path.stem}_text.png"
-    _text_overlay(copy["hook_text"]).save(text_png)
+    _text_overlay(caption).save(text_png)
 
     _ken_burns(base_png, text_png, out_path)
 
-    meta = {"hook_text": copy["hook_text"], "image_prompt": copy["image_prompt"]}
+    meta = {"hook_text": caption, "image_prompt": copy["image_prompt"]}
     out_path.with_suffix(".json").write_text(json.dumps(meta, indent=2))
     # Clean intermediate frames.
     base_png.unlink(missing_ok=True)
