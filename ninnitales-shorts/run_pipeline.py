@@ -48,87 +48,107 @@ WAITLIST_URL = "https://ninnitales.com"
 # FIRST ~40 chars (mobile truncates). Each post carries a `theme` (keyword bucket)
 # so analyze.py can attribute views back to it and run_pipeline can double down on
 # the winners. The on-screen hook is independent of this metadata.
-def _desc(lead: str, tags: str) -> str:
-    """Build a description that ECHOES the on-screen keyword and earns the tap.
+def _desc(title: str, steps: list[str], tags: str) -> str:
+    """Build a VALUE-LIST description that delivers on the title's promise.
 
-    `lead` repeats the title's keyword (so a viewer who saw it on screen finds it
-    again here) and ends with a curiosity gap — YouTube shows just this first line
-    above the "...more" fold, so it's what makes parents open the description. The
-    ninnitales.com mention stays soft, lower down, not salesy.
+    The first line (all YouTube shows before "...more") echoes the on-screen title,
+    so a viewer who saw "5 ways..." taps to get the actual 5 ways. The list is real,
+    usable advice; ONE item (the 2nd or 3rd) is the NinniTales method described in
+    plain human words — no hard sell. A single soft link sits at the very bottom.
     """
+    body = "\n".join(f"{i}. {s}" for i, s in enumerate(steps, 1))
     return (
-        f"{lead} 👇\n\n"
-        "Here's what actually helps: little ones settle fastest to a familiar "
-        "voice — not another screen. Keep the wind-down calm and let the story carry "
-        "them down.\n\n"
-        "🌙 That's the whole idea behind NinniTales — bedtime stories read in your "
-        "OWN voice, even on the nights you can't be there. Try it free → "
-        f"{WAITLIST_URL}\n\n"
+        f"{title} 👇\n\n"
+        f"{body}\n\n"
+        "Save this for tonight. 🌙\n\n"
+        f"(The record-your-voice idea above is what we made → {WAITLIST_URL})\n\n"
         f"{tags}"
     )
 
 
+# Each post is a LISTICLE: the title is a "N ways/steps" hook (also burned on-screen),
+# and the description delivers that real list. The NinniTales method is woven in as
+# item 2 or 3 in human words ("play a story in your own recorded voice"), never a pitch.
 POSTS = [
     {"theme": "sleep_fast",
-     "title": "How to get your toddler to sleep fast 😴",
+     "title": "5 ways to get your toddler to sleep faster",
      "description": _desc(
-         "Looking for the fastest way to get your toddler to sleep? The secret most "
-         "parents miss: kids settle quickest to a familiar voice.",
+         "5 ways to get your toddler to sleep faster",
+         ["Start the wind-down an hour early — dim the lights so their body clock catches on.",
+          "Play a story in YOUR voice — record yourself reading their favorite book once, "
+          "then play it back at lights-out. A familiar voice settles little ones faster than "
+          "any screen, even on the nights you're not in the room (this is the whole idea "
+          "behind NinniTales).",
+          "Keep the room cool and dark — around 68°F is the sleep sweet spot.",
+          "Same three steps every night — bath, book, bed — so bedtime feels predictable.",
+          "No screens for the last 30 minutes — blue light keeps them wired."],
          "#toddlersleep #howtogettoddlertosleep #bedtime #momlife #parentinghacks")},
-    {"theme": "sleep_fast",
-     "title": "Best way to put a toddler to sleep (no fight)",
-     "description": _desc(
-         "The best way to put a toddler to sleep without a bedtime fight — and why "
-         "your voice does the heavy lifting.",
-         "#toddlersleep #bedtimeroutine #toddlermom #parentinghacks #momsofyoutube")},
     {"theme": "wont_sleep",
-     "title": "Toddler won't sleep at night? Try this tonight",
+     "title": "4 things to try when your toddler won't sleep",
      "description": _desc(
-         "If your toddler won't sleep at night, try this before you give up: a "
-         "bedtime story in a voice they trust.",
+         "4 things to try when your toddler won't sleep",
+         ["Check the basics first — too hot, too cold, hungry, or overtired all backfire.",
+          "Lower your voice and slow down — kids mirror your energy, so calm is contagious.",
+          "Play a bedtime story in your own recorded voice — hearing mom or dad on repeat "
+          "reassures them and ends the 'stay with me' battle, even when you've left the room "
+          "(an app like NinniTales makes this easy).",
+          "Keep night responses boring and brief so bedtime stays bedtime."],
          "#toddlerwontsleep #bedtimebattle #toddlermom #parenting #sleeptips")},
-    {"theme": "own_bed",
-     "title": "How to get your toddler to sleep in their own bed",
+    {"theme": "bedtime_routine",
+     "title": "5 steps to a bedtime routine that actually works",
      "description": _desc(
-         "How to get your toddler to sleep in their own bed — the gentle trick that "
-         "makes the room feel safe even when you step out.",
-         "#toddlersleep #ownbed #sleeptraining #gentleparenting #toddlermom")},
+         "5 steps to a bedtime routine that actually works",
+         ["Set a fixed bedtime and protect it — consistency is what makes routines stick.",
+          "Warm bath to signal the day is ending.",
+          "One story, same spot — and on the nights you travel or work late, play it in your "
+          "own recorded voice so bedtime still sounds like home (that's why we built NinniTales).",
+          "Dim lights and quiet voices for the last stretch.",
+          "Same goodnight phrase every night — little rituals cue sleep."],
+         "#bedtimeroutine #toddlerbedtime #momlife #parentinghacks #toddlermom")},
     {"theme": "through_night",
-     "title": "How to get your baby to sleep through the night",
+     "title": "5 ways to help your baby sleep through the night",
      "description": _desc(
-         "How to help your baby sleep through the night — a calmer wind-down that "
-         "doesn't depend on you being in the room.",
+         "5 ways to help your baby sleep through the night",
+         ["Full feed before bed so hunger doesn't wake them.",
+          "Consistent wind-down — same order, same time, every night.",
+          "Give them a familiar sound to self-settle to — soft white noise, or your own "
+          "voice reading a story on a gentle loop (apps like NinniTales let you record it once).",
+          "Put them down drowsy but awake so they learn to drift off on their own.",
+          "Keep night wakings boring — low light, low voice, minimal fuss."],
          "#babysleep #sleepthroughthenight #newmom #babysleeptips #momlife")},
     {"theme": "make_sleep",
-     "title": "How to make kids fall asleep faster (bedtime hack)",
+     "title": "5 tricks to make kids fall asleep faster",
      "description": _desc(
-         "The bedtime hack to make kids fall asleep faster — no screens, just a "
-         "story in a voice they love.",
+         "5 tricks to make kids fall asleep faster",
+         ["Cool, dark room — fewer cues to stay awake.",
+          "A predictable routine so their brain knows what's coming.",
+          "Let them hear a familiar voice — record yourself reading a story and play it at "
+          "lights-out; kids settle to mom or dad faster than to a screen (NinniTales is built "
+          "for exactly this).",
+          "Cut sugar and rough play in the last hour.",
+          "Keep goodnights short and sweet — long ones invite negotiation."],
          "#kidssleep #bedtimehack #parentinghacks #momhacks #toddlersleep")},
-    {"theme": "bedtime_routine",
-     "title": "The toddler bedtime routine that actually works",
-     "description": _desc(
-         "A toddler bedtime routine that actually works — the one step that finally "
-         "ends the 'one more story' stand-off.",
-         "#bedtimeroutine #toddlerbedtime #momlife #parentinghacks #toddlermom")},
-    {"theme": "bedtime_stories",
-     "title": "Bedtime stories for kids that help them sleep",
-     "description": _desc(
-         "Bedtime stories for kids that actually help them fall asleep — read in "
-         "the one voice that calms them down.",
-         "#bedtimestories #storytime #kidsbedtime #toddlermom #parenting")},
-    {"theme": "sleep_training",
-     "title": "Gentle toddler sleep training that actually works",
-     "description": _desc(
-         "Gentle toddler sleep training without the tears — let a familiar voice do "
-         "the soothing, even when you can't be there.",
-         "#sleeptraining #gentleparenting #toddlersleep #momlife #bedtime")},
     {"theme": "calm_before_bed",
-     "title": "How to calm a toddler before bed (every night)",
+     "title": "4 ways to calm an overtired toddler before bed",
      "description": _desc(
-         "How to calm an overtired toddler before bed — the wind-down that works "
-         "even on the worst bedtime-battle nights.",
-         "#calmtoddler #bedtimebattle #toddlermom #parentinghacks #overtired")},
+         "4 ways to calm an overtired toddler before bed",
+         ["Slow everything down — your calm sets their calm.",
+          "Dim the lights and cut the noise 30 minutes out.",
+          "Play a soft bedtime story in your own voice — a familiar voice lowers the meltdown "
+          "faster than rocking or a screen (this is what NinniTales does).",
+          "Offer one small choice — which pajamas, which story — so they feel in control."],
+         "#calmtoddler #overtired #bedtimebattle #toddlermom #parentinghacks")},
+    {"theme": "bedtime_stories",
+     "title": "5 bedtime stories that put kids to sleep",
+     "description": _desc(
+         "5 bedtime stories that put kids to sleep",
+         ["Slow, repetitive tales — the boring-on-purpose kind that ease them down.",
+          "Old favorites they know by heart — familiarity is soothing.",
+          "The same story in YOUR voice — record it once and play it any night, so they hear "
+          "you even when you're away (that's the idea behind NinniTales).",
+          "Gentle 'goodnight' books that name the winding-down actions.",
+          "A made-up story starring them — personal and calming."],
+         "#bedtimestories #storytime #kidsbedtime #toddlermom #parenting")},
 ]
 TAGS = ["bedtime stories", "how to get toddler to sleep", "toddler won't sleep",
         "toddler sleep", "bedtime routine", "how to make kids sleep", "kids sleep",
