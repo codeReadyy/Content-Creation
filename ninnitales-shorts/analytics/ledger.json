@@ -28,5 +28,15 @@
     "status": "scheduled",
     "posted_at": "2026-06-21T23:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "hHGmnI_3WG0",
+    "platform": "youtube",
+    "title": "5 bedtime stories that put kids to sleep",
+    "theme": "bedtime_stories",
+    "url": "https://youtube.com/shorts/hHGmnI_3WG0",
+    "status": "scheduled",
+    "posted_at": "2026-06-21T23:00:00Z",
+    "finalized": false
   }
 ]
