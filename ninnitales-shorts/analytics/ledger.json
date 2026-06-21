@@ -18,5 +18,15 @@
     "status": "scheduled",
     "posted_at": "2026-06-20T23:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "cLYJVsi_RM8",
+    "platform": "youtube",
+    "title": "Toddler won't sleep at night? Try this tonight",
+    "theme": "wont_sleep",
+    "url": "https://youtube.com/shorts/cLYJVsi_RM8",
+    "status": "scheduled",
+    "posted_at": "2026-06-21T23:00:00Z",
+    "finalized": false
   }
 ]
