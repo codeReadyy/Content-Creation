@@ -44,8 +44,15 @@ jobs:
           python -m pip install --upgrade pip yt-dlp -r requirements.txt
 
       - name: Write cookies (optional, for scraping)
-        if: ${{ secrets.YOUTUBE_COOKIES != '' }}
-        run: printf '%s' "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          if [ -n "$YOUTUBE_COOKIES" ]; then
+            printf '%s' "$YOUTUBE_COOKIES" > cookies.txt
+            echo "cookies.txt written"
+          else
+            echo "no YOUTUBE_COOKIES secret — scraped builds may hit IP blocks"
+          fi
 
       - name: Build + schedule + Telegram previews
         env:
