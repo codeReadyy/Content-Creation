@@ -32,10 +32,13 @@ import subprocess
 from pathlib import Path
 
 from openai import AzureOpenAI
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = Path(__file__).parent
-FONT_PATH = HERE / "assets" / "fonts" / "Anton-Regular.ttf"
+# Poppins (rounded geometric sans) to MATCH the CTA's caption font. Was Anton
+# (tall condensed all-caps) which clashed with the CTA's friendly look.
+FONT_PATH = HERE / "assets" / "fonts" / "Poppins-Bold.ttf"
+BADGE_FONT_PATH = HERE / "assets" / "fonts" / "Poppins-SemiBold.ttf"
 # Proven viral short-video hook FORMATS (templates with placeholders). We don't
 # invent hooks from scratch — we pick a format here and rewrite it for NinniTales.
 HOOK_FORMATS_FILE = HERE / "hooks" / "hook_formats.csv"
@@ -294,10 +297,10 @@ def clean_caption(text: str) -> str:
 
 
 def _text_overlay(hook_text: str) -> Image.Image:
-    """RGBA 1080x1920 overlay: BOTTOM scrim + bold wrapped caption with stroke.
+    """RGBA 1080x1920 overlay: bottom scrim + Poppins caption with a SOFT shadow.
 
-    The caption sits at the bottom to match the CTA clip (whose text is also at the
-    bottom), so the on-screen text stays in one consistent place across the Short.
+    Styled to match the CTA clip: rounded font, natural (not all-caps) case, white
+    fill with a gentle drop shadow instead of a hard outline, anchored at the bottom.
     """
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
@@ -306,37 +309,74 @@ def _text_overlay(hook_text: str) -> Image.Image:
     scrim_h = int(H * 0.46)
     scrim = Image.new("L", (1, scrim_h))
     for y in range(scrim_h):
-        scrim.putpixel((0, y), int(180 * (y / scrim_h)))  # darker toward the bottom
+        scrim.putpixel((0, y), int(170 * (y / scrim_h)))  # darker toward the bottom
     scrim = scrim.resize((W, scrim_h))
     black = Image.new("RGBA", (W, scrim_h), (0, 0, 0, 255))
     black.putalpha(scrim)
     overlay.alpha_composite(black, (0, H - scrim_h))
 
-    margin = 70
+    margin = 80
     max_w = W - 2 * margin
-    size = 132
-    text = hook_text.strip().upper()
+    size = 120  # Poppins is wider than Anton — start a touch smaller
+    text = hook_text.strip()  # keep natural case (CTA isn't all-caps)
     # Shrink font until the longest line fits and we have <= 4 lines.
-    while size > 60:
+    while size > 52:
         font = ImageFont.truetype(str(FONT_PATH), size)
         lines = _wrap_lines(text, font, max_w, draw)
         if len(lines) <= 4 and all(draw.textlength(ln, font=font) <= max_w for ln in lines):
             break
-        size -= 6
+        size -= 5
     font = ImageFont.truetype(str(FONT_PATH), size)
     lines = _wrap_lines(text, font, max_w, draw)
 
     # Bottom-anchor the block, clearing the Shorts bottom UI (handle/title bar).
-    line_h = int(size * 1.12)
-    bottom_margin = int(H * 0.17)
-    y = H - bottom_margin - line_h * len(lines)
+    line_h = int(size * 1.2)
+    bottom_margin = int(H * 0.16)
+    y0 = H - bottom_margin - line_h * len(lines)
+
+    # Soft drop shadow: dark text on its own layer, blurred, nudged down-right.
+    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    sdraw = ImageDraw.Draw(shadow)
+    y = y0
     for line in lines:
-        lw = draw.textlength(line, font=font)
-        x = (W - lw) / 2
+        x = (W - draw.textlength(line, font=font)) / 2
+        sdraw.text((x, y), line, font=font, fill=(0, 0, 0, 200))
+        y += line_h
+    shadow = shadow.filter(ImageFilter.GaussianBlur(10))
+    overlay.alpha_composite(shadow, (3, 8))
+
+    # White text on top, with a thin stroke just for crisp edges over bright spots.
+    y = y0
+    for line in lines:
+        x = (W - draw.textlength(line, font=font)) / 2
         draw.text((x, y), line, font=font, fill=(255, 255, 255, 255),
-                  stroke_width=9, stroke_fill=(0, 0, 0, 255))
+                  stroke_width=3, stroke_fill=(0, 0, 0, 140))
         y += line_h
     return overlay
+
+
+def _badge_overlay() -> Image.Image:
+    """Top pill nudging viewers to open the description for the full list."""
+    label = "Full list in description"
+    ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(ov)
+    font = ImageFont.truetype(str(BADGE_FONT_PATH), 50)
+    tw = d.textlength(label, font=font)
+    asc, desc = font.getmetrics()
+    th = asc + desc
+    pad_x, pad_y, gap, chev = 42, 22, 18, 30
+    bw = tw + 2 * pad_x + gap + chev
+    bh = th + 2 * pad_y
+    x = (W - bw) // 2
+    y = int(H * 0.055)
+    d.rounded_rectangle([x, y, x + bw, y + bh], radius=bh // 2, fill=(20, 18, 30, 190))
+    tx, ty = x + pad_x, y + pad_y
+    d.text((tx, ty), label, font=font, fill=(255, 255, 255, 255))
+    # down-chevron after the text
+    cx, cy = tx + tw + gap, ty + th * 0.30
+    d.line([(cx, cy), (cx + chev / 2, cy + chev * 0.55), (cx + chev, cy)],
+           fill=(255, 255, 255, 255), width=8, joint="curve")
+    return ov
 
 
 def _ken_burns(base_png: Path, text_png: Path, out_path: Path) -> Path:
@@ -390,7 +430,9 @@ def generate_hook(out_path: Path, work_dir: Path | None = None,
     base.save(base_png)
 
     text_png = work_dir / f"{out_path.stem}_text.png"
-    _text_overlay(caption).save(text_png)
+    overlay = _text_overlay(caption)
+    overlay.alpha_composite(_badge_overlay())  # "Full list in description ⌄"
+    overlay.save(text_png)
 
     _ken_burns(base_png, text_png, out_path)
 

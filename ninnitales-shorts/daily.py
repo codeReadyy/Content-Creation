@@ -22,6 +22,7 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import music_bed
 import notify_telegram
 import run_pipeline
 import stitch_cta
@@ -73,10 +74,18 @@ def run() -> int:
         print("❌ hook generation failed — nothing to post today.")
         return 1
 
-    cta = next(run_pipeline.cta_cycle())
+    # Rotate CTAs across DAYS. daily.py is a fresh process each run, so a new
+    # itertools.cycle would always hand back cta1 — instead index by how many we've
+    # logged so far so cta1 → cta2 → cta3 → cta1 … evenly over time.
+    ctas = sorted(run_pipeline.CTA_DIR.glob("cta*.mp4"))
+    if not ctas:
+        print("❌ no CTA clips found in cta/."); return 1
+    cta = ctas[len(ledger.load()) % len(ctas)]
+    print(f"  cta: {cta.name}")
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out = run_pipeline.QUEUE_DIR / f"short_{stamp}_{hook['slug']}.mp4"
     stitch_cta.stitch(hook["path"], cta, out)
+    music_bed.add_music(out)  # one continuous lullaby across hook + CTA
 
     result = upload_youtube.upload(out, title, description,
                                    tags=run_pipeline.TAGS, publish_at=slot)

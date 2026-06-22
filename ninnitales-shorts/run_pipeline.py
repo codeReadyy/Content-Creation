@@ -28,6 +28,7 @@ import random
 from datetime import datetime
 from pathlib import Path
 
+import music_bed
 import stitch_cta
 import upload_youtube
 from analytics import ledger
@@ -58,9 +59,9 @@ def _desc(title: str, steps: list[str], tags: str) -> str:
     """
     body = "\n".join(f"{i}. {s}" for i, s in enumerate(steps, 1))
     return (
-        f"{title} 👇\n\n"
+        "📌 Save this so it's ready for tonight's bedtime 👇\n\n"
+        f"{title}:\n\n"
         f"{body}\n\n"
-        "Save this for tonight. 🌙\n\n"
         f"(The record-your-voice idea above is what we made → {WAITLIST_URL})\n\n"
         f"{tags}"
     )
@@ -278,6 +279,7 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
         except Exception as e:
             print(f"  ⚠️  stitch failed, skipping: {e}")
             continue
+        music_bed.add_music(out)  # one continuous lullaby across hook + CTA
 
         if stitch_only:
             # Stash the metadata next to the clip so approve.py can publish it later
