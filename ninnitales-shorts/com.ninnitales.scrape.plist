@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  com.ninnitales.scrape — runs run_local_scrape.sh daily at 7:00pm IST (= 13:30 UTC),
+  ~30 min before the cloud daily cron (14:00 UTC), so staged scraped Shorts are pushed
+  in time for the cloud to publish them.
+
+  Install:
+    cp com.ninnitales.scrape.plist ~/Library/LaunchAgents/
+    chmod +x run_local_scrape.sh
+    launchctl load ~/Library/LaunchAgents/com.ninnitales.scrape.plist
+  (StartCalendarInterval uses the Mac's LOCAL clock — set 19:00 if your Mac is on IST.)
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.ninnitales.scrape</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/shailendra/Documents/Content-Creation-Flows/ninnitales-shorts/run_local_scrape.sh</string>
+    <string>2</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>19</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/tmp/ninnitales-scrape.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/ninnitales-scrape.err</string>
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

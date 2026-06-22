@@ -1,18 +1,17 @@
-# NinniTales — daily Shorts: build 4 (2 scraped + 2 generated) → schedule across US
-# evening slots → Telegram veto previews.
+# NinniTales — daily Shorts: publish staged scraped + generated anime → schedule
+# across US evening slots → Telegram veto previews.
 #
-# daily.py builds 4 Shorts, uploads each PRIVATE with publishAt = a spread of US peak
-# slots (noon/3/6/9pm ET), and sends Telegram previews with ❌/🔄 buttons. Ignore →
-# it publishes; ❌ → deleted; 🔄 → rebuilt (ninnitales-telegram-poll.yml). Runs at
-# 14:00 UTC (10am ET) so there's a veto window before the first slot.
+# daily.py fills 4 slots (noon/3/6/9pm ET): first it publishes any scraped Shorts the
+# LOCAL scraper staged in pending/ (cloud can't scrape — datacenter IP), then generates
+# anime Shorts to top up. Each is uploaded PRIVATE with publishAt, previewed to Telegram
+# (❌ delete / 🔄 rebuild via ninnitales-telegram-poll.yml). Runs 14:00 UTC (10am ET),
+# ~30 min after the local scrape job (com.ninnitales.scrape.plist) pushes pending/.
 #
 # Required repo secrets:
 #   YOUTUBE_CLIENT_ID_NINNITALES / _SECRET_NINNITALES / _REFRESH_TOKEN_NINNITALES
 #     (refresh token must have youtube.force-ssl — re-mint with get_youtube_token.py)
 #   AZURE_OPENAI_* + NINNITALES_IMAGE_*   (generated-hook image + copy)
 #   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (reused from AssuredReferral)
-# Optional:
-#   YOUTUBE_COOKIES — cookies.txt body; helps scraping if YouTube blocks the runner IP.
 
 name: NinniTales Daily
 
@@ -41,20 +40,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python -m pip install --upgrade pip yt-dlp -r requirements.txt
+          python -m pip install --upgrade pip -r requirements.txt
 
-      - name: Write cookies (optional, for scraping)
-        env:
-          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
-        run: |
-          if [ -n "$YOUTUBE_COOKIES" ]; then
-            printf '%s' "$YOUTUBE_COOKIES" > cookies.txt
-            echo "cookies.txt written"
-          else
-            echo "no YOUTUBE_COOKIES secret — scraped builds may hit IP blocks"
-          fi
-
-      - name: Build + schedule + Telegram previews
+      - name: Publish staged + generate the rest + Telegram previews
         env:
           YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
@@ -68,22 +56,18 @@ jobs:
           NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          # Residential proxy so yt-dlp can scrape from the runner's datacenter IP.
-          # If unset, scraped slots fall back to generated (see daily.py).
-          SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
-        # 2 scraped (real footage) + 2 generated (anime) — scraping works via the
-        # residential proxy above; falls back to generated per-slot if it fails.
+        # Publishes pending/ scraped Shorts (staged locally) then tops up with generated.
         run: python daily.py --count 4 --source mix
 
-      - name: Persist ledger
+      - name: Persist ledger + consumed pending
         if: always()
         run: |
-          # ledger.json records the scheduled video so analyze + poll can find it.
-          git add analytics/ledger.json 2>/dev/null || true
+          # Commit the ledger AND the removal of any pending/ clips we published.
+          git add analytics/ledger.json pending/ 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): log scheduled Short to ledger [skip ci]"
+            git commit -m "chore(ninnitales): log scheduled Shorts + clear pending [skip ci]"
             git pull --rebase --autostash origin main || true
             git push
           fi

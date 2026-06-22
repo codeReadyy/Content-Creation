@@ -1,24 +1,23 @@
 """daily.py — the hands-off cloud drip with a Telegram veto window.
 
-Runs once each morning (GitHub Actions) and builds N Shorts spread across the US
-evening peak slots. For each Short:
+Runs once each morning (GitHub Actions). It fills 4 US evening slots by:
+  1. publishing any scraped Shorts the LOCAL scraper staged in `pending/`
+     (cloud can't scrape — datacenter IP — so the Mac builds those for free), then
+  2. generating + publishing AI-anime Shorts to top up to `--count`.
 
-  1. pick a keyword post (run_pipeline.choose_post, weighted toward winners)
-  2. get a hook — SCRAPED (real parenting footage) or GENERATED (cozy anime)
-  3. stitch the captioned CTA + lay the lullaby (under any original audio)
-  4. upload PRIVATE with publishAt = the next free US slot (YouTube schedules it)
-  5. log to the ledger + push a Telegram preview with ❌/🔄 buttons
+Each clip is uploaded PRIVATE with publishAt = its slot (YouTube schedules it), logged
+to the ledger, and previewed to Telegram with ❌/🔄 buttons. Publishing goes through
+`publish.publish()` so Instagram/TikTok can be added later without touching this file.
 
-Default is 4/day as a 2-scraped + 2-generated MIX, so the analytics loop can measure
-which content type actually wins. Do nothing and each publishes at its slot; tap ❌
-to cancel or 🔄 to rebuild (telegram_poll.py). The veto-regen calls this with
---count 1 --source generated.
+The veto-regen calls this with `--count 1 --source generated` (skip pending, just build
+one fresh anime Short).
 
-Env: YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* (generated), TELEGRAM_BOT_TOKEN
-+ TELEGRAM_CHAT_ID. Scraped hooks need yt-dlp (and optionally a cookies.txt).
+Env: YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* (generated) + TELEGRAM_BOT_TOKEN
++ TELEGRAM_CHAT_ID.
 """
 
 import argparse
+import json
 import random
 from datetime import datetime, time, timedelta
 from pathlib import Path
@@ -26,18 +25,16 @@ from zoneinfo import ZoneInfo
 
 import music_bed
 import notify_telegram
+import publish
 import run_pipeline
 import stitch_cta
-import upload_youtube
 from analytics import ledger
 
 HERE = Path(__file__).parent
+PENDING = HERE / "pending"  # scraped Shorts staged by the local scraper
 ET = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
-# US-parent peak posting hours (ET). 4/day spreads across these.
-SLOT_HOURS = [12, 15, 18, 21]  # noon, 3pm, 6pm, 9pm
-# Default content rotation for a mixed run: real footage vs AI anime, head to head.
-MIX = ["scraped", "generated", "scraped", "generated"]
+SLOT_HOURS = [12, 15, 18, 21]  # US-parent peak posting hours (ET): noon, 3, 6, 9pm
 # Lullaby level: full when it's the only audio (generated), a quiet bed under a
 # scraped clip's own sound.
 MUSIC_VOL = {"generated": 0.55, "scraped": 0.30}
@@ -72,31 +69,51 @@ def _caption(title: str, theme: str, source: str, slot_utc: str) -> str:
     )
 
 
-def _cookies() -> str | None:
-    c = HERE / "cookies.txt"
-    return str(c) if c.exists() else None
+def _distribute(out: Path, title: str, description: str, theme: str,
+                source: str, slot: str) -> bool:
+    """Publish a finished clip (all platforms), log it, send the Telegram preview."""
+    results = publish.publish(str(out), title, description,
+                              tags=run_pipeline.TAGS, publish_at=slot)
+    yt = results.get("youtube", {})
+    if "error" in yt:
+        print(f"  ⚠️  upload failed: {yt['error']}")
+        return False
+    ledger.log_upload(yt["video_id"], title, theme, yt["url"],
+                      status="scheduled", publish_at=slot, source=source)
+    if notify_telegram.configured():
+        tg = notify_telegram.send_video_preview(
+            str(out), _caption(title, theme, source, slot), veto_token=yt["video_id"])
+        print("  📨 telegram preview sent" if "error" not in tg
+              else f"  ⚠️  telegram: {tg['error']}")
+    return True
 
 
-def _make_one(i: int, source: str, slot: str, cta: Path, rng: random.Random) -> bool:
-    """Build → schedule → preview one Short. Returns True on success."""
+def _consume(clip: Path) -> None:
+    """Remove a staged clip + sidecar after it's been published (or is unusable)."""
+    clip.unlink(missing_ok=True)
+    clip.with_suffix(".json").unlink(missing_ok=True)
+
+
+def _publish_pending(clip: Path, slot: str) -> bool:
+    """Publish a scraped clip the local scraper staged in pending/."""
+    sc = clip.with_suffix(".json")
+    meta = json.loads(sc.read_text()) if sc.exists() else {}
+    title = meta.get("title") or "Bedtime stories in your own voice"
+    print(f"\n[pending] {meta.get('source', 'scraped')} | {title!r} → {slot} ({clip.name})")
+    return _distribute(clip, title, meta.get("description", run_pipeline.DESCRIPTION),
+                       meta.get("theme", "untagged"), meta.get("source", "scraped"), slot)
+
+
+def _make_generated(i: int, slot: str, cta: Path, rng: random.Random) -> bool:
+    """Build a generated (anime) Short, then publish it."""
     post = run_pipeline.choose_post(rng)
     title, description, theme = post["title"], post["description"], post["theme"]
-    print(f"\n[{i+1}] {source} | {title!r} (theme={theme}) → {slot}")
-
-    hook = run_pipeline.get_hook(source, run_pipeline.WORK_DIR, _cookies(), i,
+    print(f"\n[{i+1}] generated | {title!r} (theme={theme}) → {slot}")
+    hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None, i,
                                  caption_override=title)
-    if not hook and source == "scraped":
-        # Scraping fails from datacenter IPs (GitHub) — don't waste the slot, fall
-        # back to a generated hook. Scraped auto-activates again if a working scrape
-        # path (residential proxy / self-hosted runner) is added later.
-        print("  ↪︎ scrape unavailable — falling back to generated for this slot.")
-        source = "generated"
-        hook = run_pipeline.get_hook(source, run_pipeline.WORK_DIR, None, i,
-                                     caption_override=title)
     if not hook:
-        print("  ⚠️  no hook — skipping this slot.")
+        print("  ⚠️  hook generation failed — skipping this slot.")
         return False
-
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out = run_pipeline.QUEUE_DIR / f"short_{stamp}_{hook['slug']}.mp4"
     try:
@@ -104,23 +121,8 @@ def _make_one(i: int, source: str, slot: str, cta: Path, rng: random.Random) -> 
     except Exception as e:
         print(f"  ⚠️  stitch failed: {e}")
         return False
-    music_bed.add_music(out, volume=MUSIC_VOL.get(source, 0.55))
-
-    result = upload_youtube.upload(out, title, description,
-                                   tags=run_pipeline.TAGS, publish_at=slot)
-    if "error" in result:
-        print(f"  ⚠️  upload failed: {result['error']}")
-        return False
-    ledger.log_upload(result["video_id"], title, theme, result["url"],
-                      status="scheduled", publish_at=slot, source=source)
-
-    if notify_telegram.configured():
-        tg = notify_telegram.send_video_preview(
-            str(out), _caption(title, theme, source, slot),
-            veto_token=result["video_id"])
-        print("  📨 telegram preview sent" if "error" not in tg
-              else f"  ⚠️  telegram: {tg['error']}")
-    return True
+    music_bed.add_music(out, volume=MUSIC_VOL["generated"])
+    return _distribute(out, title, description, theme, "generated", slot)
 
 
 def run(count: int = 4, source: str = "mix") -> int:
@@ -128,29 +130,35 @@ def run(count: int = 4, source: str = "mix") -> int:
     run_pipeline.WORK_DIR.mkdir(exist_ok=True)
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
     rng = random.Random()
-
     ctas = sorted(run_pipeline.CTA_DIR.glob("cta*.mp4"))
     if not ctas:
         print("❌ no CTA clips found in cta/."); return 1
 
     slots = next_slots(count)
-    sources = ([MIX[i % len(MIX)] for i in range(count)] if source == "mix"
-               else [source] * count)
-    base = len(ledger.load())  # for stable CTA rotation across this batch
+    # "mix": publish locally-staged scraped first, then top up with generated.
+    # "generated": skip pending, just build (used by the veto-regen).
+    pending = sorted(PENDING.glob("*.mp4")) if source == "mix" else []
+    base = len(ledger.load())
     made = 0
     for i in range(count):
-        cta = ctas[(base + i) % len(ctas)]
-        if _make_one(i, sources[i], slots[i], cta, rng):
-            made += 1
+        slot = slots[i]
+        done = False
+        if pending:
+            clip = pending.pop(0)
+            done = _publish_pending(clip, slot)
+            _consume(clip)  # consumed whether it published or was unusable
+        if not done:  # no staged clip (or it failed) → fill the slot with generated
+            done = _make_generated(i, slot, ctas[(base + i) % len(ctas)], rng)
+        made += 1 if done else 0
     print(f"\nDone. {made}/{count} scheduled.")
     return 0 if made else 1
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Build + schedule N Shorts with a "
+    ap = argparse.ArgumentParser(description="Publish staged + generated Shorts with a "
                                  "Telegram veto window.")
-    ap.add_argument("--count", type=int, default=4, help="How many (default 4).")
-    ap.add_argument("--source", choices=["mix", "generated", "scraped"],
-                    default="mix", help="Hook source mix (default: mix).")
+    ap.add_argument("--count", type=int, default=4, help="How many slots to fill (default 4).")
+    ap.add_argument("--source", choices=["mix", "generated"], default="mix",
+                    help="'mix' = pending scraped + generated; 'generated' = generate only.")
     args = ap.parse_args()
     raise SystemExit(run(args.count, args.source))
