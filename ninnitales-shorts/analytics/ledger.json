@@ -72,5 +72,27 @@
     "status": "scheduled",
     "posted_at": "2026-06-23T01:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "YpPnYDCjU1Y",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/YpPnYDCjU1Y",
+    "status": "scheduled",
+    "posted_at": "2026-06-22T19:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "hSaLFfxmA8Y",
+    "platform": "youtube",
+    "title": "5 bedtime stories that put kids to sleep",
+    "theme": "bedtime_stories",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/hSaLFfxmA8Y",
+    "status": "scheduled",
+    "posted_at": "2026-06-23T01:00:00Z",
+    "finalized": false
   }
 ]
