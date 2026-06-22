@@ -88,7 +88,13 @@ def download_hook(video_id: str, out_path: Path, cookies: str | None = None) -> 
     tmpl = str(out_path.with_suffix(".%(ext)s"))
     cmd = [
         "yt-dlp",
-        "-f", "bv*[ext=mp4][height<=1920]+ba[ext=m4a]/b[ext=mp4]/b",
+        # Loosen the format (no strict ext=mp4/m4a) so we take whatever the server
+        # offers, and try alternate player clients — YouTube restricts formats on
+        # datacenter IPs (e.g. GitHub runners) for the default `web` client, which
+        # causes "Requested format is not available". tv/android/ios usually still
+        # serve a downloadable stream there.
+        "-f", "bv*[height<=1920]+ba/b[height<=1920]/bv*+ba/b/best",
+        "--extractor-args", "youtube:player_client=tv,android,ios,web_safari",
         "--download-sections", f"*0-{HOOK_SECONDS}",
         "--force-keyframes-at-cuts",
         "--no-playlist",
