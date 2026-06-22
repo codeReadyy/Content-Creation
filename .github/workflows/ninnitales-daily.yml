@@ -68,7 +68,10 @@ jobs:
           NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python daily.py --count 4 --source mix
+        # GENERATED-ONLY in the cloud: YouTube blocks scraping from datacenter IPs.
+        # Scraped Shorts must be built locally (residential IP) or via a proxy /
+        # self-hosted runner — then switch this to `--source mix`.
+        run: python daily.py --count 4 --source generated
 
       - name: Persist ledger
         if: always()

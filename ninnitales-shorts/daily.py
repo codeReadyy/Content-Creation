@@ -85,6 +85,14 @@ def _make_one(i: int, source: str, slot: str, cta: Path, rng: random.Random) -> 
 
     hook = run_pipeline.get_hook(source, run_pipeline.WORK_DIR, _cookies(), i,
                                  caption_override=title)
+    if not hook and source == "scraped":
+        # Scraping fails from datacenter IPs (GitHub) — don't waste the slot, fall
+        # back to a generated hook. Scraped auto-activates again if a working scrape
+        # path (residential proxy / self-hosted runner) is added later.
+        print("  ↪︎ scrape unavailable — falling back to generated for this slot.")
+        source = "generated"
+        hook = run_pipeline.get_hook(source, run_pipeline.WORK_DIR, None, i,
+                                     caption_override=title)
     if not hook:
         print("  ⚠️  no hook — skipping this slot.")
         return False
