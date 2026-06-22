@@ -20,18 +20,26 @@ def _duration(path: Path) -> float:
 
 
 def add_music(video: Path, volume: float = 0.55) -> Path:
-    """Mux the lullaby under `video` (in place), trimmed to length with fades."""
+    """Mix the lullaby UNDER `video`'s existing audio (in place), with fades.
+
+    amix preserves any original audio (e.g. a scraped clip's own sound) and lays the
+    lullaby beneath it. For generated hooks the existing track is silent, so you just
+    hear the lullaby. Use a lower `volume` for scraped clips (bed under speech) and a
+    higher one for generated (lullaby is the only audio).
+    """
     video = Path(video)
     if not MUSIC.exists():
         print("  ⚠️  assets/music/lullaby.mp3 missing — leaving the Short silent.")
         return video
     dur = _duration(video)
     fade_out = max(0.0, dur - 1.2)
-    afilter = (f"atrim=0:{dur:.3f},asetpts=PTS-STARTPTS,volume={volume},"
-               f"afade=t=in:st=0:d=0.5,afade=t=out:st={fade_out:.3f}:d=1.2")
+    bed = (f"atrim=0:{dur:.3f},asetpts=PTS-STARTPTS,volume={volume},"
+           f"afade=t=in:st=0:d=0.5,afade=t=out:st={fade_out:.3f}:d=1.2")
+    afilter = (f"[1:a]{bed}[bed];"
+               f"[0:a][bed]amix=inputs=2:duration=first:normalize=0[a]")
     tmp = video.with_name(video.stem + "_mus.mp4")
     cmd = ["ffmpeg", "-y", "-i", str(video), "-i", str(MUSIC),
-           "-filter_complex", f"[1:a]{afilter}[a]",
+           "-filter_complex", afilter,
            "-map", "0:v", "-map", "[a]",
            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "44100",
            "-shortest", "-movflags", "+faststart", str(tmp)]

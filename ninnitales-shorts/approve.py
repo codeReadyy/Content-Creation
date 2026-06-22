@@ -26,16 +26,17 @@ QUEUE = HERE / "queue"
 POSTED = HERE / "posted"
 
 
-def _meta(mp4: Path) -> tuple[str | None, str, list[str], str]:
-    """Return (title, description, tags, theme) from the sidecar, with fallbacks."""
+def _meta(mp4: Path) -> tuple[str | None, str, list[str], str, str]:
+    """Return (title, description, tags, theme, source) from the sidecar."""
     sidecar = mp4.with_suffix(".json")
     if sidecar.exists():
         d = json.loads(sidecar.read_text())
         return (d.get("title"),
                 d.get("description", run_pipeline.DESCRIPTION),
                 d.get("tags", run_pipeline.TAGS),
-                d.get("theme", "untagged"))
-    return None, run_pipeline.DESCRIPTION, run_pipeline.TAGS, "untagged"
+                d.get("theme", "untagged"),
+                d.get("source", "generated"))
+    return None, run_pipeline.DESCRIPTION, run_pipeline.TAGS, "untagged", "generated"
 
 
 def _list() -> list[Path]:
@@ -46,7 +47,7 @@ def _list() -> list[Path]:
         return vids
     print("Queued Shorts:")
     for i, v in enumerate(vids, 1):
-        title, _d, _t, theme = _meta(v)
+        title, _d, _t, theme, _s = _meta(v)
         print(f"  [{i}] {v.name}  —  {title or '(no title; pass --title)'}  [{theme}]")
     return vids
 
@@ -82,19 +83,19 @@ def main() -> None:
     if not mp4.exists():
         raise SystemExit(f"❌ not found: {mp4}")
 
-    title, description, tags, theme = _meta(mp4)
+    title, description, tags, theme, source = _meta(mp4)
     title = args.title or title
     if not title:
         raise SystemExit("❌ no title in sidecar; pass --title \"...\".")
 
-    print(f"\npublishing {mp4.name}\n  title: {title!r}  (theme={theme})")
+    print(f"\npublishing {mp4.name}\n  title: {title!r}  ({source}, theme={theme})")
     result = upload_youtube.upload(mp4, title, description, tags=tags,
                                    publish_at=args.publish_at)
     if "error" in result:
         raise SystemExit(f"❌ {result['error']}")
 
     # Record it so analyze.py can measure this title's pull at the 24h mark.
-    ledger.log_upload(result["video_id"], title, theme, result["url"])
+    ledger.log_upload(result["video_id"], title, theme, result["url"], source=source)
 
     if not args.keep:
         POSTED.mkdir(exist_ok=True)

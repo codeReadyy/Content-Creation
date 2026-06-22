@@ -240,14 +240,16 @@ def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int,
         except Exception as e:
             print(f"  ⚠️  hook generation failed: {e}")
             return None
-        return {"path": res["path"], "slug": "gen", "title": res["hook_text"]}
+        return {"path": res["path"], "slug": "gen", "title": res["hook_text"],
+                "source": "generated"}
 
     # scraped
     import scrape_hooks
     hook = scrape_hooks.next_hook(work_dir, cookies)
     if not hook:
         return None
-    return {"path": hook["path"], "slug": hook["video_id"], "title": None}
+    return {"path": hook["path"], "slug": hook["video_id"], "title": None,
+            "source": "scraped"}
 
 
 def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
@@ -279,14 +281,16 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
         except Exception as e:
             print(f"  ⚠️  stitch failed, skipping: {e}")
             continue
-        music_bed.add_music(out)  # one continuous lullaby across hook + CTA
+        src = hook["source"]  # "generated" | "scraped" (mix already resolved)
+        # Lullaby is the only audio for generated; a quiet bed under a scraped clip.
+        music_bed.add_music(out, volume=0.30 if src == "scraped" else 0.55)
 
         if stitch_only:
             # Stash the metadata next to the clip so approve.py can publish it later
-            # with the right title + theme without re-deriving anything.
+            # with the right title + theme + source without re-deriving anything.
             out.with_suffix(".json").write_text(json.dumps(
                 {"title": title, "description": description, "tags": TAGS,
-                 "theme": theme}, indent=2))
+                 "theme": theme, "source": src}, indent=2))
             print(f"  📦 queued (no upload): {out}")
             made += 1
             continue
@@ -295,7 +299,7 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
         if "error" in result:
             print(f"  ⚠️  upload failed: {result['error']}")
             continue
-        ledger.log_upload(result["video_id"], title, theme, result["url"])
+        ledger.log_upload(result["video_id"], title, theme, result["url"], source=src)
         made += 1
 
     print(f"\nDone. {made}/{count} video(s) "

@@ -144,9 +144,20 @@ def compute_winners() -> dict:
             "total_views": sum(r.get("views", 0) for r in rows),
         }
 
+    # Scraped (real footage) vs generated (AI anime) — the head-to-head test.
+    by_source = defaultdict(list)
+    for r in ledger.load():
+        if r.get("finalized") and r.get("views") is not None:
+            by_source[r.get("source", "generated")].append(r)
+    sources = {s: {"n": len(rows),
+                   "avg_views": round(sum(x.get("views", 0) for x in rows) / len(rows), 1),
+                   "total_views": sum(x.get("views", 0) for x in rows)}
+               for s, rows in by_source.items()}
+
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "themes": themes,
+        "sources": sources,
         # run_pipeline reads this: weight per theme = avg search-driven views.
         "theme_weights": {t: v["avg_search_views"] for t, v in themes.items()},
     }
@@ -176,6 +187,16 @@ def report(winners: dict) -> None:
     if len(ranked) > 1:
         worst = ranked[-1][0]
         print(f"🪦 Underperforming: {worst} — run_pipeline will show it less often.")
+
+    # The scraped-vs-generated verdict.
+    src = winners.get("sources", {})
+    if len(src) > 1:
+        print("\n" + "-" * 64)
+        print("SCRAPED vs GENERATED  (avg views/post)")
+        for s, v in sorted(src.items(), key=lambda kv: -kv[1]["avg_views"]):
+            print(f"  {s:<12} n={v['n']:<3} avg={v['avg_views']:<8} total={v['total_views']}")
+        win = max(src.items(), key=lambda kv: kv[1]["avg_views"])[0]
+        print(f"  → {win} is winning. Once the sample is solid, shift the daily mix toward it.")
 
 
 def main() -> None:

@@ -1,19 +1,21 @@
 """daily.py — the hands-off cloud drip with a Telegram veto window.
 
-Runs once each morning (GitHub Actions). For one Short:
+Runs once each morning (GitHub Actions) and builds N Shorts spread across the US
+evening peak slots. For each Short:
 
-  1. build a generated cozy-anime hook + stitch a CTA   (run_pipeline helpers)
-  2. pick a SEARCH keyword title weighted toward winners (run_pipeline.choose_post)
-  3. upload PRIVATE with publishAt = the next 7pm ET slot (YouTube schedules it)
-  4. log it to the ledger as "scheduled"
-  5. push the clip to Telegram with a ❌ Cancel button
+  1. pick a keyword post (run_pipeline.choose_post, weighted toward winners)
+  2. get a hook — SCRAPED (real parenting footage) or GENERATED (cozy anime)
+  3. stitch the captioned CTA + lay the lullaby (under any original audio)
+  4. upload PRIVATE with publishAt = the next free US slot (YouTube schedules it)
+  5. log to the ledger + push a Telegram preview with ❌/🔄 buttons
 
-Do nothing and YouTube publishes it at 7pm ET. Tap ❌ within the window and
-telegram_poll.py deletes it before it ever goes live. The analyze cron measures it
-24h after the scheduled time and feeds winners.json — closing the loop.
+Default is 4/day as a 2-scraped + 2-generated MIX, so the analytics loop can measure
+which content type actually wins. Do nothing and each publishes at its slot; tap ❌
+to cancel or 🔄 to rebuild (telegram_poll.py). The veto-regen calls this with
+--count 1 --source generated.
 
-Env: the YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* secrets (as today), plus
-TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (reused from AssuredReferral).
+Env: YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* (generated), TELEGRAM_BOT_TOKEN
++ TELEGRAM_CHAT_ID. Scraped hooks need yt-dlp (and optionally a cookies.txt).
 """
 
 import argparse
@@ -31,83 +33,116 @@ from analytics import ledger
 
 HERE = Path(__file__).parent
 ET = ZoneInfo("America/New_York")
-SLOT_HOUR = 19  # 7pm ET — the US-parent evening / live-bedtime peak
+UTC = ZoneInfo("UTC")
+# US-parent peak posting hours (ET). 4/day spreads across these.
+SLOT_HOURS = [12, 15, 18, 21]  # noon, 3pm, 6pm, 9pm
+# Default content rotation for a mixed run: real footage vs AI anime, head to head.
+MIX = ["scraped", "generated", "scraped", "generated"]
+# Lullaby level: full when it's the only audio (generated), a quiet bed under a
+# scraped clip's own sound.
+MUSIC_VOL = {"generated": 0.55, "scraped": 0.30}
 
 
-def next_slot_utc(now: datetime | None = None) -> str:
-    """RFC3339 UTC for the next SLOT_HOUR in ET (today if still ahead, else tomorrow)."""
+def next_slots(n: int, now: datetime | None = None) -> list[str]:
+    """The next n upcoming SLOT_HOURS in ET, as RFC3339 UTC strings."""
     now = now or datetime.now(ET)
-    target = datetime.combine(now.date(), time(SLOT_HOUR), tzinfo=ET)
-    if target <= now + timedelta(minutes=10):  # too close / already past → tomorrow
-        target += timedelta(days=1)
-    return target.astimezone(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    out: list[datetime] = []
+    day = 0
+    while len(out) < n:
+        for h in SLOT_HOURS:
+            t = datetime.combine(now.date() + timedelta(days=day), time(h), tzinfo=ET)
+            if t > now + timedelta(minutes=10):
+                out.append(t)
+                if len(out) == n:
+                    break
+        day += 1
+    return [t.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ") for t in out]
 
 
-def _caption(title: str, theme: str, slot_utc: str) -> str:
+def _caption(title: str, theme: str, source: str, slot_utc: str) -> str:
     slot_et = datetime.strptime(slot_utc, "%Y-%m-%dT%H:%M:%SZ") \
-        .replace(tzinfo=ZoneInfo("UTC")).astimezone(ET)
+        .replace(tzinfo=UTC).astimezone(ET)
     return (
         f"🌙 <b>NinniTales — scheduled</b>\n\n"
         f"<b>Title:</b> {title}\n"
-        f"<b>Keyword theme:</b> {theme}\n"
+        f"<b>Source:</b> {source}   <b>Theme:</b> {theme}\n"
         f"<b>Goes live:</b> {slot_et:%a %b %d, %-I:%M %p} ET\n\n"
         f"Do nothing → it publishes automatically.\n"
-        f"❌ Cancel → skip today.   🔄 → cancel &amp; build a fresh one."
+        f"❌ Cancel → skip it.   🔄 → cancel &amp; build a fresh one."
     )
 
 
-def run() -> int:
+def _cookies() -> str | None:
+    c = HERE / "cookies.txt"
+    return str(c) if c.exists() else None
+
+
+def _make_one(i: int, source: str, slot: str, cta: Path, rng: random.Random) -> bool:
+    """Build → schedule → preview one Short. Returns True on success."""
+    post = run_pipeline.choose_post(rng)
+    title, description, theme = post["title"], post["description"], post["theme"]
+    print(f"\n[{i+1}] {source} | {title!r} (theme={theme}) → {slot}")
+
+    hook = run_pipeline.get_hook(source, run_pipeline.WORK_DIR, _cookies(), i,
+                                 caption_override=title)
+    if not hook:
+        print("  ⚠️  no hook — skipping this slot.")
+        return False
+
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out = run_pipeline.QUEUE_DIR / f"short_{stamp}_{hook['slug']}.mp4"
+    try:
+        stitch_cta.stitch(hook["path"], cta, out)
+    except Exception as e:
+        print(f"  ⚠️  stitch failed: {e}")
+        return False
+    music_bed.add_music(out, volume=MUSIC_VOL.get(source, 0.55))
+
+    result = upload_youtube.upload(out, title, description,
+                                   tags=run_pipeline.TAGS, publish_at=slot)
+    if "error" in result:
+        print(f"  ⚠️  upload failed: {result['error']}")
+        return False
+    ledger.log_upload(result["video_id"], title, theme, result["url"],
+                      status="scheduled", publish_at=slot, source=source)
+
+    if notify_telegram.configured():
+        tg = notify_telegram.send_video_preview(
+            str(out), _caption(title, theme, source, slot),
+            veto_token=result["video_id"])
+        print("  📨 telegram preview sent" if "error" not in tg
+              else f"  ⚠️  telegram: {tg['error']}")
+    return True
+
+
+def run(count: int = 4, source: str = "mix") -> int:
     run_pipeline._load_env()
     run_pipeline.WORK_DIR.mkdir(exist_ok=True)
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
     rng = random.Random()
 
-    # Pick the keyword post first so its title drives the on-screen caption too.
-    post = run_pipeline.choose_post(rng)
-    title, description, theme = post["title"], post["description"], post["theme"]
-    slot = next_slot_utc()
-    print(f"title: {title!r}  (theme={theme})  → schedule {slot}")
-
-    hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None, 0,
-                                 caption_override=title)
-    if not hook:
-        print("❌ hook generation failed — nothing to post today.")
-        return 1
-
-    # Rotate CTAs across DAYS. daily.py is a fresh process each run, so a new
-    # itertools.cycle would always hand back cta1 — instead index by how many we've
-    # logged so far so cta1 → cta2 → cta3 → cta1 … evenly over time.
     ctas = sorted(run_pipeline.CTA_DIR.glob("cta*.mp4"))
     if not ctas:
         print("❌ no CTA clips found in cta/."); return 1
-    cta = ctas[len(ledger.load()) % len(ctas)]
-    print(f"  cta: {cta.name}")
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    out = run_pipeline.QUEUE_DIR / f"short_{stamp}_{hook['slug']}.mp4"
-    stitch_cta.stitch(hook["path"], cta, out)
-    music_bed.add_music(out)  # one continuous lullaby across hook + CTA
 
-    result = upload_youtube.upload(out, title, description,
-                                   tags=run_pipeline.TAGS, publish_at=slot)
-    if "error" in result:
-        print(f"❌ upload failed: {result['error']}")
-        return 1
-
-    ledger.log_upload(result["video_id"], title, theme, result["url"],
-                      status="scheduled", publish_at=slot)
-
-    if notify_telegram.configured():
-        tg = notify_telegram.send_video_preview(
-            str(out), _caption(title, theme, slot), veto_token=result["video_id"])
-        print("  📨 telegram preview sent" if "error" not in tg
-              else f"  ⚠️  telegram: {tg['error']}")
-    else:
-        print("  ⚠️  Telegram not configured — no veto preview "
-              "(set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).")
-    return 0
+    slots = next_slots(count)
+    sources = ([MIX[i % len(MIX)] for i in range(count)] if source == "mix"
+               else [source] * count)
+    base = len(ledger.load())  # for stable CTA rotation across this batch
+    made = 0
+    for i in range(count):
+        cta = ctas[(base + i) % len(ctas)]
+        if _make_one(i, sources[i], slots[i], cta, rng):
+            made += 1
+    print(f"\nDone. {made}/{count} scheduled.")
+    return 0 if made else 1
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description="Build + schedule one Short with a "
-                            "Telegram veto window.").parse_args()
-    raise SystemExit(run())
+    ap = argparse.ArgumentParser(description="Build + schedule N Shorts with a "
+                                 "Telegram veto window.")
+    ap.add_argument("--count", type=int, default=4, help="How many (default 4).")
+    ap.add_argument("--source", choices=["mix", "generated", "scraped"],
+                    default="mix", help="Hook source mix (default: mix).")
+    args = ap.parse_args()
+    raise SystemExit(run(args.count, args.source))

@@ -49,12 +49,14 @@ def save(rows: list[dict]) -> None:
 
 def log_upload(video_id: str, title: str, theme: str, url: str,
                platform: str = "youtube", status: str = "posted",
-               publish_at: str | None = None) -> None:
+               publish_at: str | None = None, source: str = "generated") -> None:
     """Append a freshly uploaded video. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
     its slot, vetoable from Telegram). posted_at is the SCHEDULED publish time when
     known, else now, so analyze.py's 24h clock starts when the Short actually goes live.
+    source: "generated" (AI anime) or "scraped" (real footage) — analyze.py compares
+    which content type actually wins.
     """
     rows = load()
     if any(r.get("video_id") == video_id and r.get("platform") == platform
@@ -65,13 +67,14 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
         "platform": platform,
         "title": title,
         "theme": theme or "untagged",
+        "source": source,
         "url": url,
         "status": status,
         "posted_at": publish_at or _now(),
         "finalized": False,
     })
     save(rows)
-    print(f"  📒 ledger: logged {video_id} (theme={theme or 'untagged'}, {status})")
+    print(f"  📒 ledger: logged {video_id} ({source}, theme={theme or 'untagged'}, {status})")
 
 
 def update(video_id: str, platform: str = "youtube", **stats) -> None:
