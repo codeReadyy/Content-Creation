@@ -68,10 +68,12 @@ jobs:
           NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        # GENERATED-ONLY in the cloud: YouTube blocks scraping from datacenter IPs.
-        # Scraped Shorts must be built locally (residential IP) or via a proxy /
-        # self-hosted runner — then switch this to `--source mix`.
-        run: python daily.py --count 4 --source generated
+          # Residential proxy so yt-dlp can scrape from the runner's datacenter IP.
+          # If unset, scraped slots fall back to generated (see daily.py).
+          SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
+        # 2 scraped (real footage) + 2 generated (anime) — scraping works via the
+        # residential proxy above; falls back to generated per-slot if it fails.
+        run: python daily.py --count 4 --source mix
 
       - name: Persist ledger
         if: always()

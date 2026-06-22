@@ -10,12 +10,15 @@ fresh one.
 yt-dlp does the heavy lifting. `--download-sections` clips at download time so we
 never pull the whole video.
 
-NOTE on running location: YouTube frequently blocks datacenter IPs (e.g. GitHub
-Actions runners). If scraping fails there with 403 / "Sign in to confirm", export
-cookies from a logged-in browser and pass --cookies, or run the scrape locally.
+NOTE on running location: YouTube blocks downloads from datacenter IPs (e.g. GitHub
+Actions runners) even with cookies. To scrape from the cloud, set SCRAPE_PROXY to a
+RESIDENTIAL/mobile proxy so requests look like a home connection (where it works). Use
+a sticky-session endpoint so one download's manifest+segment requests share an IP.
+Locally (residential IP) no proxy is needed.
 """
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -70,6 +73,9 @@ def list_recent_short_ids(channel: str, cookies: str | None = None) -> list[str]
         "yt-dlp", "--flat-playlist", "--print", "id",
         "--playlist-end", str(PLAYLIST_DEPTH),
     ]
+    proxy = os.environ.get("SCRAPE_PROXY")
+    if proxy:
+        cmd += ["--proxy", proxy]
     if cookies:
         cmd += ["--cookies", cookies]
     cmd.append(_shorts_url(channel))
@@ -89,9 +95,8 @@ def download_hook(video_id: str, out_path: Path, cookies: str | None = None) -> 
     cmd = [
         "yt-dlp",
         # Loosened format (no strict ext=mp4/m4a) so we take whatever's offered.
-        # NOTE: works from a residential IP (your Mac) but NOT from GitHub's
-        # datacenter IPs — YouTube restricts downloads there regardless of cookies.
-        # So scraping is a LOCAL/proxied capability, not a cloud one.
+        # From a residential IP (local, or a SCRAPE_PROXY residential proxy) YouTube
+        # serves normal formats; from a bare datacenter IP it doesn't.
         "-f", "bv*[height<=1920]+ba/b[height<=1920]/bv*+ba/b/best",
         "--download-sections", f"*0-{HOOK_SECONDS}",
         "--force-keyframes-at-cuts",
@@ -99,6 +104,9 @@ def download_hook(video_id: str, out_path: Path, cookies: str | None = None) -> 
         "--merge-output-format", "mp4",
         "-o", tmpl,
     ]
+    proxy = os.environ.get("SCRAPE_PROXY")
+    if proxy:
+        cmd += ["--proxy", proxy]
     if cookies:
         cmd += ["--cookies", cookies]
     cmd.append(f"https://www.youtube.com/watch?v={video_id}")
