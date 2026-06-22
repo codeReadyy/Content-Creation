@@ -38,5 +38,27 @@
     "status": "scheduled",
     "posted_at": "2026-06-21T23:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "jJCKumKMPOc",
+    "platform": "youtube",
+    "title": "5 bedtime stories that put kids to sleep",
+    "theme": "bedtime_stories",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/jJCKumKMPOc",
+    "status": "scheduled",
+    "posted_at": "2026-06-22T19:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "5zp8432JiF0",
+    "platform": "youtube",
+    "title": "5 ways to get your toddler to sleep faster",
+    "theme": "sleep_fast",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/5zp8432JiF0",
+    "status": "scheduled",
+    "posted_at": "2026-06-23T01:00:00Z",
+    "finalized": false
   }
 ]
