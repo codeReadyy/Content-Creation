@@ -1,5 +1,30 @@
 {
-  "generated_at": "2026-06-21T13:35:06Z",
-  "themes": {},
-  "theme_weights": {}
+  "generated_at": "2026-06-22T14:55:39Z",
+  "themes": {
+    "bedtime_routine": {
+      "n": 1,
+      "avg_views": 45.0,
+      "avg_search_views": 45.0,
+      "avg_search_pct": null,
+      "total_views": 45
+    },
+    "sleep_fast": {
+      "n": 1,
+      "avg_views": 25.0,
+      "avg_search_views": 25.0,
+      "avg_search_pct": null,
+      "total_views": 25
+    }
+  },
+  "sources": {
+    "generated": {
+      "n": 2,
+      "avg_views": 35.0,
+      "total_views": 70
+    }
+  },
+  "theme_weights": {
+    "bedtime_routine": 45.0,
+    "sleep_fast": 25.0
+  }
 }

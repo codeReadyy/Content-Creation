@@ -7,7 +7,13 @@
     "url": "https://youtube.com/shorts/giUE3ySGXyI",
     "status": "scheduled",
     "posted_at": "2026-06-20T23:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 45,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-22T14:55:39Z"
   },
   {
     "video_id": "rRXkVORjih4",
@@ -17,7 +23,13 @@
     "url": "https://youtube.com/shorts/rRXkVORjih4",
     "status": "scheduled",
     "posted_at": "2026-06-20T23:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 25,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-22T14:55:39Z"
   },
   {
     "video_id": "cLYJVsi_RM8",
