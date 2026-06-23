@@ -1,23 +1,25 @@
 """daily.py — the hands-off cloud drip with a Telegram veto window.
 
-Runs once each morning (GitHub Actions). It fills 4 US evening slots by:
-  1. publishing any scraped Shorts the LOCAL scraper staged in `pending/`
-     (cloud can't scrape — datacenter IP — so the Mac builds those for free), then
-  2. generating + publishing AI-anime Shorts to top up to `--count`.
+Runs once each morning (GitHub Actions). It fills 4 US evening slots by, for "mix",
+alternating per slot:
+  • scraped — scrape a real-footage hook straight from the cloud via SCRAPE_PROXY
+    (a US residential proxy; datacenter IPs are blocked by YouTube), stitch the CTA, then
+  • generated — paint + publish an AI-anime Short.
+A scraped slot that fails (no proxy, scrape error) falls back to generated so no slot is
+wasted. 4 slots → 2 scraped + 2 generated.
 
 Each clip is uploaded PRIVATE with publishAt = its slot (YouTube schedules it), logged
 to the ledger, and previewed to Telegram with ❌/🔄 buttons. Publishing goes through
 `publish.publish()` so Instagram/TikTok can be added later without touching this file.
 
-The veto-regen calls this with `--count 1 --source generated` (skip pending, just build
-one fresh anime Short).
+The veto-regen calls this with `--count 1 --source generated` (build one fresh anime
+Short only — no scraping).
 
-Env: YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* (generated) + TELEGRAM_BOT_TOKEN
-+ TELEGRAM_CHAT_ID.
+Env: YOUTUBE_*_NINNITALES + AZURE/NINNITALES_IMAGE_* (generated) + SCRAPE_PROXY (scraped)
++ TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID.
 """
 
 import argparse
-import json
 import random
 from datetime import datetime, time, timedelta
 from pathlib import Path
@@ -31,7 +33,6 @@ import stitch_cta
 from analytics import ledger
 
 HERE = Path(__file__).parent
-PENDING = HERE / "pending"  # scraped Shorts staged by the local scraper
 ET = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
 SLOT_HOURS = [12, 15, 18, 21]  # US-parent peak posting hours (ET): noon, 3, 6, 9pm
@@ -88,20 +89,26 @@ def _distribute(out: Path, title: str, description: str, theme: str,
     return True
 
 
-def _consume(clip: Path) -> None:
-    """Remove a staged clip + sidecar after it's been published (or is unusable)."""
-    clip.unlink(missing_ok=True)
-    clip.with_suffix(".json").unlink(missing_ok=True)
-
-
-def _publish_pending(clip: Path, slot: str) -> bool:
-    """Publish a scraped clip the local scraper staged in pending/."""
-    sc = clip.with_suffix(".json")
-    meta = json.loads(sc.read_text()) if sc.exists() else {}
-    title = meta.get("title") or "Bedtime stories in your own voice"
-    print(f"\n[pending] {meta.get('source', 'scraped')} | {title!r} → {slot} ({clip.name})")
-    return _distribute(clip, title, meta.get("description", run_pipeline.DESCRIPTION),
-                       meta.get("theme", "untagged"), meta.get("source", "scraped"), slot)
+def _make_scraped(i: int, slot: str, cta: Path, rng: random.Random,
+                  cookies: str | None) -> bool:
+    """Scrape a real-footage hook (cloud: via SCRAPE_PROXY), stitch + publish."""
+    post = run_pipeline.choose_post(rng)
+    title, description, theme = post["title"], post["description"], post["theme"]
+    print(f"\n[{i+1}] scraped | {title!r} (theme={theme}) → {slot}")
+    hook = run_pipeline.get_hook("scraped", run_pipeline.WORK_DIR, cookies, i,
+                                 caption_override=title)
+    if not hook:
+        print("  ⚠️  no scraped hook available (proxy/scrape failed).")
+        return False
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out = run_pipeline.QUEUE_DIR / f"scraped_{stamp}_{hook['slug']}.mp4"
+    try:
+        stitch_cta.stitch(hook["path"], cta, out)
+    except Exception as e:
+        print(f"  ⚠️  stitch failed: {e}")
+        return False
+    music_bed.add_music(out, volume=MUSIC_VOL["scraped"])  # quiet bed under clip's own audio
+    return _distribute(out, title, description, theme, "scraped", slot)
 
 
 def _make_generated(i: int, slot: str, cta: Path, rng: random.Random) -> bool:
@@ -134,31 +141,34 @@ def run(count: int = 4, source: str = "mix") -> int:
     if not ctas:
         print("❌ no CTA clips found in cta/."); return 1
 
+    cookies = str(HERE / "cookies.txt") if (HERE / "cookies.txt").exists() else None
+
     slots = next_slots(count)
-    # "mix": publish locally-staged scraped first, then top up with generated.
-    # "generated": skip pending, just build (used by the veto-regen).
-    pending = sorted(PENDING.glob("*.mp4")) if source == "mix" else []
     base = len(ledger.load())
     made = 0
     for i in range(count):
         slot = slots[i]
+        cta = ctas[(base + i) % len(ctas)]
+        # "mix": alternate scraped / generated per slot (even = scraped → 2+2 for count 4).
+        # "generated": build only, no scraping (used by the veto-regen).
         done = False
-        if pending:
-            clip = pending.pop(0)
-            done = _publish_pending(clip, slot)
-            _consume(clip)  # consumed whether it published or was unusable
-        if not done:  # no staged clip (or it failed) → fill the slot with generated
-            done = _make_generated(i, slot, ctas[(base + i) % len(ctas)], rng)
+        if source == "mix" and i % 2 == 0:
+            done = _make_scraped(i, slot, cta, rng, cookies)
+            if not done:
+                print("  ↩️  scrape failed → filling this slot with a generated Short.")
+        if not done:  # generated source, or scraped fell back
+            done = _make_generated(i, slot, cta, rng)
         made += 1 if done else 0
     print(f"\nDone. {made}/{count} scheduled.")
     return 0 if made else 1
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Publish staged + generated Shorts with a "
-                                 "Telegram veto window.")
+    ap = argparse.ArgumentParser(description="Scrape + generate Shorts and schedule them "
+                                 "with a Telegram veto window.")
     ap.add_argument("--count", type=int, default=4, help="How many slots to fill (default 4).")
     ap.add_argument("--source", choices=["mix", "generated"], default="mix",
-                    help="'mix' = pending scraped + generated; 'generated' = generate only.")
+                    help="'mix' = alternate scraped (via proxy) + generated; "
+                         "'generated' = generate only.")
     args = ap.parse_args()
     raise SystemExit(run(args.count, args.source))

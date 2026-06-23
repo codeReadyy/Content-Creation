@@ -1,17 +1,20 @@
-# NinniTales — daily Shorts: publish staged scraped + generated anime → schedule
-# across US evening slots → Telegram veto previews.
+# NinniTales — daily Shorts: scrape + generate anime → schedule across US evening
+# slots → Telegram veto previews.
 #
-# daily.py fills 4 slots (noon/3/6/9pm ET): first it publishes any scraped Shorts the
-# LOCAL scraper staged in pending/ (cloud can't scrape — datacenter IP), then generates
-# anime Shorts to top up. Each is uploaded PRIVATE with publishAt, previewed to Telegram
-# (❌ delete / 🔄 rebuild via ninnitales-telegram-poll.yml). Runs 14:00 UTC (10am ET),
-# ~30 min after the local scrape job (com.ninnitales.scrape.plist) pushes pending/.
+# daily.py fills 4 slots (noon/3/6/9pm ET), alternating per slot: scraped (real-footage
+# hook pulled straight from the cloud via SCRAPE_PROXY, a US residential proxy — YouTube
+# blocks bare datacenter IPs) and generated anime. A scraped slot that fails falls back to
+# generated. Each is uploaded PRIVATE with publishAt, previewed to Telegram (❌ delete /
+# 🔄 rebuild via ninnitales-telegram-poll.yml). Runs 14:00 UTC (10am ET).
 #
 # Required repo secrets:
 #   YOUTUBE_CLIENT_ID_NINNITALES / _SECRET_NINNITALES / _REFRESH_TOKEN_NINNITALES
 #     (refresh token must have youtube.force-ssl — re-mint with get_youtube_token.py)
 #   AZURE_OPENAI_* + NINNITALES_IMAGE_*   (generated-hook image + copy)
+#   SCRAPE_PROXY                          (US residential proxy: http://user:pass@host:port)
 #   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (reused from AssuredReferral)
+# Optional:
+#   YOUTUBE_COOKIES  (Netscape cookies.txt contents; usually not needed with the proxy)
 
 name: NinniTales Daily
 
@@ -36,13 +39,31 @@ jobs:
         with:
           python-version: "3.12"
 
+      # yt-dlp solves YouTube's nsig JS challenge with a JS runtime; it prefers Deno.
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install system + python deps
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           python -m pip install --upgrade pip -r requirements.txt
+          python -m pip install --upgrade yt-dlp
 
-      - name: Publish staged + generate the rest + Telegram previews
+      - name: Write cookies.txt (optional — only if YOUTUBE_COOKIES set)
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          # Step-level `if: secrets.X != ''` is invalid YAML; guard in bash instead.
+          if [ -n "$YOUTUBE_COOKIES" ]; then
+            printf '%s' "$YOUTUBE_COOKIES" > cookies.txt
+            echo "wrote cookies.txt"
+          else
+            echo "no YOUTUBE_COOKIES — relying on the residential proxy alone"
+          fi
+
+      - name: Scrape + generate + schedule + Telegram previews
         env:
           YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
@@ -54,20 +75,21 @@ jobs:
           NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
           NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
           NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+          SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        # Publishes pending/ scraped Shorts (staged locally) then tops up with generated.
+        # Alternates scraped (via proxy) + generated across 4 slots (2 + 2).
         run: python daily.py --count 4 --source mix
 
-      - name: Persist ledger + consumed pending
+      - name: Persist ledger + scrape dedupe state
         if: always()
         run: |
-          # Commit the ledger AND the removal of any pending/ clips we published.
-          git add analytics/ledger.json pending/ 2>/dev/null || true
+          # Commit the ledger AND state.json (scraped used_ids) so the next run dedupes.
+          git add analytics/ledger.json state.json 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): log scheduled Shorts + clear pending [skip ci]"
+            git commit -m "chore(ninnitales): log scheduled Shorts + scrape state [skip ci]"
             git pull --rebase --autostash origin main || true
             git push
           fi

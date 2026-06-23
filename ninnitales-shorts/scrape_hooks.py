@@ -105,12 +105,18 @@ def download_hook(video_id: str, out_path: Path, cookies: str | None = None) -> 
         "-o", tmpl,
     ]
     proxy = os.environ.get("SCRAPE_PROXY")
+    env = os.environ.copy()
     if proxy:
         cmd += ["--proxy", proxy]
+        # --download-sections fetches the byte range via ffmpeg, which does NOT
+        # inherit yt-dlp's --proxy. googlevideo URLs are IP-locked to the proxy
+        # exit IP that fetched the metadata, so ffmpeg must use the SAME proxy or
+        # it 403s. Exporting http(s)_proxy makes ffmpeg route through it too.
+        env["http_proxy"] = env["https_proxy"] = proxy
     if cookies:
         cmd += ["--cookies", cookies]
     cmd.append(f"https://www.youtube.com/watch?v={video_id}")
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    res = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if res.returncode != 0:
         print(f"  ⚠️  download failed for {video_id}: "
               f"{res.stderr.strip().splitlines()[-1] if res.stderr.strip() else 'unknown'}")

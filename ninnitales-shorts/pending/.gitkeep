@@ -1,3 +1,0 @@
-# Staged scraped Shorts land here (mp4 + sidecar .json), built locally by
-# scrape_stage.py and published by the cloud daily workflow, which then removes them.
-# This .gitkeep keeps the tracked directory present when empty.
