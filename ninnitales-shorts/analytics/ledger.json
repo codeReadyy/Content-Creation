@@ -144,5 +144,49 @@
     "status": "scheduled",
     "posted_at": "2026-06-24T01:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "yejyR8n2tnA",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/yejyR8n2tnA",
+    "status": "scheduled",
+    "posted_at": "2026-06-23T19:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "RgeXXXxbQXw",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/RgeXXXxbQXw",
+    "status": "scheduled",
+    "posted_at": "2026-06-23T22:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "lUkidPw3A3k",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/lUkidPw3A3k",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T01:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "Tt3ZnqUofpM",
+    "platform": "youtube",
+    "title": "5 ways to get your toddler to sleep faster",
+    "theme": "sleep_fast",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/Tt3ZnqUofpM",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T16:00:00Z",
+    "finalized": false
   }
 ]
