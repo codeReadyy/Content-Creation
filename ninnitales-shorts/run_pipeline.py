@@ -154,6 +154,36 @@ POSTS = [
 TAGS = ["bedtime stories", "how to get toddler to sleep", "toddler won't sleep",
         "toddler sleep", "bedtime routine", "how to make kids sleep", "kids sleep",
         "toddler bedtime", "bedtime stories for kids", "ninnitales"]
+
+# ── SCRAPED SHORTS ───────────────────────────────────────────────────────────
+# We can't read what's inside a scraped clip, so a content-specific listicle title
+# would often be wrong. Scraped Shorts instead ROTATE a fixed set of BRAND / social-
+# proof titles (dedup'd within DEDUP_WINDOW_DAYS, falling back to the full set once
+# exhausted), and ALL share ONE fixed brand description (no rotation): a tiny story +
+# a few benefits + soft CTA. Theme is a single "brand" bucket for ledger attribution.
+SCRAPED_THEME = "brand"
+SCRAPED_TITLES = [
+    "Join 1,000+ parents reading bedtime stories in their own voice",
+    "Join 1,000+ parents who switched bedtime to NinniTales",
+    "1,000+ parents are already doing bedtime differently",
+    "1,000+ parents put their kids to sleep — without being in the room",
+    "1,000+ kids fall asleep to mom or dad's voice every night",
+    "Away at bedtime? 1,000+ parents still tuck their kids in — in their own voice",
+    "1,000+ kids fall asleep with zero screen time",
+    "Bedtime with 0 screens — for 1,000+ families",
+    "1,000+ parents are recording bedtime stories their kids keep forever",
+    "Record your voice once — 1,000+ parents already did",
+]
+SCRAPED_DESCRIPTION = (
+    "The first night I played a bedtime story in my own voice, my little one was "
+    "asleep before the page even turned. 🌙\n\n"
+    "Now bedtime is calm — even on the nights I'm not in the room:\n"
+    "• they drift off to a familiar voice, not a screen\n"
+    "• I record a story once and play it any night\n"
+    "• it becomes a little piece of me they'll keep for years\n\n"
+    f"Record your voice once → {WAITLIST_URL}\n\n"
+    "#bedtime #bedtimestories #parentinghacks #momlife #toddlersleep"
+)
 # Fallbacks for approve.py when a queued clip has no sidecar metadata.
 DESCRIPTION = POSTS[0]["description"]
 
@@ -239,6 +269,15 @@ def choose_post(rng: random.Random, avoid_titles: list[str] | None = None) -> di
             candidates = [p for p in POSTS if p["theme"] == theme]
     fresh = [p for p in candidates if _norm_title(p["title"]) not in avoid]
     return rng.choice(fresh or candidates)
+
+
+def choose_scraped_post(rng: random.Random, avoid_titles: list[str] | None = None) -> dict:
+    """A rotating BRAND title (dedup'd) + the one fixed brand description, for scraped
+    Shorts whose footage we can't read. Falls back to the full set once exhausted."""
+    avoid = {_norm_title(t) for t in (avoid_titles or [])}
+    fresh = [t for t in SCRAPED_TITLES if _norm_title(t) not in avoid]
+    title = rng.choice(fresh or SCRAPED_TITLES)
+    return {"title": title, "description": SCRAPED_DESCRIPTION, "theme": SCRAPED_THEME}
 
 
 def _load_env() -> None:

@@ -1,7 +1,7 @@
 # NinniTales — Telegram veto poller.
 #
 # GitHub Actions can't keep a bot running, so this polls Telegram for your ❌ taps
-# on short intervals during the veto window (10am→7pm ET = 14:00→23:00 UTC). A tap
+# on short intervals during the veto window (~6am→7pm ET = 10:00→23:00 UTC). A tap
 # deletes the scheduled Short via the YouTube API and marks it vetoed in the ledger.
 #
 # Cron note: GitHub's */N only spans the hour, so the windowed hours are listed
@@ -14,7 +14,7 @@ name: NinniTales Telegram Poll
 
 on:
   schedule:
-    - cron: "*/15 14-23 * * *"   # every 15 min, 14:00–23:00 UTC (10am–7pm ET)
+    - cron: "*/15 10-23 * * *"   # every 15 min, 10:00–23:00 UTC (~6am–7pm ET)
   workflow_dispatch:
 
 # Don't let overlapping runs double-process the same update cursor.

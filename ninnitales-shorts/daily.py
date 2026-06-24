@@ -1,12 +1,13 @@
 """daily.py — the hands-off cloud drip with a Telegram veto window.
 
-Runs once each morning (GitHub Actions). It fills 4 US evening slots by, for "mix",
+Runs once each morning (GitHub Actions), ~2h before the first slot. It fills 3 ET
+slots (Morning Rush 8:00am, Midday Break 12:30pm, Prime Time 7:00pm) by, for "mix",
 alternating per slot:
   • scraped — scrape a real-footage hook straight from the cloud via SCRAPE_PROXY
     (a US residential proxy; datacenter IPs are blocked by YouTube), stitch the CTA, then
   • generated — paint + publish an AI-anime Short.
 A scraped slot that fails (no proxy, scrape error) falls back to generated so no slot is
-wasted. 4 slots → 2 scraped + 2 generated.
+wasted. 3 slots → 2 scraped + 1 generated.
 
 Each clip is uploaded PRIVATE with publishAt = its slot (YouTube schedules it), logged
 to the ledger, and previewed to Telegram with ❌/🔄 buttons. Publishing goes through
@@ -37,20 +38,23 @@ from analytics import ledger
 HERE = Path(__file__).parent
 ET = ZoneInfo("America/New_York")
 UTC = ZoneInfo("UTC")
-SLOT_HOURS = [12, 15, 18, 21]  # US-parent peak posting hours (ET): noon, 3, 6, 9pm
+# US-parent peak windows (ET), (hour, minute): Morning Rush 8:00, Midday Break 12:30,
+# Prime Time 7:00pm. The build runs ~2h before the first slot, so every Short gets at
+# least a 2-hour Telegram veto window before it goes live.
+SLOT_TIMES = [(8, 0), (12, 30), (19, 0)]
 # Lullaby level: full when it's the only audio (generated), a quiet bed under a
 # scraped clip's own sound.
 MUSIC_VOL = {"generated": 0.55, "scraped": 0.30}
 
 
 def next_slots(n: int, now: datetime | None = None) -> list[str]:
-    """The next n upcoming SLOT_HOURS in ET, as RFC3339 UTC strings."""
+    """The next n upcoming SLOT_TIMES in ET, as RFC3339 UTC strings."""
     now = now or datetime.now(ET)
     out: list[datetime] = []
     day = 0
     while len(out) < n:
-        for h in SLOT_HOURS:
-            t = datetime.combine(now.date() + timedelta(days=day), time(h), tzinfo=ET)
+        for h, m in SLOT_TIMES:
+            t = datetime.combine(now.date() + timedelta(days=day), time(h, m), tzinfo=ET)
             if t > now + timedelta(minutes=10):
                 out.append(t)
                 if len(out) == n:
@@ -111,10 +115,11 @@ def _make_scraped(i: int, slot: str, cta: Path, rng: random.Random,
                   cookies: str | None, avoid: list[str]) -> bool:
     """Scrape a real-footage hook (cloud: via SCRAPE_PROXY), stitch + publish.
 
-    Scraped Shorts keep the keyword TEMPLATES (good enough for now), but still skip
-    any caption used in the last week so two clips never share a title.
+    Scraped footage can't be read, so it gets a ROTATING brand/social-proof title
+    (dedup'd within the week) + ONE fixed brand description — never a content-specific
+    listicle that might not match the clip.
     """
-    post = run_pipeline.choose_post(rng, avoid_titles=avoid)
+    post = run_pipeline.choose_scraped_post(rng, avoid_titles=avoid)
     title, description, theme = post["title"], post["description"], post["theme"]
     avoid.append(title)
     print(f"\n[{i+1}] scraped | {title!r} (theme={theme}) → {slot}")
@@ -164,7 +169,7 @@ def _make_generated(i: int, slot: str, cta: Path, rng: random.Random,
     return _distribute(out, title, description, theme, "generated", slot)
 
 
-def run(count: int = 4, source: str = "mix") -> int:
+def run(count: int = 3, source: str = "mix") -> int:
     run_pipeline._load_env()
     run_pipeline.WORK_DIR.mkdir(exist_ok=True)
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
@@ -219,7 +224,7 @@ def run(count: int = 4, source: str = "mix") -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Scrape + generate Shorts and schedule them "
                                  "with a Telegram veto window.")
-    ap.add_argument("--count", type=int, default=4, help="How many slots to fill (default 4).")
+    ap.add_argument("--count", type=int, default=3, help="How many slots to fill (default 3).")
     ap.add_argument("--source", choices=["mix", "generated"], default="mix",
                     help="'mix' = alternate scraped (via proxy) + generated; "
                          "'generated' = generate only.")

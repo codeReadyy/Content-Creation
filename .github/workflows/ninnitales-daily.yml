@@ -1,11 +1,11 @@
 # NinniTales — daily Shorts: scrape + generate anime → schedule across US evening
 # slots → Telegram veto previews.
 #
-# daily.py fills 4 slots (noon/3/6/9pm ET), alternating per slot: scraped (real-footage
+# daily.py fills 3 slots (8:00am/12:30pm/7:00pm ET), alternating per slot: scraped (real-footage
 # hook pulled straight from the cloud via SCRAPE_PROXY, a US residential proxy — YouTube
 # blocks bare datacenter IPs) and generated anime. A scraped slot that fails falls back to
 # generated. Each is uploaded PRIVATE with publishAt, previewed to Telegram (❌ delete /
-# 🔄 rebuild via ninnitales-telegram-poll.yml). Runs 14:00 UTC (10am ET).
+# 🔄 rebuild via ninnitales-telegram-poll.yml). Runs 10:00 UTC (~6am ET), ~2h before slot 1.
 #
 # Required repo secrets:
 #   YOUTUBE_CLIENT_ID_NINNITALES / _SECRET_NINNITALES / _REFRESH_TOKEN_NINNITALES
@@ -20,8 +20,10 @@ name: NinniTales Daily
 
 on:
   schedule:
-    # 14:00 UTC = 10am ET — build now, publish at 7pm ET, ~9h veto window between.
-    - cron: "0 14 * * *"
+    # 10:00 UTC ≈ 6am ET — build ~2h before the 8:00am ET first slot (2h veto window).
+    # Slot times themselves are DST-correct (America/New_York); only this build offset
+    # drifts ~1h seasonally (6am EDT / 5am EST), which only lengthens the veto window.
+    - cron: "0 10 * * *"
   workflow_dispatch:
 
 jobs:

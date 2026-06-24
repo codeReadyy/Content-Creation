@@ -11,9 +11,10 @@
 name: NinniTales Analyze
 
 on:
-  # 13:00 UTC = 9am ET — measures yesterday's posts after they've had ~a day.
+  # 09:00 UTC ≈ 5am ET — runs before the daily build (10:00 UTC) so winners.json is
+  # fresh when run_pipeline picks themes. Measures posts that are already ~24h+ old.
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "0 9 * * *"
   workflow_dispatch:
     inputs:
       min_age:
