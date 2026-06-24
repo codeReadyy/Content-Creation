@@ -212,5 +212,49 @@
     "status": "scheduled",
     "posted_at": "2026-06-24T16:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "K_UVl0jukeQ",
+    "platform": "youtube",
+    "title": "1,000+ kids fall asleep with zero screen time",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/K_UVl0jukeQ",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T12:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "O7fmECPxDM0",
+    "platform": "youtube",
+    "title": "4 tricks to calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/O7fmECPxDM0",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T16:30:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "2pG13NcS2Qc",
+    "platform": "youtube",
+    "title": "1,000+ parents are already doing bedtime differently",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/2pG13NcS2Qc",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T23:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "yn2_IXgEsCA",
+    "platform": "youtube",
+    "title": "4 tricks to calm your overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/yn2_IXgEsCA",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T12:00:00Z",
+    "finalized": false
   }
 ]
