@@ -25,11 +25,13 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import ghostwriter
 import music_bed
 import notify_telegram
 import publish
 import run_pipeline
 import stitch_cta
+import token_doctor
 from analytics import ledger
 
 HERE = Path(__file__).parent
@@ -70,6 +72,22 @@ def _caption(title: str, theme: str, source: str, slot_utc: str) -> str:
     )
 
 
+def _health_status(health: dict) -> str:
+    """A one-glance token snapshot, sent every run so the picture is always clear."""
+    if not health["alive"]:
+        return (f"❌ <b>YouTube token DEAD</b>\n"
+                f"Reason: <code>{health['error']}</code>\n"
+                f"From: {health['source']}\n"
+                f"Fix: <code>python get_youtube_token.py</code> → update .env AND the "
+                f"GitHub secret.")
+    analytics = "✅" if health.get("analytics_ok") else "⚠️ no"
+    chan = health.get("channel_title") or "(unknown)"
+    return (f"✅ <b>YouTube token healthy</b>\n"
+            f"Channel: {chan}\n"
+            f"Analytics: {analytics}   Scopes: force-ssl + analytics\n"
+            f"From: {health['source']}")
+
+
 def _distribute(out: Path, title: str, description: str, theme: str,
                 source: str, slot: str) -> bool:
     """Publish a finished clip (all platforms), log it, send the Telegram preview."""
@@ -90,10 +108,15 @@ def _distribute(out: Path, title: str, description: str, theme: str,
 
 
 def _make_scraped(i: int, slot: str, cta: Path, rng: random.Random,
-                  cookies: str | None) -> bool:
-    """Scrape a real-footage hook (cloud: via SCRAPE_PROXY), stitch + publish."""
-    post = run_pipeline.choose_post(rng)
+                  cookies: str | None, avoid: list[str]) -> bool:
+    """Scrape a real-footage hook (cloud: via SCRAPE_PROXY), stitch + publish.
+
+    Scraped Shorts keep the keyword TEMPLATES (good enough for now), but still skip
+    any caption used in the last week so two clips never share a title.
+    """
+    post = run_pipeline.choose_post(rng, avoid_titles=avoid)
     title, description, theme = post["title"], post["description"], post["theme"]
+    avoid.append(title)
     print(f"\n[{i+1}] scraped | {title!r} (theme={theme}) → {slot}")
     hook = run_pipeline.get_hook("scraped", run_pipeline.WORK_DIR, cookies, i,
                                  caption_override=title)
@@ -111,10 +134,19 @@ def _make_scraped(i: int, slot: str, cta: Path, rng: random.Random,
     return _distribute(out, title, description, theme, "scraped", slot)
 
 
-def _make_generated(i: int, slot: str, cta: Path, rng: random.Random) -> bool:
-    """Build a generated (anime) Short, then publish it."""
-    post = run_pipeline.choose_post(rng)
+def _make_generated(i: int, slot: str, cta: Path, rng: random.Random,
+                    avoid: list[str]) -> bool:
+    """Build a generated (anime) Short, then publish it.
+
+    The ghostwriter LLM writes a FRESH title + description from today's keyword
+    themes, the winning-theme weights, the last Shorts' real numbers, and the
+    titles to avoid — so generated captions never repeat. If it can't (no Azure
+    creds, content filter, etc.) we fall back to the dedup'd templates.
+    """
+    post = (ghostwriter.write_post(rng, avoid_titles=avoid)
+            or run_pipeline.choose_post(rng, avoid_titles=avoid))
     title, description, theme = post["title"], post["description"], post["theme"]
+    avoid.append(title)
     print(f"\n[{i+1}] generated | {title!r} (theme={theme}) → {slot}")
     hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None, i,
                                  caption_override=title)
@@ -136,6 +168,19 @@ def run(count: int = 4, source: str = "mix") -> int:
     run_pipeline._load_env()
     run_pipeline.WORK_DIR.mkdir(exist_ok=True)
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
+
+    # Pre-flight: check the token EVERY run and report it to Telegram so the picture
+    # is always clear — a green tick on healthy days, the exact reason on a dead one.
+    # A dead token aborts here so we never waste upload slots on invisible 401s.
+    health = token_doctor.check()
+    tg = notify_telegram.configured()
+    if tg:
+        notify_telegram.send_message(
+            f"🌙 <b>NinniTales daily run</b>\n\n{_health_status(health)}")
+    if not health["alive"]:
+        print(f"❌ token dead ({health['error']}) — aborting before wasting slots.")
+        return 1
+
     rng = random.Random()
     ctas = sorted(run_pipeline.CTA_DIR.glob("cta*.mp4"))
     if not ctas:
@@ -145,6 +190,9 @@ def run(count: int = 4, source: str = "mix") -> int:
 
     slots = next_slots(count)
     base = len(ledger.load())
+    # Titles used in the last week + anything we schedule in THIS run — so no two
+    # Shorts (across both sources) ever go out with the same caption.
+    avoid = run_pipeline.recent_titles()
     made = 0
     for i in range(count):
         slot = slots[i]
@@ -153,13 +201,18 @@ def run(count: int = 4, source: str = "mix") -> int:
         # "generated": build only, no scraping (used by the veto-regen).
         done = False
         if source == "mix" and i % 2 == 0:
-            done = _make_scraped(i, slot, cta, rng, cookies)
+            done = _make_scraped(i, slot, cta, rng, cookies, avoid)
             if not done:
                 print("  ↩️  scrape failed → filling this slot with a generated Short.")
         if not done:  # generated source, or scraped fell back
-            done = _make_generated(i, slot, cta, rng)
+            done = _make_generated(i, slot, cta, rng, avoid)
         made += 1 if done else 0
     print(f"\nDone. {made}/{count} scheduled.")
+    if tg:
+        icon = "✅" if made == count else ("⚠️" if made else "❌")
+        notify_telegram.send_message(
+            f"{icon} <b>NinniTales run done</b> — scheduled {made}/{count} Shorts for "
+            f"today's ET slots. Previews above; do nothing to publish, ❌ to veto.")
     return 0 if made else 1
 
 

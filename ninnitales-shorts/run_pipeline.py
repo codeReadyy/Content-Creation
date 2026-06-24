@@ -25,7 +25,7 @@ import itertools
 import json
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import music_bed
@@ -162,35 +162,83 @@ WINNERS_PATH = HERE / "analytics" / "winners.json"
 # Share of picks reserved for EXPLORING themes regardless of past results, so a
 # new keyword still gets a fair shot and we don't over-fit to early noise.
 EXPLORE_RATE = 0.20
+# Don't trust (exploit) a theme's weight until it has at least this many FINALIZED
+# videos behind it. With n=1 a 45-vs-6-view gap is noise, not signal — exploiting it
+# just spams one title. Until a theme clears this bar we keep exploring uniformly.
+MIN_SAMPLE_PER_THEME = 4
+# How recently a title counts as "already used" — used to avoid scheduling the same
+# caption twice in a week (or, worse, twice in a day).
+DEDUP_WINDOW_DAYS = 7
 
 
-def _theme_weights() -> dict[str, float]:
-    """Load per-theme weights produced by analyze.py (empty until it has run)."""
+def _confident_weights() -> dict[str, float]:
+    """Theme weights from analyze.py, but ONLY for themes with enough samples.
+
+    Returns {} (→ uniform exploration) until at least one theme has been measured
+    MIN_SAMPLE_PER_THEME times, so we never double down on a single-video fluke.
+    """
     if not WINNERS_PATH.exists():
         return {}
     try:
         data = json.loads(WINNERS_PATH.read_text())
-        return {k: float(v) for k, v in data.get("theme_weights", {}).items()}
-    except (json.JSONDecodeError, ValueError, AttributeError):
+    except (json.JSONDecodeError, ValueError):
         return {}
+    themes = data.get("themes", {})
+    weights = data.get("theme_weights", {})
+    out = {}
+    for theme, w in weights.items():
+        n = themes.get(theme, {}).get("n", 0)
+        if n >= MIN_SAMPLE_PER_THEME:
+            try:
+                out[theme] = float(w)
+            except (TypeError, ValueError):
+                continue
+    return out
 
 
-def choose_post(rng: random.Random) -> dict:
-    """Pick a post, biased toward themes that earned views (explore/exploit).
+def recent_titles(days: int = DEDUP_WINDOW_DAYS) -> list[str]:
+    """Titles posted within the last `days` — the set new posts must avoid."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    out = []
+    for r in ledger.load():
+        if r.get("status") == "vetoed":
+            continue
+        try:
+            posted = datetime.strptime(r["posted_at"], "%Y-%m-%dT%H:%M:%SZ") \
+                .replace(tzinfo=timezone.utc)
+        except (KeyError, ValueError):
+            continue
+        if posted >= cutoff and r.get("title"):
+            out.append(r["title"])
+    return out
 
-    With probability EXPLORE_RATE (or before analyze.py has any data) pick
-    uniformly so every theme keeps getting tested; otherwise pick a theme with
-    probability proportional to its measured weight, then a random title in it.
+
+def _norm_title(title: str) -> str:
+    return " ".join((title or "").lower().split()).rstrip(".!?")
+
+
+def choose_post(rng: random.Random, avoid_titles: list[str] | None = None) -> dict:
+    """Pick a template post, biased toward PROVEN themes, skipping recent titles.
+
+    With probability EXPLORE_RATE (or before any theme clears MIN_SAMPLE_PER_THEME)
+    pick uniformly so every theme keeps getting tested; otherwise weight by measured
+    search-views. Among the candidates, prefer a title we haven't used in the last
+    DEDUP_WINDOW_DAYS so the same caption doesn't repeat back-to-back.
     """
-    weights = _theme_weights()
+    avoid = {_norm_title(t) for t in (avoid_titles or [])}
+    weights = _confident_weights()
     if not weights or rng.random() < EXPLORE_RATE:
-        return rng.choice(POSTS)
-    themes = sorted({p["theme"] for p in POSTS})
-    scored = [max(weights.get(t, 0.0), 0.0) for t in themes]
-    if sum(scored) <= 0:
-        return rng.choice(POSTS)
-    theme = rng.choices(themes, weights=scored, k=1)[0]
-    return rng.choice([p for p in POSTS if p["theme"] == theme])
+        candidates = list(POSTS)
+    else:
+        themes = sorted({p["theme"] for p in POSTS})
+        scored = [max(weights.get(t, 0.0), 0.0) for t in themes]
+        if sum(scored) <= 0:
+            candidates = list(POSTS)
+        else:
+            theme = rng.choices(themes, weights=scored, k=1)[0]
+            candidates = [p for p in POSTS if p["theme"] == theme]
+    fresh = [p for p in candidates if _norm_title(p["title"]) not in avoid]
+    return rng.choice(fresh or candidates)
 
 
 def _load_env() -> None:
@@ -258,12 +306,14 @@ def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:
     QUEUE_DIR.mkdir(exist_ok=True)
     ctas = cta_cycle()
     rng = random.Random()  # performance-weighted title selection (see choose_post)
+    avoid = recent_titles()  # don't repeat a caption used in the last week
     made = 0
 
     for i in range(count):
         print(f"\n=== video {i + 1}/{count} (source={source}) ===")
         # Pick the keyword post FIRST so its title can drive the on-screen caption.
-        post = choose_post(rng)  # keyword title, weighted toward proven themes
+        post = choose_post(rng, avoid_titles=avoid)  # weighted + dedup'd
+        avoid.append(post["title"])  # and don't reuse it again within this run
         title, description, theme = post["title"], post["description"], post["theme"]
         print(f"  title: {title!r}  (theme={theme})")
 
