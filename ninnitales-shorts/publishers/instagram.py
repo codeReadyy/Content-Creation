@@ -1,12 +1,15 @@
 """publishers/instagram.py — post a VIDEO (Reel) or CAROUSEL to Instagram.
 
-Instagram Graph API content publishing is a 3-step dance: create a media CONTAINER
-(by URL), wait for it to finish processing, then PUBLISH it. Media is fetched by URL,
-so we host each file via hosting.public_url() (a GitHub release asset) first.
+Uses the "Instagram API with Instagram login" path (graph.instagram.com): the account
+logs in with its own Instagram credentials — no Facebook Page. Content publishing is the
+same 3-step dance: create a media CONTAINER (by URL), wait for it to finish processing,
+then PUBLISH it. Media is fetched by URL, so we host each file via hosting.public_url()
+(a GitHub release asset) first.
 
 Credentials per account by suffix (account.creds_env), e.g. NINNITALES_IG →
-  INSTAGRAM_ACCESS_TOKEN_NINNITALES_IG   (long-lived token)
-  INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES_IG
+  INSTAGRAM_ACCESS_TOKEN_NINNITALES_IG          (long-lived IG user token, ~60d)
+  INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES_IG   (the IG user id — the publish target)
+The connect-helper mints/refreshes both via the Instagram-login OAuth flow.
 
 Note: this API has NO native scheduling for content publishing, so `publish_at` is
 ignored and the post goes live immediately when the run executes. To honour per-slot
@@ -25,7 +28,7 @@ import hosting
 from core.models import CAROUSEL, VIDEO, Account, Asset, PostCopy
 from publishers.base import register
 
-GRAPH = "https://graph.facebook.com/v21.0"
+GRAPH = "https://graph.instagram.com/v21.0"
 
 
 def _creds(suffix: str) -> dict:

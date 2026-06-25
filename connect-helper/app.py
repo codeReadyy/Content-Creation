@@ -1,9 +1,13 @@
 """app.py — the local "Connect" web page.
 
-Run it, open http://localhost:8765, click "Connect YouTube" / "Connect Instagram",
-log in once in the browser, and the helper auto-writes the tokens to BOTH the engine's
-.env and the matching GitHub repo secret, then scaffolds an (enabled:false) account
-block. No copy-paste, no secret drift.
+Run it, open the page, click "Connect YouTube" / "Connect Instagram", log in once in the
+browser, and the helper auto-writes the tokens to BOTH the engine's .env and the matching
+GitHub repo secret, then scaffolds an (enabled:false) account block. No copy-paste, no
+secret drift.
+
+Instagram uses the "Instagram API with Instagram login" path (no Facebook Page). That API
+requires an HTTPS redirect, so the helper serves HTTPS with a self-signed cert by default
+— your browser will warn once; click through (it's your own localhost).
 
 Standalone by design — it never imports ninnitales-shorts code; it only writes the
 engine's .env / accounts.yml and GitHub secrets (see store.py, accounts.py).
@@ -33,7 +37,6 @@ app = Flask(__name__)
 
 # Short-lived in-memory state for the OAuth round-trips (localhost, single user).
 _PENDING: dict[str, dict] = {}   # state -> {"platform", "label"}
-_RESOLVE: dict[str, dict] = {}   # key   -> {"label", "token", "igs"}  (meta IG pick)
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -65,7 +68,8 @@ def layout(title: str, body: str) -> str:
          padding: 0 1.2rem; }}
   h1 {{ font-size: 1.5rem; }} h2 {{ font-size: 1.1rem; margin-top: 2rem; }}
   .btn {{ display: inline-block; padding: .6rem 1rem; border-radius: 8px; color: #fff;
-         text-decoration: none; font-weight: 600; margin-right: .5rem; }}
+         text-decoration: none; font-weight: 600; margin-right: .5rem; border: 0;
+         cursor: pointer; font-size: 1rem; }}
   .yt {{ background: #c4302b; }} .ig {{ background: #c13584; }} .muted {{ opacity: .65; }}
   .card {{ border: 1px solid #8884; border-radius: 10px; padding: 1rem 1.2rem; margin: 1rem 0; }}
   .ok {{ color: #1a7f37; }} .bad {{ color: #c4302b; }}
@@ -91,14 +95,14 @@ def _status_rows() -> str:
         cid, title = google.channel_identity(access) if access else ("", "")
         health = f'<span class="ok">✅ {html.escape(title or cid)}</span>' if access \
             else '<span class="bad">❌ token dead — re-connect</span>'
-        rows.append(f"<tr><td>YouTube</td><td><code>{s}</code></td><td>{health}</td></tr>")
+        rows.append(f"<tr><td>YouTube</td><td><code>{s}</code></td><td>{health}</td>"
+                    f"<td><a href='/connect/google?label={s}'>re-connect</a></td></tr>")
     for s in ig:
-        exp = meta.token_expiry(env[f"INSTAGRAM_ACCESS_TOKEN_{s}"]) \
-            if config.meta_ready() else None
-        health = (f'<span class="ok">✅ expires {exp}</span>' if exp
-                  else '<span class="muted">token present</span>')
+        _, username = meta.identity(env[f"INSTAGRAM_ACCESS_TOKEN_{s}"])
+        health = (f'<span class="ok">✅ @{html.escape(username)}</span>' if username
+                  else '<span class="bad">❌ token expired — re-connect</span>')
         rows.append(f"<tr><td>Instagram</td><td><code>{s}</code></td><td>{health}</td>"
-                    f"<td><a href='/connect/meta?label={s}'>refresh</a></td></tr>")
+                    f"<td><a href='/connect/instagram?label={s}'>re-connect</a></td></tr>")
     if not rows:
         return "<p class='muted'>No accounts connected yet.</p>"
     return ("<table><tr><th>Platform</th><th>Suffix</th><th>Status</th><th></th></tr>"
@@ -132,9 +136,10 @@ def home():
     if not config.google_ready():
         warn.append("⚠️ Google client not set — add <code>GOOGLE_CLIENT_ID/SECRET</code> to "
                     "connect-helper/.env (or reuse the NinniTales client).")
-    if not config.meta_ready():
-        warn.append("⚠️ Meta app not set — add <code>META_APP_ID/SECRET</code> to "
-                    "connect-helper/.env to enable Instagram.")
+    if not config.instagram_ready():
+        warn.append("⚠️ Instagram app not set — add <code>INSTAGRAM_APP_ID/SECRET</code> to "
+                    "connect-helper/.env (from your Meta app → Instagram → API setup with "
+                    "Instagram login).")
     warn_html = "".join(f'<div class="card">{w}</div>' for w in warn)
     repo = store.detect_repo() or "(unknown repo)"
     body = f"""
@@ -146,7 +151,7 @@ def home():
         <input name="label" placeholder="account label, e.g. yt_main" required>
         <button class="btn yt">Connect YouTube</button>
       </form>
-      <form action="/connect/meta" method="get" style="margin-top:.8rem">
+      <form action="/connect/instagram" method="get" style="margin-top:.8rem">
         <input name="label" placeholder="account label, e.g. ig_main" required>
         <button class="btn ig">Connect Instagram</button>
       </form>
@@ -164,12 +169,12 @@ def connect_google():
     return redirect(google.auth_url(state))
 
 
-@app.get("/connect/meta")
-def connect_meta():
-    if not config.meta_ready():
-        return layout("Not configured", "<p>Set META_APP_ID/SECRET first.</p>"), 400
+@app.get("/connect/instagram")
+def connect_instagram():
+    if not config.instagram_ready():
+        return layout("Not configured", "<p>Set INSTAGRAM_APP_ID/SECRET first.</p>"), 400
     state = _secrets.token_urlsafe(16)
-    _PENDING[state] = {"platform": "meta", "label": request.args["label"]}
+    _PENDING[state] = {"platform": "instagram", "label": request.args["label"]}
     return redirect(meta.auth_url(state))
 
 
@@ -195,49 +200,31 @@ def cb_google():
     return _save_results_html(f"YouTube connected: {title or suffix}", acct_id, saved, wrote)
 
 
-@app.get("/callback/meta")
-def cb_meta():
+@app.get("/callback/instagram")
+def cb_instagram():
     pend = _PENDING.pop(request.args.get("state", ""), None)
     if request.args.get("error") or not pend:
-        return layout("Failed", f"<p class='bad'>OAuth error: "
-                      f"{html.escape(request.args.get('error_description', 'bad state'))}</p>"), 400
-    short = meta.exchange_code(request.args["code"])
+        msg = request.args.get("error_description") or request.args.get("error") or "bad state"
+        return layout("Failed", f"<p class='bad'>OAuth error: {html.escape(msg)}</p>"), 400
+    short, _ = meta.exchange_code(request.args["code"])
     token, _ = meta.long_lived(short)
-    igs = meta.discover_ig(token)
-    if not igs:
-        return layout("No Instagram account", "<p class='bad'>No IG Business account is "
-                      "linked to your Pages. Link one to a Facebook Page and retry.</p>"), 400
-    if len(igs) == 1:
-        return _finish_meta(pend["label"], token, igs[0])
-    # Multiple IG accounts — store the token server-side and let the user pick.
-    key = _secrets.token_urlsafe(12)
-    _RESOLVE[key] = {"label": pend["label"], "token": token, "igs": igs}
-    opts = "".join(
-        f"<li><a href='/callback/meta/pick?key={key}&i={i}'>@{html.escape(g['username'])} "
-        f"<span class='muted'>(page: {html.escape(g['page_name'])})</span></a></li>"
-        for i, g in enumerate(igs))
-    return layout("Pick an Instagram account", f"<h1>Which account?</h1><ul>{opts}</ul>")
-
-
-@app.get("/callback/meta/pick")
-def cb_meta_pick():
-    data = _RESOLVE.pop(request.args.get("key", ""), None)
-    if not data:
-        return layout("Expired", "<p class='bad'>Selection expired — reconnect.</p>"), 400
-    return _finish_meta(data["label"], data["token"], data["igs"][int(request.args["i"])])
-
-
-def _finish_meta(label: str, token: str, ig: dict):
-    suffix = _suffix(label)
+    ig_id, username = meta.identity(token)
+    if not ig_id:
+        return layout("Failed", "<p class='bad'>Could not read the Instagram account. Make "
+                      "sure it's a Business/Creator account and retry.</p>"), 400
+    suffix = _suffix(pend["label"])
     saved = [
         store.save_secret(f"INSTAGRAM_ACCESS_TOKEN_{suffix}", token),
-        store.save_secret(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{suffix}", ig["ig_id"]),
+        store.save_secret(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{suffix}", ig_id),
     ]
-    wrote, acct_id = accounts.scaffold("instagram", suffix, identity=f"@{ig['username']}")
-    return _save_results_html(f"Instagram connected: @{ig['username']}", acct_id, saved, wrote)
+    wrote, acct_id = accounts.scaffold("instagram", suffix, identity=f"@{username}")
+    return _save_results_html(f"Instagram connected: @{username}", acct_id, saved, wrote)
 
 
 if __name__ == "__main__":
-    print(f"\n  Connect helper → {config.BASE_URL}\n")
+    print(f"\n  Connect helper → {config.BASE_URL}")
+    if config.USE_HTTPS:
+        print("  (self-signed HTTPS — your browser will warn once; click through)\n")
     webbrowser.open(config.BASE_URL)
-    app.run(port=config.PORT, debug=False)
+    app.run(port=config.PORT, debug=False,
+            ssl_context="adhoc" if config.USE_HTTPS else None)

@@ -7,9 +7,14 @@ of the app stays logic-only.
 
 Its own settings live in connect-helper/.env (see .env.example). Provider client creds:
   GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET   (reuse the existing NinniTales OAuth client)
-  META_APP_ID / META_APP_SECRET             (a Meta app with Facebook Login)
+  INSTAGRAM_APP_ID / INSTAGRAM_APP_SECRET   (the Instagram App ID/Secret from a Meta app's
+                                             "Instagram → API setup with Instagram login")
 For Google we also fall back to the engine's .env (YOUTUBE_CLIENT_ID_NINNITALES etc.)
 so you don't have to re-enter the client you already have.
+
+Instagram uses the "Instagram API with Instagram login" path: business accounts log in
+with their own Instagram credentials — no Facebook Page required. That API requires an
+HTTPS redirect URI, so the helper serves HTTPS (self-signed) by default.
 """
 
 from __future__ import annotations
@@ -42,9 +47,14 @@ _load_env_file(REPO_ROOT / "assured-referral-autoposter" / ".env")
 
 # ── Server ────────────────────────────────────────────────────────────────────
 PORT = int(os.environ.get("CONNECT_PORT", "8765"))
-BASE_URL = f"http://localhost:{PORT}"
+# Instagram's API requires an HTTPS redirect URI, so we serve HTTPS (self-signed) by
+# default; Google's Web client accepts https://localhost too. Set CONNECT_HTTPS=0 only
+# if you're connecting YouTube alone over plain http.
+USE_HTTPS = os.environ.get("CONNECT_HTTPS", "1") != "0"
+SCHEME = "https" if USE_HTTPS else "http"
+BASE_URL = f"{SCHEME}://localhost:{PORT}"
 GOOGLE_REDIRECT = f"{BASE_URL}/callback/google"
-META_REDIRECT = f"{BASE_URL}/callback/meta"
+INSTAGRAM_REDIRECT = f"{BASE_URL}/callback/instagram"
 
 # ── Targets the helper writes (the only coupling to the engine, by file) ────────
 TARGET_ENV = Path(os.environ.get("TARGET_ENV", ENGINE_DIR / ".env"))
@@ -62,8 +72,11 @@ GOOGLE_CLIENT_ID = (os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = (os.environ.get("GOOGLE_CLIENT_SECRET")
                         or os.environ.get("YOUTUBE_CLIENT_SECRET_NINNITALES")
                         or os.environ.get("YOUTUBE_CLIENT_SECRET"))
-META_APP_ID = os.environ.get("META_APP_ID")
-META_APP_SECRET = os.environ.get("META_APP_SECRET")
+# The Instagram App ID/Secret (NOT the Meta app id) — found under the app's
+# Instagram product → "API setup with Instagram login". META_* kept as a fallback name.
+INSTAGRAM_APP_ID = os.environ.get("INSTAGRAM_APP_ID") or os.environ.get("META_APP_ID")
+INSTAGRAM_APP_SECRET = (os.environ.get("INSTAGRAM_APP_SECRET")
+                        or os.environ.get("META_APP_SECRET"))
 
 # ── OAuth scopes ──────────────────────────────────────────────────────────────
 # Google: force-ssl = full manage (upload + schedule + delete, needed for the Telegram
@@ -72,21 +85,13 @@ GOOGLE_SCOPES = (
     "https://www.googleapis.com/auth/youtube.force-ssl "
     "https://www.googleapis.com/auth/yt-analytics.readonly"
 )
-# Meta: read pages, find the linked IG business account, and publish to it.
-META_SCOPES = ",".join([
-    "instagram_basic",
-    "instagram_content_publish",
-    "pages_show_list",
-    "pages_read_engagement",
-    "business_management",
-])
-
-GRAPH = "https://graph.facebook.com/v21.0"
+# Instagram (Instagram-login path): read the account + publish content to it.
+INSTAGRAM_SCOPES = "instagram_business_basic,instagram_business_content_publish"
 
 
 def google_ready() -> bool:
     return bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 
 
-def meta_ready() -> bool:
-    return bool(META_APP_ID and META_APP_SECRET)
+def instagram_ready() -> bool:
+    return bool(INSTAGRAM_APP_ID and INSTAGRAM_APP_SECRET)
