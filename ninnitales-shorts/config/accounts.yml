@@ -51,6 +51,6 @@ accounts:
     niche: toddler_sleep
     creds_env: NINNITALES
     formats: [scraped_cta]          # TODO pick ONE format for this account
-    schedule_et: ["09:00", "18:00"]
+    schedule_et: ["08:00"]
     gate: false
-    enabled: false
+    enabled: true
