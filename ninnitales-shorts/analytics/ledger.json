@@ -280,5 +280,49 @@
     "status": "scheduled",
     "posted_at": "2026-06-25T12:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "7bVXTvPfN2c",
+    "platform": "youtube",
+    "title": "1,000+ kids fall asleep to mom or dad's voice every night",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/7bVXTvPfN2c",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T12:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "wGULGoA65Us",
+    "platform": "youtube",
+    "title": "4 tricks to help your toddler fall asleep fast",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/wGULGoA65Us",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T16:30:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "GUlYo0NLbh0",
+    "platform": "youtube",
+    "title": "1,000+ parents put their kids to sleep — without being in the room",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/GUlYo0NLbh0",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T23:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "7u6uEHVw3CA",
+    "platform": "youtube",
+    "title": "4 tricks to help your toddler fall asleep soundly",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/7u6uEHVw3CA",
+    "status": "scheduled",
+    "posted_at": "2026-06-26T12:00:00Z",
+    "finalized": false
   }
 ]
