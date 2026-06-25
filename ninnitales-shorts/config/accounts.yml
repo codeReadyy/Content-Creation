@@ -44,13 +44,13 @@ accounts:
     gate: false
     enabled: false
 
-  # Phase 5 — Instagram (disabled until the publisher + creds + hosting land).
-  - id: ninnitales_ig_main
+  # --- scaffolded by connect-helper (@ninni_tales_) — set `formats` + flip `enabled: true` to go live ---
+  - id: instagram_ninnitales
     platform: instagram
     product: ninnitales
     niche: toddler_sleep
-    creds_env: NINNITALES_IG         # -> INSTAGRAM_*_NINNITALES_IG
-    formats: [carousel]              # one format per feed; carousel is IG-native
+    creds_env: NINNITALES
+    formats: [scraped_cta]          # TODO pick ONE format for this account
     schedule_et: ["09:00", "18:00"]
     gate: false
     enabled: false

@@ -92,3 +92,38 @@ def save_secret(key: str, value: str, to_github: bool = True) -> SaveResult:
         return SaveResult(key, env_ok, gh_ok=True, detail="env only")
     gh_ok, detail = set_github_secret(key, value)
     return SaveResult(key, env_ok, gh_ok, detail)
+
+
+# ── deletion (disconnect) ───────────────────────────────────────────────────────
+def delete_env(key: str, path: Path | None = None) -> bool:
+    """Remove the `KEY=` line from .env, if present."""
+    path = path or config.TARGET_ENV
+    if not path.exists():
+        return True
+    pat = re.compile(rf"^\s*{re.escape(key)}\s*=")
+    kept = [ln for ln in path.read_text().splitlines() if not pat.match(ln)]
+    path.write_text("\n".join(kept) + ("\n" if kept else ""))
+    return True
+
+
+def delete_github_secret(key: str) -> tuple[bool, str]:
+    repo = detect_repo()
+    if not repo:
+        return False, "could not detect GitHub repo"
+    r = subprocess.run(["gh", "secret", "delete", key, "--repo", repo],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        err = (r.stderr or r.stdout).strip()
+        if "not found" in err.lower() or "404" in err:
+            return True, "absent"      # already gone — fine
+        return False, err
+    return True, repo
+
+
+def remove_secret(key: str, from_github: bool = True) -> SaveResult:
+    """Delete a credential from .env and (optionally) the GitHub repo secret."""
+    env_ok = delete_env(key)
+    if not from_github:
+        return SaveResult(key, env_ok, gh_ok=True, detail="env only")
+    gh_ok, detail = delete_github_secret(key)
+    return SaveResult(key, env_ok, gh_ok, detail)

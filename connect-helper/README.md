@@ -60,19 +60,31 @@ python app.py          # opens https://localhost:8765 (accept the self-signed ce
 Type a short label (e.g. `yt_main`), click **Connect YouTube** / **Connect Instagram**,
 finish the login. The result page shows each secret written to `.env` ✅ and GitHub ✅.
 
-## After connecting
+## Manage accounts (no YAML)
 
-1. Open `../ninnitales-shorts/config/accounts.yml`, find the scaffolded block, set its
-   `formats: [...]` (one format per account) + `schedule_et`, and flip `enabled: true`.
-2. Verify the engine picks it up:
-   ```bash
-   cd ../ninnitales-shorts && python orchestrate.py --plan --account <account_id>
-   ```
+The home page lists every account with inline controls — all of which edit
+`../ninnitales-shorts/config/accounts.yml` for you (round-trip, comments preserved):
+- **Format** — dropdown (only the formats that platform can post); one per account.
+- **Schedule (ET)** — comma-separated `HH:MM` times; bad entries are dropped.
+- **Status** — toggle the account **on/off** (`enabled`).
+- **Disconnect** — deletes the account's tokens from `.env` **and** GitHub, and removes
+  its block. (Confirms first.)
+
+Verify what the engine will do:
+```bash
+cd ../ninnitales-shorts && python orchestrate.py --plan
+```
 
 ## Notes / limits (Phase 1)
-- **Instagram tokens expire ~60 days.** Click the *re-connect* link on the status row (or
-  Connect Instagram again with the same label) to re-extend and rewrite the secret.
-  Auto-refresh is Phase 2.
-- No scheduling/format UI yet (edit `accounts.yml`); no TikTok; single-user/local only.
+- **Cloud uses the *committed* config + GitHub secrets.** The UI writes your LOCAL
+  `accounts.yml`; secrets are pushed to GitHub live, but `accounts.yml` changes only reach
+  the cloud cron after you commit + push the file. (Phase 2's DB-backed dashboard removes
+  this step.)
+- **`gh auth login` is required** for the GitHub half — if it's not done, you'll see a
+  warning on the page and each result row shows `GitHub ❌` (the `.env` write still works).
+- **Instagram tokens expire ~60 days.** Just **Connect Instagram again with the same
+  label** — it mints a fresh long-lived token and overwrites the secret (no disconnect
+  needed). Auto-refresh is Phase 2.
+- No TikTok; single-user/local only.
 - Instagram media publishing additionally needs the repo to be public (engine's
   `hosting.py`) — unrelated to connecting the account here.
