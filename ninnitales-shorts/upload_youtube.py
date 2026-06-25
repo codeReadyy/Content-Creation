@@ -27,15 +27,20 @@ UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos"
 VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 
 
-def _env(name: str) -> str | None:
-    return os.environ.get(f"{name}_NINNITALES") or os.environ.get(name)
+def _env(name: str, suffix: str = "NINNITALES") -> str | None:
+    """Resolve a credential env var by account SUFFIX, falling back to un-suffixed.
+
+    suffix="NINNITALES" → YOUTUBE_CLIENT_ID_NINNITALES (or YOUTUBE_CLIENT_ID). A second
+    YouTube account just uses a different suffix (e.g. YOUTUBE_*_NINNITALES_2).
+    """
+    return os.environ.get(f"{name}_{suffix}") or os.environ.get(name)
 
 
-def _credentials() -> dict:
+def _credentials(creds_env: str = "NINNITALES") -> dict:
     return {
-        "client_id": _env("YOUTUBE_CLIENT_ID"),
-        "client_secret": _env("YOUTUBE_CLIENT_SECRET"),
-        "refresh_token": _env("YOUTUBE_REFRESH_TOKEN"),
+        "client_id": _env("YOUTUBE_CLIENT_ID", creds_env),
+        "client_secret": _env("YOUTUBE_CLIENT_SECRET", creds_env),
+        "refresh_token": _env("YOUTUBE_REFRESH_TOKEN", creds_env),
     }
 
 
@@ -51,12 +56,13 @@ def _access_token(creds: dict) -> str:
 
 
 def upload(video_path: Path, title: str, description: str,
-           tags: list[str] | None = None, publish_at: str | None = None) -> dict:
+           tags: list[str] | None = None, publish_at: str | None = None,
+           creds_env: str = "NINNITALES") -> dict:
     """Upload `video_path` as a Short. Returns {video_id, url} or {error}."""
     video_path = Path(video_path)
-    creds = _credentials()
+    creds = _credentials(creds_env)
     if not creds.get("refresh_token"):
-        return {"error": "YOUTUBE_REFRESH_TOKEN(_NINNITALES) not set — run get_youtube_token.py"}
+        return {"error": f"YOUTUBE_REFRESH_TOKEN_{creds_env} not set — run get_youtube_token.py"}
 
     try:
         token = _access_token(creds)
@@ -108,15 +114,15 @@ def upload(video_path: Path, title: str, description: str,
     return {"status": "uploaded", "video_id": vid, "url": url}
 
 
-def delete(video_id: str) -> dict:
+def delete(video_id: str, creds_env: str = "NINNITALES") -> dict:
     """Delete a video (used by the Telegram ❌ veto to cancel a scheduled Short).
 
     Requires the youtube.force-ssl scope — re-mint the token with
     get_youtube_token.py if this 403s. Returns {status} or {error}.
     """
-    creds = _credentials()
+    creds = _credentials(creds_env)
     if not creds.get("refresh_token"):
-        return {"error": "YOUTUBE_REFRESH_TOKEN(_NINNITALES) not set"}
+        return {"error": f"YOUTUBE_REFRESH_TOKEN_{creds_env} not set"}
     try:
         token = _access_token(creds)
     except Exception as e:

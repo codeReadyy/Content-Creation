@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-23T13:52:52Z",
+  "generated_at": "2026-06-25T13:26:58Z",
   "themes": {
     "bedtime_routine": {
       "n": 1,
@@ -30,9 +30,31 @@
       "total_views": 76
     }
   },
+  "surfaces": {
+    "youtube/unknown": {
+      "n": 3,
+      "avg_views": 25.3,
+      "avg_search_views": 25.3,
+      "total_views": 76
+    }
+  },
+  "accounts": {
+    "ninnitales_yt_main": {
+      "n": 3,
+      "platform": "youtube",
+      "format": "unknown",
+      "niche": null,
+      "avg_views": 25.3,
+      "avg_search_views": 25.3,
+      "total_views": 76
+    }
+  },
   "theme_weights": {
     "bedtime_routine": 45.0,
     "sleep_fast": 25.0,
     "bedtime_stories": 6.0
+  },
+  "surface_weights": {
+    "youtube/unknown": 25.3
   }
 }

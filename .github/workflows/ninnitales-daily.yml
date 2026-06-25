@@ -65,7 +65,7 @@ jobs:
             echo "no YOUTUBE_COOKIES — relying on the residential proxy alone"
           fi
 
-      - name: Scrape + generate + schedule + Telegram previews
+      - name: Run the content engine (config-driven, autonomous)
         env:
           YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
@@ -80,8 +80,9 @@ jobs:
           SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        # Alternates scraped (via proxy) + generated across 4 slots (2 + 2).
-        run: python daily.py --count 4 --source mix
+        # orchestrate.py reads config/accounts.yml — slots/formats/schedule per account,
+        # fully autonomous (guardrails replace the per-post veto).
+        run: python orchestrate.py
 
       - name: Persist ledger + scrape dedupe state
         if: always()
