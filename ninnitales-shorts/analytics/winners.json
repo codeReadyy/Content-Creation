@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-06-24T10:04:38Z",
+  "generated_at": "2026-06-25T10:03:10Z",
   "themes": {
     "bedtime_routine": {
-      "n": 2,
-      "avg_views": 25.0,
-      "avg_search_views": 25.0,
+      "n": 4,
+      "avg_views": 20.0,
+      "avg_search_views": 20.0,
       "avg_search_pct": null,
-      "total_views": 50
+      "total_views": 80
     },
     "sleep_fast": {
-      "n": 2,
-      "avg_views": 17.0,
-      "avg_search_views": 17.0,
+      "n": 3,
+      "avg_views": 13.7,
+      "avg_search_views": 13.7,
       "avg_search_pct": null,
-      "total_views": 34
+      "total_views": 41
     },
     "bedtime_stories": {
       "n": 3,
@@ -21,18 +21,31 @@
       "avg_search_views": 6.0,
       "avg_search_pct": null,
       "total_views": 18
+    },
+    "through_night": {
+      "n": 1,
+      "avg_views": 50.0,
+      "avg_search_views": 50.0,
+      "avg_search_pct": null,
+      "total_views": 50
     }
   },
   "sources": {
     "generated": {
-      "n": 7,
-      "avg_views": 14.6,
-      "total_views": 102
+      "n": 9,
+      "avg_views": 17.7,
+      "total_views": 159
+    },
+    "scraped": {
+      "n": 2,
+      "avg_views": 15.0,
+      "total_views": 30
     }
   },
   "theme_weights": {
-    "bedtime_routine": 25.0,
-    "sleep_fast": 17.0,
-    "bedtime_stories": 6.0
+    "bedtime_routine": 20.0,
+    "sleep_fast": 13.7,
+    "bedtime_stories": 6.0,
+    "through_night": 50.0
   }
 }
