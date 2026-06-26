@@ -49,20 +49,26 @@ def save(rows: list[dict]) -> None:
 
 def log_upload(video_id: str, title: str, theme: str, url: str,
                platform: str = "youtube", status: str = "posted",
-               publish_at: str | None = None, source: str = "generated") -> None:
-    """Append a freshly uploaded video. Idempotent on (platform, video_id).
+               publish_at: str | None = None, source: str = "generated",
+               fmt: str | None = None, account_id: str | None = None,
+               product: str | None = None, niche: str | None = None) -> None:
+    """Append a freshly published post. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
     its slot, vetoable from Telegram). posted_at is the SCHEDULED publish time when
-    known, else now, so analyze.py's 24h clock starts when the Short actually goes live.
-    source: "generated" (AI anime) or "scraped" (real footage) — analyze.py compares
-    which content type actually wins.
+    known, else now, so analyze.py's 24h clock starts when the post actually goes live.
+    source: "generated" | "scraped" | "carousel" — the content type.
+
+    The multi-dimensional fields (fmt/account_id/product/niche) let analyze.py attribute
+    performance per (niche, format, platform) and per account, not just per theme. They
+    default to None so older single-product callers keep working unchanged. `video_id`
+    stays the canonical post id (works for any platform's media/post id).
     """
     rows = load()
     if any(r.get("video_id") == video_id and r.get("platform") == platform
            for r in rows):
         return
-    rows.append({
+    row = {
         "video_id": video_id,
         "platform": platform,
         "title": title,
@@ -72,9 +78,16 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
         "status": status,
         "posted_at": publish_at or _now(),
         "finalized": False,
-    })
+    }
+    # Only attach the new dimensions when supplied (keeps legacy rows clean).
+    for k, v in {"format": fmt, "account_id": account_id, "product": product,
+                 "niche": niche}.items():
+        if v is not None:
+            row[k] = v
+    rows.append(row)
     save(rows)
-    print(f"  📒 ledger: logged {video_id} ({source}, theme={theme or 'untagged'}, {status})")
+    print(f"  📒 ledger: logged {video_id} ({source}, theme={theme or 'untagged'}, "
+          f"{status}{f', {fmt}@{account_id}' if fmt else ''})")
 
 
 def update(video_id: str, platform: str = "youtube", **stats) -> None:

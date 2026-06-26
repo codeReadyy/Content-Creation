@@ -1,0 +1,56 @@
+# The routing table — the single source of truth for WHO posts WHAT, WHEN.
+# One block per (platform, account). The orchestrator iterates these.
+#
+# CONVENTION: ONE FORMAT PER ACCOUNT. A single feed should have one consistent
+# content type (scraped footage OR anime OR carousel) — mixing formats in one
+# channel confuses the audience and the algorithm. To compare formats, run the SAME
+# niche on TWO accounts (each its own channel + creds_env), one format each, and let
+# analyze.py rank them head-to-head ("ACCOUNT STANDINGS"). The orchestrator fills all
+# of an account's slots with its single declared format; with one format there is no
+# cross-format fallback, so a build failure skips the slot rather than posting an
+# off-format clip.
+#
+# Fields:
+#   id          unique account id (used in the ledger + account standings)
+#   platform    youtube | instagram | tiktok
+#   product     product key (forks swap this)
+#   niche       config/niches/<niche>.yml — the content profile
+#   creds_env   env-var SUFFIX for creds, e.g. NINNITALES -> YOUTUBE_*_NINNITALES
+#   formats     the account's format — keep it to ONE (see convention above)
+#   schedule_et publish times in US Eastern; build runs ~2h before the first slot
+#   gate        true = require Telegram approval first; false = fully autonomous
+#   enabled     false = ignored by the orchestrator (scaffolding for later phases)
+
+accounts:
+  - id: ninnitales_yt_main
+    platform: youtube
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: NINNITALES            # -> YOUTUBE_*_NINNITALES
+    formats: [scraped_cta]           # proven ~50x winner; flip to [anime_cta] to switch
+    schedule_et: ["08:00", "12:30", "19:00"]
+    gate: false
+    enabled: true
+
+  # A/B the anime format on its OWN channel (so neither feed mixes formats). Enable
+  # once a second YouTube channel exists and its creds are added as YOUTUBE_*_NINNITALES_ANIME.
+  - id: ninnitales_yt_anime
+    platform: youtube
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: NINNITALES_ANIME      # -> YOUTUBE_*_NINNITALES_ANIME
+    formats: [anime_cta]
+    schedule_et: ["08:00", "12:30", "19:00"]
+    gate: false
+    enabled: false
+
+  # --- scaffolded by connect-helper (@ninni_tales_) — set `formats` + flip `enabled: true` to go live ---
+  - id: instagram_ninnitales
+    platform: instagram
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: NINNITALES
+    formats: [scraped_cta]          # TODO pick ONE format for this account
+    schedule_et: ["08:00"]
+    gate: false
+    enabled: true

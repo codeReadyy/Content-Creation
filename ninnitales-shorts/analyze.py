@@ -6,10 +6,12 @@ For every ledger row that's >= 24h old and not yet finalized:
                         (needs the yt-analytics.readonly scope — re-mint the token
                          with get_youtube_token.py; until then search data is skipped)
 
-It writes the numbers back into the ledger, then aggregates by keyword `theme`
-into analytics/winners.json. run_pipeline reads that file and biases future titles
-toward the themes that earned the most SEARCH-driven views — doubling down on what
-parents actually click.
+It writes the numbers back into the ledger, then aggregates into analytics/winners.json
+along several dimensions: by keyword `theme` (run_pipeline biases future titles toward
+the themes that earned the most SEARCH-driven views), by source, by platform/format
+surface, and by ACCOUNT. Account standings are the head-to-head you actually compare —
+each account runs one format, so ranking accounts ranks formats without mixing them in
+one feed.
 
 Usage:
     python analyze.py              # measure + print report + write winners.json
@@ -123,6 +125,25 @@ def _score(row: dict) -> int:
     return sv if sv else row.get("views", 0)
 
 
+# Legacy rows predate the format/platform/account dimensions; back-fill so history
+# still counts. Everything before the multi-account engine was the one YouTube channel.
+_SOURCE_TO_FORMAT = {"scraped": "scraped_cta", "generated": "anime_cta",
+                     "carousel": "carousel"}
+LEGACY_ACCOUNT = "ninnitales_yt_main"
+
+
+def _format_of(row: dict) -> str:
+    return row.get("format") or _SOURCE_TO_FORMAT.get(row.get("source", ""), "unknown")
+
+
+def _platform_of(row: dict) -> str:
+    return row.get("platform", "youtube")
+
+
+def _account_of(row: dict) -> str:
+    return row.get("account_id") or LEGACY_ACCOUNT
+
+
 def compute_winners() -> dict:
     """Aggregate finalized rows by theme into weights run_pipeline can use."""
     by_theme = defaultdict(list)
@@ -154,12 +175,56 @@ def compute_winners() -> dict:
                    "total_views": sum(x.get("views", 0) for x in rows)}
                for s, rows in by_source.items()}
 
+    # Per-SURFACE standings: "{platform}/{format}" — so the orchestrator can learn that,
+    # e.g., anime wins on Instagram while scraped wins on YouTube. Legacy rows (no format/
+    # platform) are back-filled from `source` + assumed youtube so history still counts.
+    by_surface = defaultdict(list)
+    for r in ledger.load():
+        if r.get("finalized") and r.get("views") is not None:
+            by_surface[f"{_platform_of(r)}/{_format_of(r)}"].append(r)
+    surfaces = {}
+    for surface, rows in by_surface.items():
+        n = len(rows)
+        surfaces[surface] = {
+            "n": n,
+            "avg_views": round(sum(r.get("views", 0) for r in rows) / n, 1),
+            "avg_search_views": round(sum(_score(r) for r in rows) / n, 1),
+            "total_views": sum(r.get("views", 0) for r in rows),
+        }
+
+    # Per-ACCOUNT standings — the primary comparison now that each account runs ONE
+    # format (mixing formats in a single feed confuses the audience). This lets you put
+    # the same niche on two channels with different formats and compare the channels
+    # head-to-head. Legacy rows (pre multi-account engine) back-fill to the original
+    # channel so history still counts. With one format per account, the account's
+    # format/platform/niche are consistent across its rows, so the first row labels them.
+    by_account = defaultdict(list)
+    for r in ledger.load():
+        if r.get("finalized") and r.get("views") is not None:
+            by_account[_account_of(r)].append(r)
+    accounts = {}
+    for acct, rows in by_account.items():
+        n = len(rows)
+        accounts[acct] = {
+            "n": n,
+            "platform": _platform_of(rows[0]),
+            "format": _format_of(rows[0]),
+            "niche": rows[0].get("niche"),
+            "avg_views": round(sum(r.get("views", 0) for r in rows) / n, 1),
+            "avg_search_views": round(sum(_score(r) for r in rows) / n, 1),
+            "total_views": sum(r.get("views", 0) for r in rows),
+        }
+
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "themes": themes,
         "sources": sources,
+        "surfaces": surfaces,
+        "accounts": accounts,
         # run_pipeline reads this: weight per theme = avg search-driven views.
         "theme_weights": {t: v["avg_search_views"] for t, v in themes.items()},
+        # orchestrator format selection can read this: weight per surface.
+        "surface_weights": {s: v["avg_search_views"] for s, v in surfaces.items()},
     }
     WINNERS_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     return out
@@ -187,6 +252,20 @@ def report(winners: dict) -> None:
     if len(ranked) > 1:
         worst = ranked[-1][0]
         print(f"🪦 Underperforming: {worst} — run_pipeline will show it less often.")
+
+    # Per-account standings — the head-to-head now that each account runs one format.
+    accts = winners.get("accounts", {})
+    if accts:
+        print("\n" + "-" * 64)
+        print("ACCOUNT STANDINGS  (one format per account; avg views/post)")
+        print(f"{'account':<22}{'fmt':<13}{'n':>3}{'avg_views':>11}{'total':>9}")
+        for acct, v in sorted(accts.items(), key=lambda kv: -kv[1]["avg_views"]):
+            print(f"{acct:<22}{v['format']:<13}{v['n']:>3}"
+                  f"{v['avg_views']:>11}{v['total_views']:>9}")
+        if len(accts) > 1:
+            win = max(accts.items(), key=lambda kv: kv[1]["avg_views"])
+            print(f"  → {win[0]} ({win[1]['format']}) leads. Compare once each "
+                  "account has a solid sample.")
 
     # The scraped-vs-generated verdict.
     src = winners.get("sources", {})

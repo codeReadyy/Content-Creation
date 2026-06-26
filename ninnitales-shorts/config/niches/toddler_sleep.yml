@@ -1,0 +1,103 @@
+# Niche profile: NinniTales — toddler/baby sleep.
+# Generalizes the constants that used to live in ghostwriter.py + run_pipeline.py.
+# A new niche or product = a copy of this file with different values (no code change).
+
+name: toddler_sleep
+product: ninnitales
+waitlist_url: https://ninnitales.com
+cta_dir: cta            # CTA clips (cta*.mp4) relative to ninnitales-shorts/
+
+brand_context: >
+  NinniTales is an app where a parent records ~90 seconds of their voice once, and the
+  app then narrates bedtime stories in the parent's OWN voice so their young child can
+  fall asleep to it, anywhere — even when the parent is away. The buyer is the
+  exhausted PARENT; the emotional lever is a familiar voice as comfort at night.
+
+# Selection tunables (explore/exploit + dedup window).
+min_sample_per_theme: 4
+explore_rate: 0.20
+dedup_window_days: 7
+
+# Search-first keyword buckets (key -> the query a parent actually types).
+themes:
+  sleep_fast: how to get toddler to sleep faster
+  wont_sleep: toddler won't sleep at night
+  bedtime_routine: toddler bedtime routine that works
+  through_night: help baby sleep through the night
+  make_sleep: tricks to make kids fall asleep
+  calm_before_bed: calm an overtired toddler before bed
+  bedtime_stories: bedtime stories to put kids to sleep
+
+# YouTube tags.
+tags:
+  - bedtime stories
+  - how to get toddler to sleep
+  - toddler won't sleep
+  - toddler sleep
+  - bedtime routine
+  - how to make kids sleep
+  - kids sleep
+  - toddler bedtime
+  - bedtime stories for kids
+  - ninnitales
+
+# Scraped Shorts: rotating BRAND/social-proof titles + ONE fixed brand description.
+scraped_theme: brand
+scraped_titles:
+  - Join 1,000+ parents reading bedtime stories in their own voice
+  - Join 1,000+ parents who switched bedtime to NinniTales
+  - 1,000+ parents are already doing bedtime differently
+  - 1,000+ parents put their kids to sleep — without being in the room
+  - 1,000+ kids fall asleep to mom or dad's voice every night
+  - Away at bedtime? 1,000+ parents still tuck their kids in — in their own voice
+  - 1,000+ kids fall asleep with zero screen time
+  - Bedtime with 0 screens — for 1,000+ families
+  - 1,000+ parents are recording bedtime stories their kids keep forever
+  - Record your voice once — 1,000+ parents already did
+scraped_description: |
+  The first night I played a bedtime story in my own voice, my little one was asleep before the page even turned. 🌙
+
+  Now bedtime is calm — even on the nights I'm not in the room:
+  • they drift off to a familiar voice, not a screen
+  • I record a story once and play it any night
+  • it becomes a little piece of me they'll keep for years
+
+  Record your voice once → https://ninnitales.com
+
+  #bedtime #bedtimestories #parentinghacks #momlife #toddlersleep
+
+default_hashtags:
+  - "#toddlersleep"
+  - "#bedtime"
+  - "#momlife"
+  - "#parentinghacks"
+  - "#toddlermom"
+
+# SYSTEM prompt the copywriter uses for LLM-written (generated/anime) Shorts.
+ghostwriter_system: |
+  You are the ghostwriter for NinniTales — an app where a parent records ~90 seconds
+  of their voice ONCE, and the app then narrates bedtime stories in the parent's OWN
+  voice so their young child falls asleep to it, anywhere (even when the parent is
+  away). The buyer is the exhausted PARENT.
+
+  Your job: write the Short's metadata so it (1) gets FOUND in search and (2) actually
+  helps, so parents save and rewatch it.
+
+  Hard rules:
+  - TITLE leads with the exact phrase a parent would TYPE into search, in the first
+    ~40 characters (mobile truncates). A listicle shape ("5 ways to ...", "4 things
+    ...") works best. <= 70 characters. NO emojis in the title.
+  - Give REAL, usable bedtime advice in 4-6 short list items.
+  - ONE item (the 2nd or 3rd) is the NinniTales method in plain human words — e.g.
+    "play a bedtime story in your own recorded voice" — woven in, NEVER a sales pitch.
+  - Pick a "theme" from the allowed list that matches the title's intent.
+  - Be genuinely DIFFERENT from the recently-used titles you are given — different
+    angle, number, and wording. Do not paraphrase them.
+
+  Return ONLY JSON:
+  {
+    "theme": "<one of the allowed theme keys>",
+    "title": "<search-first listicle title>",
+    "steps": ["item 1", "item 2 (the NinniTales one)", "item 3", "..."],
+    "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"]
+  }

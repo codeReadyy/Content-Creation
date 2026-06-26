@@ -1,0 +1,96 @@
+# NinniTales — Instagram Reels. Instagram has NO native scheduling, so instead of
+# uploading-private-with-publishAt (the YouTube trick), we run at the desired POST times
+# and publish immediately: `orchestrate.py --platform instagram --now 1` builds + posts ONE
+# Reel per run for each enabled Instagram account. Two crons = two posts/day.
+#
+# Times: 9:00 AM & 6:00 PM ET. Cron is UTC and DST-naive, so these are set for EDT
+# (summer, UTC-4); in EST (winter) they fire ~1h earlier. Consistency > exact minute.
+#
+# Required repo secrets:
+#   INSTAGRAM_ACCESS_TOKEN_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES
+#     (minted by connect-helper; long-lived IG token + IG user id)
+#   MEDIA_REPO        — "owner/public-media-repo" (a PUBLIC repo that holds the built clips
+#                       so Instagram can fetch them by URL; this repo stays private)
+#   MEDIA_REPO_TOKEN  — a PAT with `repo`/contents:write on that media repo
+#   SCRAPE_PROXY      — US residential proxy (scraped_cta pulls a hook clip)
+#   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID — run health + summary
+# Optional (only if an IG account uses the anime_cta format):
+#   AZURE_OPENAI_* + NINNITALES_IMAGE_*
+#   YOUTUBE_COOKIES   — cookies.txt fallback for scraping
+
+name: NinniTales Instagram
+
+on:
+  schedule:
+    - cron: "0 13 * * *"   # 9:00 AM ET (EDT)
+    - cron: "0 22 * * *"   # 6:00 PM ET (EDT)
+  workflow_dispatch:
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # to commit the ledger + scrape state back
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # yt-dlp solves YouTube's nsig JS challenge with a JS runtime; it prefers Deno.
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install system + python deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --upgrade pip -r requirements.txt
+          python -m pip install --upgrade yt-dlp
+
+      - name: Write cookies.txt (optional — only if YOUTUBE_COOKIES set)
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          if [ -n "$YOUTUBE_COOKIES" ]; then
+            printf '%s' "$YOUTUBE_COOKIES" > cookies.txt
+            echo "wrote cookies.txt"
+          else
+            echo "no YOUTUBE_COOKIES — relying on the residential proxy alone"
+          fi
+
+      - name: Publish one Instagram Reel (immediate)
+        env:
+          INSTAGRAM_ACCESS_TOKEN_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_NINNITALES }}
+          INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES }}
+          MEDIA_REPO: ${{ secrets.MEDIA_REPO }}
+          MEDIA_REPO_TOKEN: ${{ secrets.MEDIA_REPO_TOKEN }}
+          MEDIA_PREFIX: ninnitales   # per-project release bucket inside the shared media repo
+          SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
+          NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
+          NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python orchestrate.py --platform instagram --now 1
+
+      - name: Persist ledger + scrape dedupe state
+        if: always()
+        run: |
+          git add analytics/ledger.json state.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(ninnitales): log Instagram Reel + scrape state [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push
+          fi
