@@ -66,7 +66,13 @@
     "url": "https://youtube.com/shorts/jJCKumKMPOc",
     "status": "scheduled",
     "posted_at": "2026-06-22T19:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 8,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-24T10:04:37Z"
   },
   {
     "video_id": "5zp8432JiF0",
@@ -77,7 +83,13 @@
     "url": "https://youtube.com/shorts/5zp8432JiF0",
     "status": "scheduled",
     "posted_at": "2026-06-23T01:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 9,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-24T10:04:38Z"
   },
   {
     "video_id": "YpPnYDCjU1Y",
@@ -88,7 +100,13 @@
     "url": "https://youtube.com/shorts/YpPnYDCjU1Y",
     "status": "scheduled",
     "posted_at": "2026-06-22T19:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 5,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-24T10:04:38Z"
   },
   {
     "video_id": "hSaLFfxmA8Y",
@@ -99,7 +117,13 @@
     "url": "https://youtube.com/shorts/hSaLFfxmA8Y",
     "status": "scheduled",
     "posted_at": "2026-06-23T01:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 4,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-24T10:04:38Z"
   },
   {
     "video_id": "7r2_jvfRG-w",
@@ -110,7 +134,13 @@
     "url": "https://youtube.com/shorts/7r2_jvfRG-w",
     "status": "scheduled",
     "posted_at": "2026-06-23T16:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 7,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-25T10:03:09Z"
   },
   {
     "video_id": "7g6yxcMupEA",
@@ -132,7 +162,13 @@
     "url": "https://youtube.com/shorts/thVq2zA9UY4",
     "status": "scheduled",
     "posted_at": "2026-06-23T22:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 50,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-25T10:03:09Z"
   },
   {
     "video_id": "bDwNE4mocAU",
@@ -154,7 +190,13 @@
     "url": "https://youtube.com/shorts/yejyR8n2tnA",
     "status": "scheduled",
     "posted_at": "2026-06-23T19:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 11,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-25T10:03:10Z"
   },
   {
     "video_id": "RgeXXXxbQXw",
@@ -176,7 +218,13 @@
     "url": "https://youtube.com/shorts/lUkidPw3A3k",
     "status": "scheduled",
     "posted_at": "2026-06-24T01:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 19,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-25T10:03:10Z"
   },
   {
     "video_id": "Tt3ZnqUofpM",
@@ -187,6 +235,94 @@
     "url": "https://youtube.com/shorts/Tt3ZnqUofpM",
     "status": "scheduled",
     "posted_at": "2026-06-24T16:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "K_UVl0jukeQ",
+    "platform": "youtube",
+    "title": "1,000+ kids fall asleep with zero screen time",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/K_UVl0jukeQ",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T12:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "O7fmECPxDM0",
+    "platform": "youtube",
+    "title": "4 tricks to calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/O7fmECPxDM0",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T16:30:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "2pG13NcS2Qc",
+    "platform": "youtube",
+    "title": "1,000+ parents are already doing bedtime differently",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/2pG13NcS2Qc",
+    "status": "scheduled",
+    "posted_at": "2026-06-24T23:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "yn2_IXgEsCA",
+    "platform": "youtube",
+    "title": "4 tricks to calm your overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/yn2_IXgEsCA",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T12:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "7bVXTvPfN2c",
+    "platform": "youtube",
+    "title": "1,000+ kids fall asleep to mom or dad's voice every night",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/7bVXTvPfN2c",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T12:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "wGULGoA65Us",
+    "platform": "youtube",
+    "title": "4 tricks to help your toddler fall asleep fast",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/wGULGoA65Us",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T16:30:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "GUlYo0NLbh0",
+    "platform": "youtube",
+    "title": "1,000+ parents put their kids to sleep — without being in the room",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/GUlYo0NLbh0",
+    "status": "scheduled",
+    "posted_at": "2026-06-25T23:00:00Z",
+    "finalized": false
+  },
+  {
+    "video_id": "7u6uEHVw3CA",
+    "platform": "youtube",
+    "title": "4 tricks to help your toddler fall asleep soundly",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/7u6uEHVw3CA",
+    "status": "scheduled",
+    "posted_at": "2026-06-26T12:00:00Z",
     "finalized": false
   }
 ]
