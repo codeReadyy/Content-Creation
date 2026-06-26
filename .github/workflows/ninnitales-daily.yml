@@ -81,8 +81,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         # orchestrate.py reads config/accounts.yml — slots/formats/schedule per account,
-        # fully autonomous (guardrails replace the per-post veto).
-        run: python orchestrate.py
+        # fully autonomous (guardrails replace the per-post veto). YOUTUBE ONLY here:
+        # Instagram has no native scheduling, so it runs from ninnitales-instagram.yml at
+        # its own cron times (posts immediately). Excluding it here avoids a double post.
+        run: python orchestrate.py --platform youtube
 
       - name: Persist ledger + scrape dedupe state
         if: always()

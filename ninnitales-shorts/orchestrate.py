@@ -109,8 +109,14 @@ def _veto_caption(title: str, account: Account, slot: str) -> str:
             f"Do nothing → it publishes.   ❌ Cancel   🔄 Cancel &amp; rebuild")
 
 
-def run_account(account: Account, mode: str, rng: random.Random, tg: bool) -> dict:
-    """Returns {slots, scheduled, alerts} for the run summary."""
+def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
+                now: int = 0) -> dict:
+    """Returns {slots, scheduled, alerts} for the run summary.
+
+    now > 0 = "post N items immediately" (publish_at=None): for platforms without native
+    scheduling (Instagram), where the cron time IS the post time. now == 0 = schedule one
+    item per schedule_et slot (the YouTube path).
+    """
     result = {"slots": 0, "scheduled": 0, "alerts": []}
     niche = config.load_niche(account.niche)
     publisher = publishers.get(account.platform)
@@ -122,7 +128,7 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool) -> di
         result["alerts"].append(f"{account.id}: no compatible formats on {account.platform}")
         return result
 
-    slots = next_slots(account.schedule_et)
+    slots = [None] * now if now else next_slots(account.schedule_et)
     result["slots"] = len(slots)
     chosen = _plan_formats(compat, len(slots))
     ctas = sorted((HERE / niche.cta_dir).glob("cta*.mp4"))
@@ -133,9 +139,9 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool) -> di
     print(f"\n=== {account.id} ({account.platform}, niche={account.niche}, "
           f"gate={account.gate}) ===")
     for i, (slot, fname) in enumerate(zip(slots, chosen)):
-        slot_et = datetime.strptime(slot, "%Y-%m-%dT%H:%M:%SZ") \
-            .replace(tzinfo=UTC).astimezone(ET)
-        print(f"[{i+1}] {fname} → {slot_et:%a %b %d %-I:%M %p} ET")
+        when = (datetime.strptime(slot, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+                .astimezone(ET).strftime("%a %b %d %-I:%M %p ET") if slot else "now (immediate)")
+        print(f"[{i+1}] {fname} → {when}")
         if mode == "plan":
             continue
 
@@ -168,12 +174,13 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool) -> di
             alert = f"{account.id} publish failed: {res['error']}"
             print(f"    ⚠️  {alert}"); result["alerts"].append(alert); continue
         ledger.log_upload(res["post_id"], copy.title, asset.theme, res["url"],
-                          platform=account.platform, status="scheduled",
+                          platform=account.platform,
+                          status="scheduled" if slot else "posted",
                           publish_at=slot, source=asset.source,
                           fmt=used, account_id=account.id,
                           product=account.product, niche=account.niche)
         result["scheduled"] += 1
-        print(f"    ✅ scheduled: {res['url']}")
+        print(f"    ✅ {'scheduled' if slot else 'posted'}: {res['url']}")
         # gate=true → send a veto preview so it can still be cancelled before going live.
         if account.gate and tg and account.platform == "youtube" and asset.kind == VIDEO:
             notify_telegram.send_video_preview(
@@ -182,15 +189,26 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool) -> di
     return result
 
 
-def run(mode: str = "live", only_account: str | None = None) -> int:
+def run(mode: str = "live", only_account: str | None = None,
+        only_platform: str | None = None, now: int = 0) -> int:
     run_pipeline._load_env()
     run_pipeline.WORK_DIR.mkdir(exist_ok=True)
     run_pipeline.QUEUE_DIR.mkdir(exist_ok=True)
     rng = random.Random()
-
-    # Token pre-flight (skip in plan mode — plan touches no credentials).
     tg = notify_telegram.configured()
-    if mode != "plan":
+
+    accounts = config.load_accounts()
+    if only_account:
+        accounts = [a for a in accounts if a.id == only_account]
+    if only_platform:
+        accounts = [a for a in accounts if a.platform == only_platform]
+    if not accounts:
+        print("❌ no matching enabled accounts.")
+        return 1
+
+    # YouTube token pre-flight — only when this run actually includes a YouTube account
+    # (an Instagram-only run needs no YouTube creds and must not abort on them).
+    if mode != "plan" and any(a.platform == "youtube" for a in accounts):
         health = token_doctor.check()
         if tg:
             notify_telegram.send_message(f"🌙 <b>NinniTales run</b>\n\n{_health_snapshot(health)}")
@@ -198,16 +216,12 @@ def run(mode: str = "live", only_account: str | None = None) -> int:
             print(f"❌ token dead ({health['error']}) — aborting.")
             return 1
 
-    accounts = config.load_accounts()
-    if only_account:
-        accounts = [a for a in accounts if a.id == only_account]
-        if not accounts:
-            print(f"❌ no enabled account '{only_account}'."); return 1
-    print(f"Mode: {mode}. Accounts: {[a.id for a in accounts]}")
+    print(f"Mode: {mode}. Accounts: {[a.id for a in accounts]}"
+          + (f"  (post {now} now)" if now else ""))
 
     totals = {"slots": 0, "scheduled": 0, "alerts": []}
     for account in accounts:
-        r = run_account(account, mode, rng, tg)
+        r = run_account(account, mode, rng, tg, now=now)
         totals["slots"] += r["slots"]
         totals["scheduled"] += r["scheduled"]
         totals["alerts"] += r["alerts"]
@@ -232,6 +246,11 @@ if __name__ == "__main__":
     g.add_argument("--plan", action="store_true", help="Print decisions only; no build/publish.")
     g.add_argument("--dry-run", action="store_true", help="Build media but do not publish.")
     ap.add_argument("--account", default=None, help="Restrict to one account id.")
+    ap.add_argument("--platform", default=None,
+                    help="Restrict to one platform (youtube|instagram|tiktok).")
+    ap.add_argument("--now", type=int, nargs="?", const=1, default=0,
+                    help="Post N items immediately (ignore schedule_et) — for platforms "
+                         "without native scheduling like Instagram. Default 1 when given.")
     args = ap.parse_args()
     mode = "plan" if args.plan else "dry-run" if args.dry_run else "live"
-    raise SystemExit(run(mode, args.account))
+    raise SystemExit(run(mode, args.account, args.platform, args.now))

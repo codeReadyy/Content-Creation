@@ -2,8 +2,14 @@
 
 Instagram's Graph API ingests media BY URL (it fetches the file itself), not by upload,
 so a freshly built mp4/image must be reachable over the web. We attach it as an asset on
-a single rolling GitHub Release (free, durable, public on a public repo), using the
-GITHUB_TOKEN + GITHUB_REPOSITORY that GitHub Actions injects automatically.
+a single rolling GitHub Release, which gives a durable public download URL.
+
+This repo can stay PRIVATE: point hosting at a SEPARATE PUBLIC "media" repo via
+  MEDIA_REPO        = "owner/media-repo"   (a public repo you create)
+  MEDIA_REPO_TOKEN  = a PAT with `repo` scope on it (or `contents:write` fine-grained)
+Only the built clips land there — never your code or secrets. If those are unset we fall
+back to the current repo (GITHUB_REPOSITORY + GITHUB_TOKEN), which only yields a public
+URL when THIS repo is public.
 
 Locally (no token/repo env) public_url() raises — which is why the Instagram account
 stays effectively inert until run in CI with creds.
@@ -23,11 +29,15 @@ RELEASE_TAG = "media-assets"   # one rolling pre-release that holds posted media
 
 
 def _repo_token() -> tuple[str, str]:
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    repo = os.environ.get("GITHUB_REPOSITORY")          # "owner/name" (set by Actions)
+    # Prefer a dedicated public media repo so this repo can stay private.
+    repo = os.environ.get("MEDIA_REPO") or os.environ.get("GITHUB_REPOSITORY")
+    token = (os.environ.get("MEDIA_REPO_TOKEN") or os.environ.get("GH_PAT")
+             or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN"))
     if not token or not repo:
-        raise RuntimeError("hosting needs GITHUB_TOKEN + GITHUB_REPOSITORY "
-                           "(present in GitHub Actions) to host media for Instagram.")
+        raise RuntimeError(
+            "hosting needs a repo + token to host media for Instagram — set MEDIA_REPO + "
+            "MEDIA_REPO_TOKEN (a public media repo), or run in Actions with GITHUB_REPOSITORY "
+            "+ GITHUB_TOKEN on a public repo.")
     return repo, token
 
 
