@@ -393,5 +393,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17918737803180807",
+    "platform": "instagram",
+    "title": "Record your voice once — 1,000+ parents already did",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/17918737803180807/",
+    "status": "posted",
+    "posted_at": "2026-06-26T13:48:54Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
