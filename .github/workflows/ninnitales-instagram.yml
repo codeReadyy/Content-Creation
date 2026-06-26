@@ -70,6 +70,7 @@ jobs:
           INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES }}
           MEDIA_REPO: ${{ secrets.MEDIA_REPO }}
           MEDIA_REPO_TOKEN: ${{ secrets.MEDIA_REPO_TOKEN }}
+          MEDIA_PREFIX: ninnitales   # per-project release bucket inside the shared media repo
           SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
