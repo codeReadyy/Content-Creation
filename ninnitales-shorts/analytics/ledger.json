@@ -348,5 +348,50 @@
     "status": "scheduled",
     "posted_at": "2026-06-26T12:00:00Z",
     "finalized": false
+  },
+  {
+    "video_id": "J6nubWehsP0",
+    "platform": "youtube",
+    "title": "Join 1,000+ parents reading bedtime stories in their own voice",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/J6nubWehsP0",
+    "status": "scheduled",
+    "posted_at": "2026-06-26T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "0CAD1ZpHRFc",
+    "platform": "youtube",
+    "title": "Away at bedtime? 1,000+ parents still tuck their kids in — in their own voice",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/0CAD1ZpHRFc",
+    "status": "scheduled",
+    "posted_at": "2026-06-26T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "qRi96PDhKXo",
+    "platform": "youtube",
+    "title": "Join 1,000+ parents who switched bedtime to NinniTales",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/qRi96PDhKXo",
+    "status": "scheduled",
+    "posted_at": "2026-06-26T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
