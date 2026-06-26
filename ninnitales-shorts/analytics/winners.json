@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-25T10:03:10Z",
+  "generated_at": "2026-06-26T10:04:33Z",
   "themes": {
     "bedtime_routine": {
       "n": 4,
@@ -9,11 +9,11 @@
       "total_views": 80
     },
     "sleep_fast": {
-      "n": 3,
-      "avg_views": 13.7,
-      "avg_search_views": 13.7,
+      "n": 4,
+      "avg_views": 12.2,
+      "avg_search_views": 12.2,
       "avg_search_pct": null,
-      "total_views": 41
+      "total_views": 49
     },
     "bedtime_stories": {
       "n": 3,
@@ -28,24 +28,76 @@
       "avg_search_views": 50.0,
       "avg_search_pct": null,
       "total_views": 50
+    },
+    "brand": {
+      "n": 2,
+      "avg_views": 561.5,
+      "avg_search_views": 561.5,
+      "avg_search_pct": null,
+      "total_views": 1123
+    },
+    "calm_before_bed": {
+      "n": 1,
+      "avg_views": 6.0,
+      "avg_search_views": 6.0,
+      "avg_search_pct": null,
+      "total_views": 6
     }
   },
   "sources": {
     "generated": {
-      "n": 9,
-      "avg_views": 17.7,
-      "total_views": 159
+      "n": 11,
+      "avg_views": 15.7,
+      "total_views": 173
     },
     "scraped": {
-      "n": 2,
-      "avg_views": 15.0,
-      "total_views": 30
+      "n": 4,
+      "avg_views": 288.2,
+      "total_views": 1153
+    }
+  },
+  "surfaces": {
+    "youtube/unknown": {
+      "n": 3,
+      "avg_views": 25.3,
+      "avg_search_views": 25.3,
+      "total_views": 76
+    },
+    "youtube/anime_cta": {
+      "n": 8,
+      "avg_views": 12.1,
+      "avg_search_views": 12.1,
+      "total_views": 97
+    },
+    "youtube/scraped_cta": {
+      "n": 4,
+      "avg_views": 288.2,
+      "avg_search_views": 288.2,
+      "total_views": 1153
+    }
+  },
+  "accounts": {
+    "ninnitales_yt_main": {
+      "n": 15,
+      "platform": "youtube",
+      "format": "unknown",
+      "niche": null,
+      "avg_views": 88.4,
+      "avg_search_views": 88.4,
+      "total_views": 1326
     }
   },
   "theme_weights": {
     "bedtime_routine": 20.0,
-    "sleep_fast": 13.7,
+    "sleep_fast": 12.2,
     "bedtime_stories": 6.0,
-    "through_night": 50.0
+    "through_night": 50.0,
+    "brand": 561.5,
+    "calm_before_bed": 6.0
+  },
+  "surface_weights": {
+    "youtube/unknown": 25.3,
+    "youtube/anime_cta": 12.1,
+    "youtube/scraped_cta": 288.2
   }
 }

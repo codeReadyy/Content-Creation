@@ -235,7 +235,13 @@
     "url": "https://youtube.com/shorts/Tt3ZnqUofpM",
     "status": "scheduled",
     "posted_at": "2026-06-24T16:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 8,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-26T10:04:32Z"
   },
   {
     "video_id": "K_UVl0jukeQ",
@@ -246,7 +252,13 @@
     "url": "https://youtube.com/shorts/K_UVl0jukeQ",
     "status": "scheduled",
     "posted_at": "2026-06-24T12:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 2,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-06-26T10:04:32Z"
   },
   {
     "video_id": "O7fmECPxDM0",
@@ -257,7 +269,13 @@
     "url": "https://youtube.com/shorts/O7fmECPxDM0",
     "status": "scheduled",
     "posted_at": "2026-06-24T16:30:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 6,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-26T10:04:32Z"
   },
   {
     "video_id": "2pG13NcS2Qc",
@@ -268,7 +286,13 @@
     "url": "https://youtube.com/shorts/2pG13NcS2Qc",
     "status": "scheduled",
     "posted_at": "2026-06-24T23:00:00Z",
-    "finalized": false
+    "finalized": true,
+    "search_views": 0,
+    "search_pct": null,
+    "views": 1121,
+    "likes": 26,
+    "comments": 0,
+    "measured_at": "2026-06-26T10:04:33Z"
   },
   {
     "video_id": "yn2_IXgEsCA",
