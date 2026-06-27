@@ -432,5 +432,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "VdFph9FOT1g",
+    "platform": "youtube",
+    "title": "Bedtime with 0 screens — for 1,000+ families",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/VdFph9FOT1g",
+    "status": "scheduled",
+    "posted_at": "2026-06-27T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "9P6Yrddtc5A",
+    "platform": "youtube",
+    "title": "1,000+ parents are recording bedtime stories their kids keep forever",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/9P6Yrddtc5A",
+    "status": "scheduled",
+    "posted_at": "2026-06-27T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "zAJtD6Ak0Eo",
+    "platform": "youtube",
+    "title": "Join 1,000+ parents reading bedtime stories in their own voice",
+    "theme": "brand",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/zAJtD6Ak0Eo",
+    "status": "scheduled",
+    "posted_at": "2026-06-27T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
