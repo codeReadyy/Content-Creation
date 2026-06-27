@@ -46,7 +46,8 @@ def exchange_code(code: str) -> tuple[str, str]:
         "redirect_uri": config.INSTAGRAM_REDIRECT,
         "code": code,
     }, timeout=30)
-    r.raise_for_status()
+    if not r.ok:
+        raise RuntimeError(f"Instagram token exchange failed ({r.status_code}): {r.text[:400]}")
     data = r.json()
     # Older responses nest under data[0]; newer return flat. Handle both.
     if isinstance(data.get("data"), list) and data["data"]:
@@ -61,7 +62,8 @@ def long_lived(short_token: str) -> tuple[str, int]:
         "client_secret": config.INSTAGRAM_APP_SECRET,
         "access_token": short_token,
     }, timeout=30)
-    r.raise_for_status()
+    if not r.ok:
+        raise RuntimeError(f"long-lived token exchange failed ({r.status_code}): {r.text[:400]}")
     data = r.json()
     return data["access_token"], int(data.get("expires_in", 0))
 

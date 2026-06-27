@@ -85,10 +85,13 @@ GOOGLE_SCOPES = (
     "https://www.googleapis.com/auth/youtube.force-ssl "
     "https://www.googleapis.com/auth/yt-analytics.readonly"
 )
-# Instagram (Instagram-login path): read the account, publish content, and read insights
-# (views/reach for the analytics digest).
-INSTAGRAM_SCOPES = ("instagram_business_basic,instagram_business_content_publish,"
-                    "instagram_business_manage_insights")
+# Instagram (Instagram-login path): read the account + publish content, plus (optional)
+# read insights (views/reach for the analytics digest). The insights scope must be enabled
+# in the Meta app's "Instagram → API setup with Instagram login → Permissions"; if it isn't,
+# connecting fails. Set CONNECT_IG_INSIGHTS=0 to connect without it (no IG view metrics).
+INSTAGRAM_SCOPES = "instagram_business_basic,instagram_business_content_publish"
+if os.environ.get("CONNECT_IG_INSIGHTS", "1") != "0":
+    INSTAGRAM_SCOPES += ",instagram_business_manage_insights"
 
 
 def google_ready() -> bool:

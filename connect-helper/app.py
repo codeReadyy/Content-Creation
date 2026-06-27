@@ -154,6 +154,16 @@ def _account_table() -> str:
             "<th>Schedule (ET)</th><th>Status</th><th></th></tr>" + "".join(rows) + "</table>")
 
 
+def _error_page(title: str, detail: str, hint: str = ""):
+    """Render the real error instead of an opaque 500, so the cause is visible."""
+    hint_html = f"<p>{hint}</p>" if hint else ""
+    return layout(title, f"""
+      <h1 class="bad">{html.escape(title)}</h1>
+      <div class="card"><pre style="white-space:pre-wrap;margin:0">{html.escape(detail)}</pre>
+      {hint_html}</div>
+      <p><a href="/">← back</a></p>"""), 502
+
+
 def _save_results_html(title: str, acct_id: str, saved: list, scaffolded: bool) -> str:
     lines = []
     for r in saved:
@@ -227,19 +237,22 @@ def cb_google():
     if request.args.get("error") or not pend:
         return layout("Failed", f"<p class='bad'>OAuth error: "
                       f"{html.escape(request.args.get('error', 'bad state'))}</p>"), 400
-    tokens = google.exchange_code(request.args["code"])
-    refresh = tokens.get("refresh_token")
-    if not refresh:
-        return layout("Failed", "<p class='bad'>No refresh_token returned. Revoke prior "
-                      "access at myaccount.google.com/permissions and retry.</p>"), 400
-    _, title = google.channel_identity(tokens.get("access_token", ""))
-    suffix = _suffix(pend["label"])
-    saved = [
-        store.save_secret(f"YOUTUBE_CLIENT_ID_{suffix}", config.GOOGLE_CLIENT_ID),
-        store.save_secret(f"YOUTUBE_CLIENT_SECRET_{suffix}", config.GOOGLE_CLIENT_SECRET),
-        store.save_secret(f"YOUTUBE_REFRESH_TOKEN_{suffix}", refresh),
-    ]
-    wrote, acct_id = accounts.scaffold("youtube", suffix, identity=title)
+    try:
+        tokens = google.exchange_code(request.args["code"])
+        refresh = tokens.get("refresh_token")
+        if not refresh:
+            return layout("Failed", "<p class='bad'>No refresh_token returned. Revoke prior "
+                          "access at myaccount.google.com/permissions and retry.</p>"), 400
+        _, title = google.channel_identity(tokens.get("access_token", ""))
+        suffix = _suffix(pend["label"])
+        saved = [
+            store.save_secret(f"YOUTUBE_CLIENT_ID_{suffix}", config.GOOGLE_CLIENT_ID),
+            store.save_secret(f"YOUTUBE_CLIENT_SECRET_{suffix}", config.GOOGLE_CLIENT_SECRET),
+            store.save_secret(f"YOUTUBE_REFRESH_TOKEN_{suffix}", refresh),
+        ]
+        wrote, acct_id = accounts.scaffold("youtube", suffix, identity=title)
+    except Exception as e:
+        return _error_page("YouTube connect failed", f"{type(e).__name__}: {e}")
     return _save_results_html(f"YouTube connected: {title or suffix}", acct_id, saved, wrote)
 
 
@@ -249,18 +262,29 @@ def cb_instagram():
     if request.args.get("error") or not pend:
         msg = request.args.get("error_description") or request.args.get("error") or "bad state"
         return layout("Failed", f"<p class='bad'>OAuth error: {html.escape(msg)}</p>"), 400
-    short, _ = meta.exchange_code(request.args["code"])
-    token, _ = meta.long_lived(short)
-    ig_id, username = meta.identity(token)
+    try:
+        short, _ = meta.exchange_code(request.args["code"])
+        token, _ = meta.long_lived(short)
+        ig_id, username = meta.identity(token)
+    except Exception as e:
+        return _error_page(
+            "Instagram connect failed", f"{type(e).__name__}: {e}",
+            hint="If this mentions an invalid scope/permission, add "
+                 "<code>instagram_business_manage_insights</code> in your Meta app "
+                 "(Instagram → API setup with Instagram login → Permissions) and retry — "
+                 "or tell me to drop the insights scope to connect without it.")
     if not ig_id:
         return layout("Failed", "<p class='bad'>Could not read the Instagram account. Make "
                       "sure it's a Business/Creator account and retry.</p>"), 400
     suffix = _suffix(pend["label"])
-    saved = [
-        store.save_secret(f"INSTAGRAM_ACCESS_TOKEN_{suffix}", token),
-        store.save_secret(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{suffix}", ig_id),
-    ]
-    wrote, acct_id = accounts.scaffold("instagram", suffix, identity=f"@{username}")
+    try:
+        saved = [
+            store.save_secret(f"INSTAGRAM_ACCESS_TOKEN_{suffix}", token),
+            store.save_secret(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{suffix}", ig_id),
+        ]
+        wrote, acct_id = accounts.scaffold("instagram", suffix, identity=f"@{username}")
+    except Exception as e:
+        return _error_page("Instagram save failed", f"{type(e).__name__}: {e}")
     return _save_results_html(f"Instagram connected: @{username}", acct_id, saved, wrote)
 
 
