@@ -21,6 +21,7 @@ Usage:
 
 import argparse
 import json
+import statistics
 from collections import defaultdict
 from datetime import datetime, timezone
 
@@ -233,15 +234,19 @@ def compute_winners() -> dict:
     themes = {}
     for theme, rows in by_theme.items():
         n = len(rows)
-        avg_views = round(sum(r.get("views", 0) for r in rows) / n, 1)
-        avg_score = round(sum(_score(r) for r in rows) / n, 1)
+        views = [r.get("views", 0) for r in rows]
+        scores = [_score(r) for r in rows]
         pcts = [r["search_pct"] for r in rows if r.get("search_pct") is not None]
         themes[theme] = {
             "n": n,
-            "avg_views": avg_views,
-            "avg_search_views": avg_score,
+            "avg_views": round(sum(views) / n, 1),
+            "median_views": round(statistics.median(views), 1),
+            "avg_search_views": round(sum(scores) / n, 1),
+            # MEDIAN is the trusted signal — one viral fluke can't inflate it (a single
+            # 1121-view Short shouldn't crown a theme whose other posts got 5 views).
+            "median_search_views": round(statistics.median(scores), 1),
             "avg_search_pct": round(sum(pcts) / len(pcts), 3) if pcts else None,
-            "total_views": sum(r.get("views", 0) for r in rows),
+            "total_views": sum(views),
         }
 
     # Scraped (real footage) vs generated (AI anime) — the head-to-head test.
@@ -249,10 +254,13 @@ def compute_winners() -> dict:
     for r in ledger.load():
         if r.get("finalized") and r.get("views") is not None:
             by_source[r.get("source", "generated")].append(r)
-    sources = {s: {"n": len(rows),
-                   "avg_views": round(sum(x.get("views", 0) for x in rows) / len(rows), 1),
-                   "total_views": sum(x.get("views", 0) for x in rows)}
-               for s, rows in by_source.items()}
+    sources = {}
+    for s, rows in by_source.items():
+        views = [x.get("views", 0) for x in rows]
+        sources[s] = {"n": len(rows),
+                      "avg_views": round(sum(views) / len(views), 1),
+                      "median_views": round(statistics.median(views), 1),
+                      "total_views": sum(views)}
 
     # Per-SURFACE standings: "{platform}/{format}" — so the orchestrator can learn that,
     # e.g., anime wins on Instagram while scraped wins on YouTube. Legacy rows (no format/
@@ -264,11 +272,15 @@ def compute_winners() -> dict:
     surfaces = {}
     for surface, rows in by_surface.items():
         n = len(rows)
+        views = [r.get("views", 0) for r in rows]
+        scores = [_score(r) for r in rows]
         surfaces[surface] = {
             "n": n,
-            "avg_views": round(sum(r.get("views", 0) for r in rows) / n, 1),
-            "avg_search_views": round(sum(_score(r) for r in rows) / n, 1),
-            "total_views": sum(r.get("views", 0) for r in rows),
+            "avg_views": round(sum(views) / n, 1),
+            "median_views": round(statistics.median(views), 1),
+            "avg_search_views": round(sum(scores) / n, 1),
+            "median_search_views": round(statistics.median(scores), 1),
+            "total_views": sum(views),
         }
 
     # Per-ACCOUNT standings — the primary comparison now that each account runs ONE
@@ -284,14 +296,18 @@ def compute_winners() -> dict:
     accounts = {}
     for acct, rows in by_account.items():
         n = len(rows)
+        views = [r.get("views", 0) for r in rows]
+        scores = [_score(r) for r in rows]
         accounts[acct] = {
             "n": n,
             "platform": _platform_of(rows[0]),
             "format": _format_of(rows[0]),
             "niche": rows[0].get("niche"),
-            "avg_views": round(sum(r.get("views", 0) for r in rows) / n, 1),
-            "avg_search_views": round(sum(_score(r) for r in rows) / n, 1),
-            "total_views": sum(r.get("views", 0) for r in rows),
+            "avg_views": round(sum(views) / n, 1),
+            "median_views": round(statistics.median(views), 1),
+            "avg_search_views": round(sum(scores) / n, 1),
+            "median_search_views": round(statistics.median(scores), 1),
+            "total_views": sum(views),
         }
 
     out = {
@@ -300,10 +316,11 @@ def compute_winners() -> dict:
         "sources": sources,
         "surfaces": surfaces,
         "accounts": accounts,
-        # run_pipeline reads this: weight per theme = avg search-driven views.
-        "theme_weights": {t: v["avg_search_views"] for t, v in themes.items()},
-        # orchestrator format selection can read this: weight per surface.
-        "surface_weights": {s: v["avg_search_views"] for s, v in surfaces.items()},
+        # run_pipeline reads this: weight per theme = MEDIAN search-driven views
+        # (outlier-robust, so the content loop chases repeatable themes, not flukes).
+        "theme_weights": {t: v["median_search_views"] for t, v in themes.items()},
+        # orchestrator format selection can read this: weight per surface (median).
+        "surface_weights": {s: v["median_search_views"] for s, v in surfaces.items()},
     }
     WINNERS_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     return out
@@ -315,19 +332,18 @@ def report(winners: dict) -> None:
         print("\nNo finalized videos yet — nothing to rank. Post a few, wait ~24h, "
               "and run analyze.py again.")
         return
-    ranked = sorted(themes.items(), key=lambda kv: kv[1]["avg_search_views"],
+    ranked = sorted(themes.items(), key=lambda kv: kv[1].get("median_search_views", 0),
                     reverse=True)
     print("\n" + "=" * 64)
-    print("KEYWORD-THEME STANDINGS  (ranked by avg search-driven views)")
+    print("KEYWORD-THEME STANDINGS  (ranked by MEDIAN search-driven views)")
     print("=" * 64)
-    print(f"{'theme':<18}{'n':>3}{'avg_views':>11}{'search_views':>14}{'search%':>9}")
+    print(f"{'theme':<18}{'n':>3}{'med_views':>11}{'med_search':>12}{'avg_views':>11}")
     for theme, v in ranked:
-        pct = f"{v['avg_search_pct']*100:.0f}%" if v["avg_search_pct"] is not None else "—"
-        print(f"{theme:<18}{v['n']:>3}{v['avg_views']:>11}"
-              f"{v['avg_search_views']:>14}{pct:>9}")
+        print(f"{theme:<18}{v['n']:>3}{v.get('median_views', 0):>11}"
+              f"{v.get('median_search_views', 0):>12}{v['avg_views']:>11}")
     best, bv = ranked[0]
     print(f"\n🏆 Doubling down on: {best}  "
-          f"(avg {bv['avg_search_views']} search views/post)")
+          f"(median {bv.get('median_search_views', 0)} search views/post)")
     if len(ranked) > 1:
         worst = ranked[-1][0]
         print(f"🪦 Underperforming: {worst} — run_pipeline will show it less often.")
@@ -336,25 +352,26 @@ def report(winners: dict) -> None:
     accts = winners.get("accounts", {})
     if accts:
         print("\n" + "-" * 64)
-        print("ACCOUNT STANDINGS  (one format per account; avg views/post)")
-        print(f"{'account':<22}{'fmt':<13}{'n':>3}{'avg_views':>11}{'total':>9}")
-        for acct, v in sorted(accts.items(), key=lambda kv: -kv[1]["avg_views"]):
+        print("ACCOUNT STANDINGS  (one format per account; median views/post)")
+        print(f"{'account':<22}{'fmt':<13}{'n':>3}{'median':>9}{'avg':>9}{'total':>9}")
+        for acct, v in sorted(accts.items(), key=lambda kv: -kv[1].get("median_views", 0)):
             print(f"{acct:<22}{v['format']:<13}{v['n']:>3}"
-                  f"{v['avg_views']:>11}{v['total_views']:>9}")
+                  f"{v.get('median_views', 0):>9}{v['avg_views']:>9}{v['total_views']:>9}")
         if len(accts) > 1:
-            win = max(accts.items(), key=lambda kv: kv[1]["avg_views"])
-            print(f"  → {win[0]} ({win[1]['format']}) leads. Compare once each "
+            win = max(accts.items(), key=lambda kv: kv[1].get("median_views", 0))
+            print(f"  → {win[0]} ({win[1]['format']}) leads by median. Compare once each "
                   "account has a solid sample.")
 
-    # The scraped-vs-generated verdict.
+    # The scraped-vs-generated verdict (by MEDIAN — one viral fluke shouldn't decide it).
     src = winners.get("sources", {})
     if len(src) > 1:
         print("\n" + "-" * 64)
-        print("SCRAPED vs GENERATED  (avg views/post)")
-        for s, v in sorted(src.items(), key=lambda kv: -kv[1]["avg_views"]):
-            print(f"  {s:<12} n={v['n']:<3} avg={v['avg_views']:<8} total={v['total_views']}")
-        win = max(src.items(), key=lambda kv: kv[1]["avg_views"])[0]
-        print(f"  → {win} is winning. Once the sample is solid, shift the daily mix toward it.")
+        print("SCRAPED vs GENERATED  (median views/post)")
+        for s, v in sorted(src.items(), key=lambda kv: -kv[1].get("median_views", 0)):
+            print(f"  {s:<12} n={v['n']:<3} median={v.get('median_views', 0):<7} "
+                  f"avg={v['avg_views']:<8} total={v['total_views']}")
+        win = max(src.items(), key=lambda kv: kv[1].get("median_views", 0))[0]
+        print(f"  → {win} leads by median. Once the sample is solid, shift the mix toward it.")
 
 
 def _engagement_rate(rows: list[dict]) -> tuple[int, float]:
@@ -372,9 +389,9 @@ def _agent_actions(themes: dict, ranked: list) -> list[str]:
     ready = [(t, v) for t, v in ranked if v["n"] >= floor]
     exploring = [t for t, v in themes.items() if v["n"] < floor]
     if ready:
-        avg = sum(v["avg_search_views"] for _, v in ready) / len(ready)
-        boost = [t for t, v in ready if v["avg_search_views"] >= avg]
-        demote = [t for t, v in ready if v["avg_search_views"] < avg]
+        thr = statistics.median([v["median_search_views"] for _, v in ready])
+        boost = [t for t, v in ready if v["median_search_views"] >= thr]
+        demote = [t for t, v in ready if v["median_search_views"] < thr]
         if boost:
             acts.append(f"Doubling down on: <b>{', '.join(boost[:3])}</b>")
         if demote:
@@ -388,9 +405,11 @@ def _agent_actions(themes: dict, ranked: list) -> list[str]:
 
 
 def _platform_block(label: str, rows: list[dict]) -> str:
-    """One platform's performance: posts, total views, engagement %, recent-avg trend."""
+    """One platform's performance: posts, total views, engagement %, MEDIAN (the typical
+    post — robust to a viral outlier), and the recent-avg trend."""
     rows = sorted(rows, key=lambda r: r.get("posted_at", ""))
     tv, eng = _engagement_rate(rows)
+    med = statistics.median([r.get("views", 0) for r in rows])
     last3, prev3 = rows[-3:], rows[-6:-3]
     a_last = sum(r.get("views", 0) for r in last3) / len(last3) if last3 else 0
     trend = ""
@@ -400,7 +419,7 @@ def _platform_block(label: str, rows: list[dict]) -> str:
             d = round(100 * (a_last - a_prev) / a_prev)
             trend = f"  ({'↑' if d >= 0 else '↓'}{abs(d)}% vs prior)"
     return (f"\n<b>{label}</b> — {len(rows)} posts · {tv:,} views · {eng}% eng"
-            f"\n   recent avg {a_last:.0f}/post{trend}")
+            f"\n   <b>median {med:.0f}/post</b> · recent avg {a_last:.0f}{trend}")
 
 
 def telegram_digest(winners: dict) -> None:
@@ -424,7 +443,8 @@ def telegram_digest(winners: dict) -> None:
         by_plat[r.get("platform", "youtube")].append(r)
 
     themes = winners.get("themes", {})
-    ranked = sorted(themes.items(), key=lambda kv: kv[1]["avg_search_views"], reverse=True)
+    ranked = sorted(themes.items(), key=lambda kv: kv[1].get("median_search_views", 0),
+                    reverse=True)
     lines = [f"📊 <b>NinniTales — Daily Analysis ({today})</b>",
              f"{len(rows)} posts measured across {len(by_plat)} platform(s)"]
     for plat, label in (("youtube", "📺 YouTube"), ("instagram", "📸 Instagram")):
@@ -432,20 +452,21 @@ def telegram_digest(winners: dict) -> None:
             lines.append(_platform_block(label, by_plat[plat]))
     if ranked:
         b = ranked[0]
-        lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1]['avg_views']:.0f} avg views "
-                     f"(n={b[1]['n']})")
+        lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1].get('median_views', 0):.0f} "
+                     f"median views (n={b[1]['n']})")
         if len(ranked) > 1:
             w = ranked[-1]
-            lines.append(f"🪦 Weakest: {w[0]} — {w[1]['avg_views']:.0f} avg (n={w[1]['n']})")
+            lines.append(f"🪦 Weakest: {w[0]} — {w[1].get('median_views', 0):.0f} median "
+                         f"(n={w[1]['n']})")
     src = winners.get("sources", {})
     if len(src) > 1:
-        sv = sorted(src.items(), key=lambda kv: -kv[1]["avg_views"])
-        lines.append(f"🎬 {sv[0][0]} ({sv[0][1]['avg_views']:.0f}) vs "
-                     f"{sv[1][0]} ({sv[1][1]['avg_views']:.0f}) avg views")
+        sv = sorted(src.items(), key=lambda kv: -kv[1].get("median_views", 0))
+        lines.append(f"🎬 {sv[0][0]} ({sv[0][1].get('median_views', 0):.0f}) vs "
+                     f"{sv[1][0]} ({sv[1][1].get('median_views', 0):.0f}) median views")
     accts = winners.get("accounts", {})
     if len(accts) > 1:
-        a0 = sorted(accts.items(), key=lambda kv: -kv[1]["avg_views"])[0]
-        lines.append(f"🏅 Top account: {a0[0]} ({a0[1]['avg_views']:.0f} avg)")
+        a0 = sorted(accts.items(), key=lambda kv: -kv[1].get("median_views", 0))[0]
+        lines.append(f"🏅 Top account: {a0[0]} ({a0[1].get('median_views', 0):.0f} median)")
 
     for a in (["\n🤖 <b>What the agent is doing</b>"] + _agent_actions(themes, ranked)):
         lines.append(a if a.startswith(("\n", "🤖")) else f"• {a}")

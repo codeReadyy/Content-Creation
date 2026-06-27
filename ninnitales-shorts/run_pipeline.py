@@ -184,6 +184,11 @@ SCRAPED_DESCRIPTION = (
     f"Record your voice once → {WAITLIST_URL}\n\n"
     "#bedtime #bedtimestories #parentinghacks #momlife #toddlersleep"
 )
+# Scraped Shorts now use SEARCH-keyword titles (choose_post / ghostwriter), same as the
+# generated path, so the analytics loop drives them too — the footage is generic but the
+# TITLE carries the keyword. The brand/social-proof claim moves into the description:
+SOCIAL_PROOF = "💛 Joined by 1,000+ parents recording bedtime stories in their own voice."
+
 # Fallbacks for approve.py when a queued clip has no sidecar metadata.
 DESCRIPTION = POSTS[0]["description"]
 
