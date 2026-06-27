@@ -45,12 +45,3 @@ accounts:
     enabled: false
 
   # --- scaffolded by connect-helper (@ninni_tales_) — set `formats` + flip `enabled: true` to go live ---
-  - id: instagram_ninnitales
-    platform: instagram
-    product: ninnitales
-    niche: toddler_sleep
-    creds_env: NINNITALES
-    formats: [scraped_cta]          # TODO pick ONE format for this account
-    schedule_et: ["08:00"]
-    gate: false
-    enabled: true
