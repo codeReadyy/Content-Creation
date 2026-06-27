@@ -85,8 +85,10 @@ GOOGLE_SCOPES = (
     "https://www.googleapis.com/auth/youtube.force-ssl "
     "https://www.googleapis.com/auth/yt-analytics.readonly"
 )
-# Instagram (Instagram-login path): read the account + publish content to it.
-INSTAGRAM_SCOPES = "instagram_business_basic,instagram_business_content_publish"
+# Instagram (Instagram-login path): read the account, publish content, and read insights
+# (views/reach for the analytics digest).
+INSTAGRAM_SCOPES = ("instagram_business_basic,instagram_business_content_publish,"
+                    "instagram_business_manage_insights")
 
 
 def google_ready() -> bool:

@@ -31,8 +31,14 @@ import run_pipeline
 import upload_youtube
 from analytics import ledger
 
+try:
+    from core import config as acct_config            # resolve account_id -> creds_env
+except Exception:                                      # pragma: no cover
+    acct_config = None
+
 DATA_API = "https://www.googleapis.com/youtube/v3/videos"
 ANALYTICS_API = "https://youtubeanalytics.googleapis.com/v2/reports"
+IG_GRAPH = "https://graph.instagram.com"
 WINNERS_PATH = ledger.LEDGER_PATH.parent / "winners.json"
 
 
@@ -89,34 +95,106 @@ def _search_views(token: str, video_id: str, posted_at: str) -> int | None:
     return 0  # query worked, just zero search views so far
 
 
-def measure(min_age_hours: float) -> int:
-    """Fill in stats for due videos. Returns how many were finalized."""
-    run_pipeline._load_env()
-    due = ledger.pending(min_age_hours=min_age_hours)
-    if not due:
-        print("No videos due for measurement.")
-        return 0
-    token = upload_youtube._access_token(upload_youtube._credentials())
-    analytics_ok = True
+# ── Instagram measurement (graph.instagram.com) ─────────────────────────────────
+def _ig_creds_env(account_id: str | None) -> str:
+    """The env-var suffix holding this IG account's token (from accounts.yml)."""
+    if account_id and acct_config is not None:
+        try:
+            return acct_config.get_account(account_id).creds_env
+        except Exception:
+            pass
+    return "NINNITALES"
+
+
+def _ig_token(creds_env: str) -> str | None:
+    return (os.environ.get(f"INSTAGRAM_ACCESS_TOKEN_{creds_env}")
+            or os.environ.get("INSTAGRAM_ACCESS_TOKEN"))
+
+
+def _ig_insight_value(row: dict):
+    if row.get("values"):
+        return row["values"][0].get("value")
+    tv = row.get("total_value")
+    return tv.get("value") if isinstance(tv, dict) else None
+
+
+def _ig_stats(token: str, media_id: str) -> dict:
+    """Likes/comments (media fields) + views (insights). views needs the
+    instagram_business_manage_insights scope — returns no 'views' key without it."""
+    out: dict = {}
+    f = requests.get(f"{IG_GRAPH}/{media_id}",
+                     params={"fields": "like_count,comments_count", "access_token": token},
+                     timeout=30)
+    if f.ok:
+        j = f.json()
+        out["likes"] = int(j.get("like_count", 0) or 0)
+        out["comments"] = int(j.get("comments_count", 0) or 0)
+    for metric in ("views", "plays", "reach"):     # reels use 'views'; reach = fallback
+        r = requests.get(f"{IG_GRAPH}/{media_id}/insights",
+                         params={"metric": metric, "access_token": token}, timeout=30)
+        if r.ok:
+            data = r.json().get("data", [])
+            v = _ig_insight_value(data[0]) if data else None
+            if v is not None:
+                out["views"] = int(v)
+                break
+        elif r.status_code == 403 or "permission" in r.text.lower():
+            print("  ⚠️  IG insights need the instagram_business_manage_insights scope — "
+                  "re-Connect Instagram in the connect-helper to grant it.")
+            break
+        # 400 = metric not valid for this media → try the next name
+    return out
+
+
+def _measure_instagram(min_age_hours: float) -> int:
+    due = ledger.pending(min_age_hours=min_age_hours, platform="instagram")
     done = 0
     for row in due:
-        vid = row["video_id"]
-        try:
-            st = _stats(token, vid)
-        except Exception as e:
-            print(f"  ⚠️  {vid}: stats fetch failed ({e}) — will retry next run")
+        mid = row["video_id"]
+        token = _ig_token(_ig_creds_env(row.get("account_id")))
+        if not token:
+            print(f"  ⚠️  IG {mid}: no token in env — skipping")
             continue
-        if not st:
-            print(f"  ⚠️  {vid}: no stats (deleted/private?) — skipping")
+        st = _ig_stats(token, mid)
+        if "views" not in st:                       # no insights yet → retry next run
+            print(f"  ⏳ IG {mid}: views unavailable (grant insights scope / too new) — will retry")
             continue
-        search = _search_views(token, vid, row["posted_at"]) if analytics_ok else None
-        if search is None:
-            analytics_ok = False  # don't hammer the API once we know scope is missing
-        pct = round(search / st["views"], 3) if (search and st["views"]) else None
-        ledger.update(vid, finalized=True, search_views=search, search_pct=pct, **st)
-        sv = f", search {search}" if search is not None else ""
-        print(f"  ✓ {vid} [{row['theme']}] {st['views']} views{sv} — {row['title']!r}")
+        ledger.update(mid, platform="instagram", finalized=True, **st)
+        print(f"  ✓ IG {mid} [{row.get('theme')}] {st['views']} views — {row['title']!r}")
         done += 1
+    return done
+
+
+def measure(min_age_hours: float) -> int:
+    """Fill in stats for due posts (YouTube + Instagram). Returns how many were finalized."""
+    run_pipeline._load_env()
+    due = ledger.pending(min_age_hours=min_age_hours)
+    done = 0
+    if due:
+        token = upload_youtube._access_token(upload_youtube._credentials())
+        analytics_ok = True
+        for row in due:
+            vid = row["video_id"]
+            try:
+                st = _stats(token, vid)
+            except Exception as e:
+                print(f"  ⚠️  {vid}: stats fetch failed ({e}) — will retry next run")
+                continue
+            if not st:
+                print(f"  ⚠️  {vid}: no stats (deleted/private?) — skipping")
+                continue
+            search = _search_views(token, vid, row["posted_at"]) if analytics_ok else None
+            if search is None:
+                analytics_ok = False  # don't hammer the API once we know scope is missing
+            pct = round(search / st["views"], 3) if (search and st["views"]) else None
+            ledger.update(vid, finalized=True, search_views=search, search_pct=pct, **st)
+            sv = f", search {search}" if search is not None else ""
+            print(f"  ✓ {vid} [{row['theme']}] {st['views']} views{sv} — {row['title']!r}")
+            done += 1
+    else:
+        print("No YouTube videos due for measurement.")
+
+    done += _measure_instagram(min_age_hours)
     return done
 
 
@@ -309,11 +387,27 @@ def _agent_actions(themes: dict, ranked: list) -> list[str]:
     return acts
 
 
+def _platform_block(label: str, rows: list[dict]) -> str:
+    """One platform's performance: posts, total views, engagement %, recent-avg trend."""
+    rows = sorted(rows, key=lambda r: r.get("posted_at", ""))
+    tv, eng = _engagement_rate(rows)
+    last3, prev3 = rows[-3:], rows[-6:-3]
+    a_last = sum(r.get("views", 0) for r in last3) / len(last3) if last3 else 0
+    trend = ""
+    if prev3:
+        a_prev = sum(r.get("views", 0) for r in prev3) / len(prev3)
+        if a_prev:
+            d = round(100 * (a_last - a_prev) / a_prev)
+            trend = f"  ({'↑' if d >= 0 else '↓'}{abs(d)}% vs prior)"
+    return (f"\n<b>{label}</b> — {len(rows)} posts · {tv:,} views · {eng}% eng"
+            f"\n   recent avg {a_last:.0f}/post{trend}")
+
+
 def telegram_digest(winners: dict) -> None:
     """Send a performance + decisions digest to Telegram (no-op if unconfigured).
 
-    Answers: how are posts doing (views + engagement + trend), which content is winning,
-    and what the agent is changing to improve the numbers."""
+    Answers: how are posts doing PER PLATFORM (views + engagement + trend), which content
+    is winning, and what the agent is changing to improve the numbers."""
     if not notify_telegram.configured():
         return
     today = datetime.now(timezone.utc).strftime("%b %d")
@@ -324,24 +418,18 @@ def telegram_digest(winners: dict) -> None:
             f"📊 <b>NinniTales — Analysis ({today})</b>\nNo measured posts yet — "
             "post a few and check back ~24h later.")
         return
-    rows.sort(key=lambda r: r.get("posted_at", ""))
-    total_v, eng = _engagement_rate(rows)
-    last3, prev3 = rows[-3:], rows[-6:-3]
-    a_last = sum(r.get("views", 0) for r in last3) / len(last3)
-    trend = ""
-    if prev3:
-        a_prev = sum(r.get("views", 0) for r in prev3) / len(prev3)
-        if a_prev:
-            d = round(100 * (a_last - a_prev) / a_prev)
-            trend = f"  ({'↑' if d >= 0 else '↓'}{abs(d)}% vs prior)"
+
+    by_plat: dict[str, list] = defaultdict(list)
+    for r in rows:
+        by_plat[r.get("platform", "youtube")].append(r)
 
     themes = winners.get("themes", {})
     ranked = sorted(themes.items(), key=lambda kv: kv[1]["avg_search_views"], reverse=True)
-    lines = [
-        f"📊 <b>NinniTales — Daily Analysis ({today})</b>",
-        f"{len(rows)} posts measured · {total_v:,} total views · {eng}% engagement",
-        f"Recent avg: {a_last:.0f} views/post{trend}",
-    ]
+    lines = [f"📊 <b>NinniTales — Daily Analysis ({today})</b>",
+             f"{len(rows)} posts measured across {len(by_plat)} platform(s)"]
+    for plat, label in (("youtube", "📺 YouTube"), ("instagram", "📸 Instagram")):
+        if by_plat.get(plat):
+            lines.append(_platform_block(label, by_plat[plat]))
     if ranked:
         b = ranked[0]
         lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1]['avg_views']:.0f} avg views "

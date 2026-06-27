@@ -49,7 +49,8 @@ You still need a (free) **Facebook account** to create the app, but your IG acco
      `https://localhost:8765/callback/instagram`.
    - add **Instagram business accounts** as testers (and accept the invite in the IG app)
      so Dev Mode can post to your own accounts — no full App Review for self-use.
-4. Permissions used: `instagram_business_basic`, `instagram_business_content_publish`.
+4. Permissions used: `instagram_business_basic`, `instagram_business_content_publish`,
+   `instagram_business_manage_insights` (views/reach for the analytics digest).
 
 ## Run it
 
