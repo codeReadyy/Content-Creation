@@ -26,6 +26,7 @@ from datetime import datetime, timezone
 
 import requests
 
+import notify_telegram
 import run_pipeline
 import upload_youtube
 from analytics import ledger
@@ -278,18 +279,108 @@ def report(winners: dict) -> None:
         print(f"  → {win} is winning. Once the sample is solid, shift the daily mix toward it.")
 
 
+def _engagement_rate(rows: list[dict]) -> tuple[int, float]:
+    """(total views, engagement % = (likes+comments)/views) across rows."""
+    views = sum(r.get("views", 0) for r in rows)
+    inter = sum(r.get("likes", 0) + r.get("comments", 0) for r in rows)
+    return views, (round(100 * inter / views, 1) if views else 0.0)
+
+
+def _agent_actions(themes: dict, ranked: list) -> list[str]:
+    """Plain-language summary of the levers the selection logic is pulling — so the
+    Telegram digest explains WHAT the agent is changing to push the numbers up."""
+    floor = run_pipeline.MIN_SAMPLE_PER_THEME
+    acts: list[str] = []
+    ready = [(t, v) for t, v in ranked if v["n"] >= floor]
+    exploring = [t for t, v in themes.items() if v["n"] < floor]
+    if ready:
+        avg = sum(v["avg_search_views"] for _, v in ready) / len(ready)
+        boost = [t for t, v in ready if v["avg_search_views"] >= avg]
+        demote = [t for t, v in ready if v["avg_search_views"] < avg]
+        if boost:
+            acts.append(f"Doubling down on: <b>{', '.join(boost[:3])}</b>")
+        if demote:
+            acts.append(f"Showing less: {', '.join(demote[:3])}")
+    if exploring:
+        acts.append(f"Still exploring {len(exploring)} theme(s) — need ≥{floor} posts each "
+                    "before trusting their numbers")
+    acts.append(f"~{int(run_pipeline.EXPLORE_RATE * 100)}% of picks kept for fresh angles; "
+                f"no title reused within {run_pipeline.DEDUP_WINDOW_DAYS} days")
+    return acts
+
+
+def telegram_digest(winners: dict) -> None:
+    """Send a performance + decisions digest to Telegram (no-op if unconfigured).
+
+    Answers: how are posts doing (views + engagement + trend), which content is winning,
+    and what the agent is changing to improve the numbers."""
+    if not notify_telegram.configured():
+        return
+    today = datetime.now(timezone.utc).strftime("%b %d")
+    rows = [r for r in ledger.load()
+            if r.get("finalized") and r.get("views") is not None]
+    if not rows:
+        notify_telegram.send_message(
+            f"📊 <b>NinniTales — Analysis ({today})</b>\nNo measured posts yet — "
+            "post a few and check back ~24h later.")
+        return
+    rows.sort(key=lambda r: r.get("posted_at", ""))
+    total_v, eng = _engagement_rate(rows)
+    last3, prev3 = rows[-3:], rows[-6:-3]
+    a_last = sum(r.get("views", 0) for r in last3) / len(last3)
+    trend = ""
+    if prev3:
+        a_prev = sum(r.get("views", 0) for r in prev3) / len(prev3)
+        if a_prev:
+            d = round(100 * (a_last - a_prev) / a_prev)
+            trend = f"  ({'↑' if d >= 0 else '↓'}{abs(d)}% vs prior)"
+
+    themes = winners.get("themes", {})
+    ranked = sorted(themes.items(), key=lambda kv: kv[1]["avg_search_views"], reverse=True)
+    lines = [
+        f"📊 <b>NinniTales — Daily Analysis ({today})</b>",
+        f"{len(rows)} posts measured · {total_v:,} total views · {eng}% engagement",
+        f"Recent avg: {a_last:.0f} views/post{trend}",
+    ]
+    if ranked:
+        b = ranked[0]
+        lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1]['avg_views']:.0f} avg views "
+                     f"(n={b[1]['n']})")
+        if len(ranked) > 1:
+            w = ranked[-1]
+            lines.append(f"🪦 Weakest: {w[0]} — {w[1]['avg_views']:.0f} avg (n={w[1]['n']})")
+    src = winners.get("sources", {})
+    if len(src) > 1:
+        sv = sorted(src.items(), key=lambda kv: -kv[1]["avg_views"])
+        lines.append(f"🎬 {sv[0][0]} ({sv[0][1]['avg_views']:.0f}) vs "
+                     f"{sv[1][0]} ({sv[1][1]['avg_views']:.0f}) avg views")
+    accts = winners.get("accounts", {})
+    if len(accts) > 1:
+        a0 = sorted(accts.items(), key=lambda kv: -kv[1]["avg_views"])[0]
+        lines.append(f"🏅 Top account: {a0[0]} ({a0[1]['avg_views']:.0f} avg)")
+
+    for a in (["\n🤖 <b>What the agent is doing</b>"] + _agent_actions(themes, ranked)):
+        lines.append(a if a.startswith(("\n", "🤖")) else f"• {a}")
+    notify_telegram.send_message("\n".join(lines))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Measure Shorts + pick winning themes.")
     ap.add_argument("--min-age", type=float, default=24.0,
                     help="Only measure videos at least N hours old (default 24).")
     ap.add_argument("--report", action="store_true",
                     help="Just print standings from existing data; don't re-measure.")
+    ap.add_argument("--no-telegram", action="store_true",
+                    help="Skip the Telegram digest (still prints + writes winners.json).")
     args = ap.parse_args()
 
     if not args.report:
         n = measure(args.min_age)
         print(f"\nMeasured {n} video(s).")
-    report(compute_winners())
+    winners = compute_winners()
+    report(winners)
+    if not args.no_telegram:
+        telegram_digest(winners)
 
 
 if __name__ == "__main__":

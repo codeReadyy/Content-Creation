@@ -45,6 +45,8 @@ jobs:
           YOUTUBE_CLIENT_ID_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_ID_NINNITALES }}
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
           YOUTUBE_REFRESH_TOKEN_NINNITALES: ${{ secrets.YOUTUBE_REFRESH_TOKEN_NINNITALES }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python analyze.py --min-age "${{ github.event.inputs.min_age || '24' }}"
 
       - name: Persist ledger + winners

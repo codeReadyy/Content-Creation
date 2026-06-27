@@ -76,13 +76,39 @@ def _plan_formats(compat: list[str], n: int) -> list[str]:
     return [compat[i % len(compat)] for i in range(n)] if compat else []
 
 
-def _health_snapshot(h: dict) -> str:
+def _yt_health_line(h: dict) -> str:
     if not h["alive"]:
         return (f"❌ <b>YouTube token DEAD</b>\nReason: <code>{h['error']}</code>\n"
-                f"From: {h['source']}\nFix: <code>python get_youtube_token.py</code> → "
-                f"update .env AND the GitHub secret.")
-    return (f"✅ <b>YouTube token healthy</b>\nChannel: {h.get('channel_title')}\n"
-            f"Analytics: {'✅' if h.get('analytics_ok') else '⚠️ no'}   From: {h['source']}")
+                f"Fix: <code>python get_youtube_token.py</code> → update .env AND the GitHub secret.")
+    return (f"✅ <b>YouTube</b>: {h.get('channel_title')} "
+            f"(analytics {'✅' if h.get('analytics_ok') else '⚠️'})")
+
+
+def _ig_health_line(account: Account, ig: dict) -> str:
+    if not ig["alive"]:
+        return (f"❌ <b>Instagram token DEAD</b> ({account.id})\n"
+                f"Reason: <code>{ig.get('error')}</code>\nFix: re-Connect in the connect-helper.")
+    return f"✅ <b>Instagram</b>: @{ig.get('username')} ({account.id})"
+
+
+def _preflight(accounts: list[Account]) -> tuple[str, bool]:
+    """Per-platform token health for the platforms in THIS run → (snapshot, all_ok).
+
+    Each workflow is single-platform, so this naturally reports just the platform that's
+    running. YouTube uses the shared NINNITALES token; Instagram is checked per account.
+    """
+    lines: list[str] = []
+    ok = True
+    if any(a.platform == "youtube" for a in accounts):
+        h = token_doctor.check()
+        lines.append(_yt_health_line(h))
+        ok = ok and h["alive"]
+    for a in accounts:
+        if a.platform == "instagram":
+            ig = token_doctor.check_instagram(a.creds_env)
+            lines.append(_ig_health_line(a, ig))
+            ok = ok and ig["alive"]
+    return ("\n".join(lines) if lines else "(no token-bearing platforms)"), ok
 
 
 def _build_with_fallback(name: str, compat: list[str], niche: Niche,
@@ -206,14 +232,14 @@ def run(mode: str = "live", only_account: str | None = None,
         print("❌ no matching enabled accounts.")
         return 1
 
-    # YouTube token pre-flight — only when this run actually includes a YouTube account
-    # (an Instagram-only run needs no YouTube creds and must not abort on them).
-    if mode != "plan" and any(a.platform == "youtube" for a in accounts):
-        health = token_doctor.check()
+    # Per-platform token pre-flight (skip in plan mode — plan touches no credentials).
+    if mode != "plan":
+        snapshot, ok = _preflight(accounts)
         if tg:
-            notify_telegram.send_message(f"🌙 <b>NinniTales run</b>\n\n{_health_snapshot(health)}")
-        if not health["alive"]:
-            print(f"❌ token dead ({health['error']}) — aborting.")
+            plats = ", ".join(sorted({a.platform for a in accounts}))
+            notify_telegram.send_message(f"🌙 <b>NinniTales run — {plats}</b>\n\n{snapshot}")
+        if not ok:
+            print("❌ a required platform token is dead — aborting.")
             return 1
 
     print(f"Mode: {mode}. Accounts: {[a.id for a in accounts]}"
@@ -226,13 +252,15 @@ def run(mode: str = "live", only_account: str | None = None,
         totals["scheduled"] += r["scheduled"]
         totals["alerts"] += r["alerts"]
 
-    print(f"\nDone. Scheduled {totals['scheduled']}/{totals['slots']}. "
+    verb = "posted" if now else "scheduled"
+    print(f"\nDone. {verb.title()} {totals['scheduled']}/{totals['slots']}. "
           f"Alerts: {len(totals['alerts'])}.")
     if tg and mode == "live":
         icon = "✅" if totals["scheduled"] == totals["slots"] else (
             "⚠️" if totals["scheduled"] else "❌")
-        lines = [f"{icon} <b>NinniTales run done</b> — scheduled "
-                 f"{totals['scheduled']}/{totals['slots']} across {len(accounts)} account(s)."]
+        plats = ", ".join(sorted({a.platform for a in accounts}))
+        lines = [f"{icon} <b>NinniTales — {plats}</b>: {verb} "
+                 f"{totals['scheduled']}/{totals['slots']}."]
         if totals["alerts"]:
             lines.append("\n<b>Alerts:</b>")
             lines += [f"• {a}" for a in totals["alerts"][:10]]

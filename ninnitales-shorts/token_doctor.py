@@ -103,6 +103,37 @@ def check(expect_channel: str | None = None) -> dict:
     return out
 
 
+def check_instagram(creds_env: str = "NINNITALES") -> dict:
+    """Diagnose an Instagram (Instagram-login) token. Never raises on failure.
+
+    Mirrors check() for the IG side: confirms the long-lived token still resolves the
+    account (graph.instagram.com/me). Returns {alive, username, error, creds_env}.
+    """
+    run_pipeline._load_env()
+    out: dict = {"alive": False, "username": None, "error": None, "creds_env": creds_env}
+    token = (os.environ.get(f"INSTAGRAM_ACCESS_TOKEN_{creds_env}")
+             or os.environ.get("INSTAGRAM_ACCESS_TOKEN"))
+    if not token:
+        out["error"] = f"INSTAGRAM_ACCESS_TOKEN_{creds_env} not set"
+        return out
+    try:
+        r = requests.get("https://graph.instagram.com/me",
+                         params={"fields": "user_id,username", "access_token": token},
+                         timeout=30)
+    except requests.RequestException as e:
+        out["error"] = str(e)
+        return out
+    if not r.ok:
+        try:
+            out["error"] = r.json().get("error", {}).get("message", r.text[:160])
+        except Exception:
+            out["error"] = r.text[:160]
+        return out
+    out["alive"] = True
+    out["username"] = r.json().get("username")
+    return out
+
+
 def _report(d: dict) -> None:
     print("\n" + "=" * 60)
     print("NINNITALES TOKEN DOCTOR")
