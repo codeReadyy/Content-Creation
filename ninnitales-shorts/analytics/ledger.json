@@ -516,5 +516,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "JHY_YmY18Qg",
+    "platform": "youtube",
+    "title": "4 ways to calm your overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/JHY_YmY18Qg",
+    "status": "scheduled",
+    "posted_at": "2026-06-28T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "2Ai43KSjzBg",
+    "platform": "youtube",
+    "title": "5 tips for getting your toddler to sleep faster tonight",
+    "theme": "sleep_fast",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/2Ai43KSjzBg",
+    "status": "scheduled",
+    "posted_at": "2026-06-28T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "f5F7W7FxMKg",
+    "platform": "youtube",
+    "title": "4 tricks to make toddlers fall asleep easier",
+    "theme": "make_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/f5F7W7FxMKg",
+    "status": "scheduled",
+    "posted_at": "2026-06-28T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
