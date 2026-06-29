@@ -669,5 +669,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17900008665464113",
+    "platform": "instagram",
+    "title": "4 tips to create a bedtime routine that helps sleep",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/17900008665464113/",
+    "status": "posted",
+    "posted_at": "2026-06-29T22:31:49Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
