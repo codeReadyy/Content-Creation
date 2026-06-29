@@ -654,5 +654,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18112619389926912",
+    "platform": "instagram",
+    "title": "6 secrets to help your baby sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18112619389926912/",
+    "status": "posted",
+    "posted_at": "2026-06-29T14:30:47Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
