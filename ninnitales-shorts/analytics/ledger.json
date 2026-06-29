@@ -609,5 +609,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "y73PBua1yc4",
+    "platform": "youtube",
+    "title": "5 tricks to help your toddler fall asleep quickly",
+    "theme": "make_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/y73PBua1yc4",
+    "status": "scheduled",
+    "posted_at": "2026-06-29T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "E3iWpBgsiLk",
+    "platform": "youtube",
+    "title": "4 effective ways to help your toddler sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/E3iWpBgsiLk",
+    "status": "scheduled",
+    "posted_at": "2026-06-29T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "uNOVIsoyda4",
+    "platform": "youtube",
+    "title": "4 ways to help your toddler fall asleep fast",
+    "theme": "sleep_fast",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/uNOVIsoyda4",
+    "status": "scheduled",
+    "posted_at": "2026-06-29T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
