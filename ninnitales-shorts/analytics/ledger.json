@@ -702,5 +702,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "tOxHgy64DaU",
+    "platform": "youtube",
+    "title": "5 bedtime stories to help toddlers sleep soundly",
+    "theme": "bedtime_stories",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/tOxHgy64DaU",
+    "status": "scheduled",
+    "posted_at": "2026-06-30T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "XPhQ3i5QOkI",
+    "platform": "youtube",
+    "title": "5 ways to help your toddler sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/XPhQ3i5QOkI",
+    "status": "scheduled",
+    "posted_at": "2026-06-30T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "lVH-r3zqOYQ",
+    "platform": "youtube",
+    "title": "5 creative ideas for a toddler bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/lVH-r3zqOYQ",
+    "status": "scheduled",
+    "posted_at": "2026-06-30T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
