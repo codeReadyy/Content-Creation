@@ -544,11 +544,17 @@
     "url": "https://youtube.com/shorts/JHY_YmY18Qg",
     "status": "scheduled",
     "posted_at": "2026-06-28T12:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "search_views": 0,
+    "search_pct": null,
+    "views": 627,
+    "likes": 14,
+    "comments": 0,
+    "measured_at": "2026-06-30T10:12:25Z"
   },
   {
     "video_id": "2Ai43KSjzBg",
@@ -559,11 +565,17 @@
     "url": "https://youtube.com/shorts/2Ai43KSjzBg",
     "status": "scheduled",
     "posted_at": "2026-06-28T16:30:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "search_views": 0,
+    "search_pct": null,
+    "views": 1,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-30T10:12:25Z"
   },
   {
     "video_id": "f5F7W7FxMKg",
@@ -574,11 +586,17 @@
     "url": "https://youtube.com/shorts/f5F7W7FxMKg",
     "status": "scheduled",
     "posted_at": "2026-06-28T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "search_views": 0,
+    "search_pct": null,
+    "views": 0,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-06-30T10:12:26Z"
   },
   {
     "video_id": "18145673713511931",
