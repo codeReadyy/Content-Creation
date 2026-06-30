@@ -747,5 +747,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18121134931779439",
+    "platform": "instagram",
+    "title": "4 steps to a peaceful bedtime routine for toddlers",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18121134931779439/",
+    "status": "posted",
+    "posted_at": "2026-06-30T13:45:55Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
