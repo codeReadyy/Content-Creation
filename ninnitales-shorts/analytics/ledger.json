@@ -840,5 +840,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18117809164646072",
+    "platform": "instagram",
+    "title": "5 habits for a successful toddler bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18117809164646072/",
+    "status": "posted",
+    "posted_at": "2026-07-01T13:52:16Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
