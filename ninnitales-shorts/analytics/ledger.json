@@ -855,5 +855,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18077140649660814",
+    "platform": "instagram",
+    "title": "5 ways to create a calming bedtime routine for toddlers",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18077140649660814/",
+    "status": "posted",
+    "posted_at": "2026-07-01T22:35:14Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
