@@ -795,5 +795,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "09NiZs9vEA8",
+    "platform": "youtube",
+    "title": "5 tips for an effective toddler bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/09NiZs9vEA8",
+    "status": "scheduled",
+    "posted_at": "2026-07-01T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "b8PlessqCSE",
+    "platform": "youtube",
+    "title": "6 steps to help your toddler sleep soundly through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/b8PlessqCSE",
+    "status": "scheduled",
+    "posted_at": "2026-07-01T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "QoIR4YGtzhQ",
+    "platform": "youtube",
+    "title": "5 bedtime routine strategies for your toddler's sleep",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/QoIR4YGtzhQ",
+    "status": "scheduled",
+    "posted_at": "2026-07-01T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
