@@ -933,5 +933,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18108212629782048",
+    "platform": "instagram",
+    "title": "5 ways to help toddlers sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18108212629782048/",
+    "status": "posted",
+    "posted_at": "2026-07-02T13:39:24Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
