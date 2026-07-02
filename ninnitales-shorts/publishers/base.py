@@ -11,7 +11,8 @@ import importlib
 from core.models import Publisher
 
 # Publisher modules to import so they self-register. Add new platforms here.
-_MODULES = ["publishers.youtube", "publishers.instagram", "publishers.tiktok"]
+_MODULES = ["publishers.youtube", "publishers.instagram", "publishers.tiktok",
+            "publishers.pinterest"]
 
 _REGISTRY: dict[str, Publisher] = {}
 _loaded = False

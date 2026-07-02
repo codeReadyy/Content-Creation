@@ -11,7 +11,7 @@ import importlib
 from core.models import Format
 
 # Format modules to import so they self-register. Add new formats here.
-_MODULES = ["formats.scraped_cta", "formats.anime_cta", "formats.carousel"]
+_MODULES = ["formats.scraped_cta", "formats.anime_cta", "formats.carousel", "formats.pin"]
 
 _REGISTRY: dict[str, Format] = {}
 _loaded = False

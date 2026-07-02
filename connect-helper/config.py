@@ -55,6 +55,7 @@ SCHEME = "https" if USE_HTTPS else "http"
 BASE_URL = f"{SCHEME}://localhost:{PORT}"
 GOOGLE_REDIRECT = f"{BASE_URL}/callback/google"
 INSTAGRAM_REDIRECT = f"{BASE_URL}/callback/instagram"
+PINTEREST_REDIRECT = f"{BASE_URL}/callback/pinterest"
 
 # ── Targets the helper writes (the only coupling to the engine, by file) ────────
 TARGET_ENV = Path(os.environ.get("TARGET_ENV", ENGINE_DIR / ".env"))
@@ -77,6 +78,9 @@ GOOGLE_CLIENT_SECRET = (os.environ.get("GOOGLE_CLIENT_SECRET")
 INSTAGRAM_APP_ID = os.environ.get("INSTAGRAM_APP_ID") or os.environ.get("META_APP_ID")
 INSTAGRAM_APP_SECRET = (os.environ.get("INSTAGRAM_APP_SECRET")
                         or os.environ.get("META_APP_SECRET"))
+# Pinterest app id/secret — from developers.pinterest.com → your app → "App credentials".
+PINTEREST_APP_ID = os.environ.get("PINTEREST_APP_ID")
+PINTEREST_APP_SECRET = os.environ.get("PINTEREST_APP_SECRET")
 
 # ── OAuth scopes ──────────────────────────────────────────────────────────────
 # Google: force-ssl = full manage (upload + schedule + delete, needed for the Telegram
@@ -92,6 +96,10 @@ GOOGLE_SCOPES = (
 INSTAGRAM_SCOPES = "instagram_business_basic,instagram_business_content_publish"
 if os.environ.get("CONNECT_IG_INSIGHTS", "1") != "0":
     INSTAGRAM_SCOPES += ",instagram_business_manage_insights"
+# Pinterest: read+write boards & pins (create pins, resolve/create boards) + read the
+# account for the identity confirmation. analyze.py reads pin analytics with the same token.
+PINTEREST_SCOPES = ("boards:read,boards:write,pins:read,pins:write,"
+                    "user_accounts:read")
 
 
 def google_ready() -> bool:
@@ -100,3 +108,7 @@ def google_ready() -> bool:
 
 def instagram_ready() -> bool:
     return bool(INSTAGRAM_APP_ID and INSTAGRAM_APP_SECRET)
+
+
+def pinterest_ready() -> bool:
+    return bool(PINTEREST_APP_ID and PINTEREST_APP_SECRET)

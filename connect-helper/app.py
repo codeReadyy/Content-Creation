@@ -33,7 +33,7 @@ from flask import Flask, redirect, request
 import accounts
 import config
 import store
-from oauth import google, meta
+from oauth import google, meta, pinterest
 
 app = Flask(__name__)
 
@@ -67,6 +67,9 @@ def _secret_keys(platform: str, suffix: str) -> list[str]:
     if platform == "instagram":
         return [f"INSTAGRAM_ACCESS_TOKEN_{suffix}",
                 f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{suffix}"]
+    if platform == "pinterest":
+        return [f"PINTEREST_APP_ID_{suffix}", f"PINTEREST_APP_SECRET_{suffix}",
+                f"PINTEREST_REFRESH_TOKEN_{suffix}"]
     return []
 
 
@@ -75,6 +78,8 @@ def _connected(platform: str, suffix: str, env: dict) -> bool:
         return f"YOUTUBE_REFRESH_TOKEN_{suffix}" in env
     if platform == "instagram":
         return f"INSTAGRAM_ACCESS_TOKEN_{suffix}" in env
+    if platform == "pinterest":
+        return f"PINTEREST_REFRESH_TOKEN_{suffix}" in env
     return False
 
 
@@ -95,7 +100,8 @@ def layout(title: str, body: str) -> str:
   .btn {{ display: inline-block; padding: .6rem 1rem; border-radius: 8px; color: #fff;
          text-decoration: none; font-weight: 600; margin-right: .5rem; border: 0;
          cursor: pointer; font-size: 1rem; }}
-  .yt {{ background: #c4302b; }} .ig {{ background: #c13584; }} .muted {{ opacity: .65; }}
+  .yt {{ background: #c4302b; }} .ig {{ background: #c13584; }} .pin {{ background: #e60023; }}
+  .muted {{ opacity: .65; }}
   .card {{ border: 1px solid #8884; border-radius: 10px; padding: 1rem 1.2rem; margin: 1rem 0; }}
   .ok {{ color: #1a7f37; }} .bad {{ color: #c4302b; }}
   .s {{ padding: .25rem .55rem; border-radius: 6px; border: 1px solid #8886; cursor: pointer;
@@ -193,6 +199,9 @@ def home():
     if not config.instagram_ready():
         warn.append("⚠️ Instagram app not set — add <code>INSTAGRAM_APP_ID/SECRET</code> to "
                     "connect-helper/.env (Meta app → Instagram → API setup with Instagram login).")
+    if not config.pinterest_ready():
+        warn.append("⚠️ Pinterest app not set — add <code>PINTEREST_APP_ID/SECRET</code> to "
+                    "connect-helper/.env (developers.pinterest.com → your app → App credentials).")
     warn_html = "".join(f'<div class="card">{w}</div>' for w in warn)
     repo = store.detect_repo() or "(unknown repo)"
     body = f"""
@@ -207,6 +216,10 @@ def home():
       <form action="/connect/instagram" method="get" class="inline" style="margin-left:.5rem">
         <input name="label" placeholder="label, e.g. ig_main" required>
         <button class="btn ig">Connect Instagram</button>
+      </form>
+      <form action="/connect/pinterest" method="get" class="inline" style="margin-left:.5rem">
+        <input name="label" placeholder="label, e.g. pin_main" required>
+        <button class="btn pin">Connect Pinterest</button>
       </form>
       <h2>Manage accounts</h2>
       {_account_table()}"""
@@ -229,6 +242,15 @@ def connect_instagram():
     state = _secrets.token_urlsafe(16)
     _PENDING[state] = {"platform": "instagram", "label": request.args["label"]}
     return redirect(meta.auth_url(state))
+
+
+@app.get("/connect/pinterest")
+def connect_pinterest():
+    if not config.pinterest_ready():
+        return layout("Not configured", "<p>Set PINTEREST_APP_ID/SECRET first.</p>"), 400
+    state = _secrets.token_urlsafe(16)
+    _PENDING[state] = {"platform": "pinterest", "label": request.args["label"]}
+    return redirect(pinterest.auth_url(state))
 
 
 @app.get("/callback/google")
@@ -286,6 +308,34 @@ def cb_instagram():
     except Exception as e:
         return _error_page("Instagram save failed", f"{type(e).__name__}: {e}")
     return _save_results_html(f"Instagram connected: @{username}", acct_id, saved, wrote)
+
+
+@app.get("/callback/pinterest")
+def cb_pinterest():
+    pend = _PENDING.pop(request.args.get("state", ""), None)
+    if request.args.get("error") or not pend:
+        msg = request.args.get("error_description") or request.args.get("error") or "bad state"
+        return layout("Failed", f"<p class='bad'>OAuth error: {html.escape(msg)}</p>"), 400
+    try:
+        tokens = pinterest.exchange_code(request.args["code"])
+        refresh = tokens.get("refresh_token")
+        if not refresh:
+            return layout("Failed", "<p class='bad'>No refresh_token returned by Pinterest. "
+                          "Retry the connect.</p>"), 400
+        username = pinterest.identity(tokens.get("access_token", ""))
+        suffix = _suffix(pend["label"])
+        # Store app id/secret per-suffix too, so the engine can refresh standalone (the
+        # YouTube pattern) without a separate un-suffixed secret.
+        saved = [
+            store.save_secret(f"PINTEREST_APP_ID_{suffix}", config.PINTEREST_APP_ID),
+            store.save_secret(f"PINTEREST_APP_SECRET_{suffix}", config.PINTEREST_APP_SECRET),
+            store.save_secret(f"PINTEREST_REFRESH_TOKEN_{suffix}", refresh),
+        ]
+        wrote, acct_id = accounts.scaffold("pinterest", suffix, identity=f"@{username}")
+    except Exception as e:
+        return _error_page("Pinterest connect failed", f"{type(e).__name__}: {e}")
+    return _save_results_html(f"Pinterest connected: @{username or suffix}",
+                              acct_id, saved, wrote)
 
 
 # ── manage (no YAML editing needed) ─────────────────────────────────────────────

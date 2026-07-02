@@ -26,11 +26,13 @@ FORMATS_BY_PLATFORM = {
     "youtube": ["scraped_cta", "anime_cta"],
     "instagram": ["scraped_cta", "anime_cta", "carousel"],
     "tiktok": ["scraped_cta", "anime_cta"],
+    "pinterest": ["pin"],
 }
 _DEFAULT_SCHEDULE = {
     "youtube": ["08:00", "12:30", "19:00"],
     "instagram": ["09:00", "18:00"],
     "tiktok": ["10:00", "20:00"],
+    "pinterest": ["08:00", "11:00", "14:00", "17:00", "20:00"],
 }
 TIME_RE = re.compile(r"^([01]?\d|2[0-3]):[0-5]\d$")
 

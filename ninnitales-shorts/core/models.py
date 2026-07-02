@@ -26,13 +26,15 @@ from typing import Protocol, runtime_checkable
 # Asset kinds (what a format produces / a publisher accepts).
 VIDEO = "video"
 CAROUSEL = "carousel"
+IMAGE = "image"          # a single still image (e.g. a Pinterest pin)
 
 
 @dataclass
 class Asset:
     """A built piece of content, ready to be captioned and published.
 
-    kind:   VIDEO (one mp4 in paths) or CAROUSEL (N slide images in paths).
+    kind:   VIDEO (one mp4 in paths), CAROUSEL (N slide images in paths), or
+            IMAGE (one still image, e.g. a Pinterest pin).
     paths:  the media file(s) on disk.
     theme:  the keyword/brand bucket this belongs to (for ledger attribution).
     source: how it was made — "scraped" | "generated" | "carousel" — so analytics

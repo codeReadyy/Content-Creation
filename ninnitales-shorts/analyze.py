@@ -21,6 +21,7 @@ Usage:
 
 import argparse
 import json
+import os
 import statistics
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -166,6 +167,79 @@ def _measure_instagram(min_age_hours: float) -> int:
     return done
 
 
+# ── Pinterest measurement (api.pinterest.com/v5) ────────────────────────────────
+PIN_ANALYTICS = "https://api.pinterest.com/v5/pins"
+
+
+def _pinterest_token(creds_env: str) -> str | None:
+    """Mint a Pinterest access token from this account's refresh token (or None)."""
+    from publishers import pinterest
+    creds = {
+        "app_id": (os.environ.get(f"PINTEREST_APP_ID_{creds_env}")
+                   or os.environ.get("PINTEREST_APP_ID")),
+        "app_secret": (os.environ.get(f"PINTEREST_APP_SECRET_{creds_env}")
+                       or os.environ.get("PINTEREST_APP_SECRET")),
+        "refresh": (os.environ.get(f"PINTEREST_REFRESH_TOKEN_{creds_env}")
+                    or os.environ.get("PINTEREST_REFRESH_TOKEN")),
+    }
+    if not all(creds.values()):
+        return None
+    try:
+        return pinterest.access_token(creds)
+    except Exception as e:
+        print(f"  ⚠️  Pinterest token refresh failed ({e})")
+        return None
+
+
+def _pin_stats(token: str, pin_id: str, start: str) -> dict:
+    """Impressions / saves / pin clicks / outbound clicks via the pin analytics endpoint."""
+    end = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    r = requests.get(f"{PIN_ANALYTICS}/{pin_id}/analytics", headers={
+        "Authorization": f"Bearer {token}"}, params={
+        "start_date": start[:10], "end_date": end,
+        "metric_types": "IMPRESSION,SAVE,PIN_CLICK,OUTBOUND_CLICK",
+    }, timeout=30)
+    if not r.ok:
+        return {}
+    # v5 returns {"all": {"summary_metrics": {METRIC: value, ...}, "daily_metrics": [...]}}
+    summary = (r.json().get("all", {}) or {}).get("summary_metrics", {}) or {}
+
+    def g(k):
+        return int(summary.get(k, 0) or 0)
+    impressions = g("IMPRESSION")
+    outbound = g("OUTBOUND_CLICK")
+    out = {"views": impressions, "likes": g("SAVE"),
+           "comments": g("PIN_CLICK"), "outbound_clicks": outbound}
+    # Pinterest IS a search engine and the product KPI is TRAFFIC, so treat outbound
+    # clicks like YouTube's search-driven views — the theme weights then chase the
+    # themes that actually send parents to the app, not just impressions.
+    out["search_views"] = outbound
+    out["search_pct"] = round(outbound / impressions, 3) if impressions else None
+    return out
+
+
+def _measure_pinterest(min_age_hours: float) -> int:
+    due = ledger.pending(min_age_hours=min_age_hours, platform="pinterest")
+    if not due:
+        return 0
+    done = 0
+    for row in due:
+        creds_env = _ig_creds_env(row.get("account_id"))  # same account_id -> creds_env map
+        token = _pinterest_token(creds_env)
+        if not token:
+            print(f"  ⚠️  Pinterest {row['video_id']}: no token in env — skipping")
+            continue
+        st = _pin_stats(token, row["video_id"], row["posted_at"])
+        if "views" not in st:
+            print(f"  ⏳ Pinterest {row['video_id']}: analytics unavailable yet — will retry")
+            continue
+        ledger.update(row["video_id"], platform="pinterest", finalized=True, **st)
+        print(f"  ✓ Pinterest {row['video_id']} [{row.get('theme')}] {st['views']} impr, "
+              f"{st['outbound_clicks']} clicks — {row['title']!r}")
+        done += 1
+    return done
+
+
 def measure(min_age_hours: float) -> int:
     """Fill in stats for due posts (YouTube + Instagram). Returns how many were finalized."""
     run_pipeline._load_env()
@@ -196,6 +270,7 @@ def measure(min_age_hours: float) -> int:
         print("No YouTube videos due for measurement.")
 
     done += _measure_instagram(min_age_hours)
+    done += _measure_pinterest(min_age_hours)
     return done
 
 
@@ -447,7 +522,8 @@ def telegram_digest(winners: dict) -> None:
                     reverse=True)
     lines = [f"📊 <b>NinniTales — Daily Analysis ({today})</b>",
              f"{len(rows)} posts measured across {len(by_plat)} platform(s)"]
-    for plat, label in (("youtube", "📺 YouTube"), ("instagram", "📸 Instagram")):
+    for plat, label in (("youtube", "📺 YouTube"), ("instagram", "📸 Instagram"),
+                        ("pinterest", "📌 Pinterest")):
         if by_plat.get(plat):
             lines.append(_platform_block(label, by_plat[plat]))
     if ranked:

@@ -29,5 +29,11 @@ def compose(niche: Niche, platform: str, asset: Asset) -> PostCopy:
         caption = body if body else title
         return PostCopy(title=title, caption=caption, tags=[], hashtags=hashtags)
 
+    if platform == "pinterest":
+        # Pin has a title AND a description (= body, already keyword-rich with a soft CTA
+        # + inline hashtags from the ghostwriter). The publisher reads link/board from
+        # asset.meta; copy carries only the visible text.
+        return PostCopy(title=title, caption=body or title, tags=[], hashtags=hashtags)
+
     # Fallback: title + body, niche tags.
     return PostCopy(title=title, caption=body, tags=tags, hashtags=hashtags)

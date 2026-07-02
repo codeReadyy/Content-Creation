@@ -52,14 +52,27 @@ You still need a (free) **Facebook account** to create the app, but your IG acco
 4. Permissions used: `instagram_business_basic`, `instagram_business_content_publish`,
    `instagram_business_manage_insights` (views/reach for the analytics digest).
 
+### Pinterest (API v5)
+Pinterest pins are an evergreen, search-driven loop (parents search "toddler bedtime
+routine" etc. and pins drive traffic for months). To connect one:
+1. Use a Pinterest **business account** (free; switch in Pinterest settings).
+2. developers.pinterest.com → **Create app** (connect it to your business account).
+3. From the app's **App credentials**, copy the **App ID** + **App secret** → into
+   `connect-helper/.env` as `PINTEREST_APP_ID` / `PINTEREST_APP_SECRET`.
+4. Add the **redirect URI** `https://localhost:8765/callback/pinterest` to the app.
+5. Scopes used: `boards:read,boards:write,pins:read,pins:write,user_accounts:read`.
+   A new app starts in **trial access** (enough to post to your own boards); request
+   **standard access** when you want it long-term.
+
 ## Run it
 
 ```bash
 python app.py          # opens https://localhost:8765 (accept the self-signed cert)
 ```
 
-Type a short label (e.g. `yt_main`), click **Connect YouTube** / **Connect Instagram**,
-finish the login. The result page shows each secret written to `.env` ✅ and GitHub ✅.
+Type a short label (e.g. `yt_main`), click **Connect YouTube** / **Connect Instagram** /
+**Connect Pinterest**, finish the login. The result page shows each secret written to
+`.env` ✅ and GitHub ✅.
 
 ## Manage accounts (no YAML)
 

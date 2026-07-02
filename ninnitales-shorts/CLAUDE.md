@@ -25,7 +25,9 @@ For each enabled account × its scheduled slots: pick a format the platform acce
 Token health is checked once up front and reported to Telegram; a dead token aborts.
 
 Modes: `python orchestrate.py` (live) · `--plan` (decisions only, no build/publish) ·
-`--dry-run` (build, no publish) · `--account <id>` (one account).
+`--dry-run` (build, no publish) · `--outbox` (build + stash to `outbox/` for MANUAL
+posting — no API publish/creds; used for Pinterest while the app is on Trial access) ·
+`--account <id>` (one account).
 
 ## To add X, do Y
 - **A new account** → add a block to `config/accounts.yml` (set `enabled: true`). Nothing else.

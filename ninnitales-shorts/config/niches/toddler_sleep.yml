@@ -73,6 +73,17 @@ default_hashtags:
   - "#parentinghacks"
   - "#toddlermom"
 
+# Pinterest — the boards pins rotate across ("recycle across boards"), and the destination
+# link every pin drives to (the point of a pin). These land in Niche.extra (forward-compat),
+# read by formats/pin.py. Swap pinterest_link to an app-store/landing URL when ready.
+pinterest_boards:
+  - Toddler Bedtime Routines
+  - Calming Bedtime Stories
+  - Baby & Toddler Sleep Tips
+  - Screen-Free Bedtime
+  - Gentle Bedtime for Parents
+pinterest_link: https://ninnitales.com
+
 # SYSTEM prompt the copywriter uses for LLM-written (generated/anime) Shorts.
 ghostwriter_system: |
   You are the ghostwriter for NinniTales — an app where a parent records ~90 seconds

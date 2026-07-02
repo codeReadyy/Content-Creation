@@ -1,0 +1,73 @@
+# NinniTales — Pinterest pins. Pinterest has NO native publish scheduling, so (like the
+# Instagram path) we run at the desired POST times and publish immediately:
+# `orchestrate.py --platform pinterest --now N` builds + posts N pins per run for each
+# enabled Pinterest account, rotating across the niche's boards. Two crons × 3 = ~6 pins/day;
+# bump `count` or add crons to reach 5-10/day.
+#
+# Pins are image-only (no video), so this workflow skips ffmpeg/yt-dlp. The pin background
+# is a cozy-anime image from gpt-image-1 (Azure), with a gradient fallback if that's absent.
+#
+# Required repo secrets:
+#   PINTEREST_APP_ID_NINNITALES + PINTEREST_APP_SECRET_NINNITALES
+#   PINTEREST_REFRESH_TOKEN_NINNITALES        (minted by the connect-helper)
+#   AZURE_OPENAI_* + NINNITALES_IMAGE_*       (for the gpt-image-1 pin background)
+#   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID     (run health + summary)
+
+name: NinniTales Pinterest
+
+on:
+  schedule:
+    - cron: "0 13 * * *"   # ~9:00 AM ET (EDT)
+    - cron: "0 22 * * *"   # ~6:00 PM ET (EDT)
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "How many pins to post this run"
+        required: false
+        default: "3"
+
+jobs:
+  pins:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # to commit the ledger back
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install python deps
+        run: python -m pip install --upgrade pip -r requirements.txt
+
+      - name: Publish Pinterest pins (immediate)
+        env:
+          PINTEREST_APP_ID_NINNITALES: ${{ secrets.PINTEREST_APP_ID_NINNITALES }}
+          PINTEREST_APP_SECRET_NINNITALES: ${{ secrets.PINTEREST_APP_SECRET_NINNITALES }}
+          PINTEREST_REFRESH_TOKEN_NINNITALES: ${{ secrets.PINTEREST_REFRESH_TOKEN_NINNITALES }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
+          NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
+          NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python orchestrate.py --platform pinterest --now "${{ github.event.inputs.count || '3' }}"
+
+      - name: Persist ledger
+        if: always()
+        run: |
+          git add analytics/ledger.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(ninnitales): log Pinterest pins [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push
+          fi

@@ -54,3 +54,35 @@ accounts:
     schedule_et: ["09:00", "18:00"]
     gate: false
     enabled: true
+
+  # Pinterest — evergreen image pins (one per slot), recycled across boards. Pinterest has
+  # no native scheduling, so the cron posts immediately (orchestrate.py --platform pinterest
+  # --now N). 5 slots ≈ 5 pins/day; bump the workflow's --now / add slots to reach 5-10/day.
+  # enabled:false until PINTEREST_* creds are connected via the connect-helper.
+  - id: pinterest_ninnitales
+    platform: pinterest
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: NINNITALES            # -> PINTEREST_*_NINNITALES
+    formats: [pin]
+    schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
+    gate: false
+    enabled: true
+  - id: pinterest_dummy
+    platform: pinterest
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: DUMMY
+    formats: [pin]
+    schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
+    gate: false
+    enabled: false
+  - id: pinterest_dummay1
+    platform: pinterest
+    product: ninnitales
+    niche: toddler_sleep
+    creds_env: DUMMAY1
+    formats: [pin]
+    schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
+    gate: false
+    enabled: false

@@ -134,6 +134,40 @@ def check_instagram(creds_env: str = "NINNITALES") -> dict:
     return out
 
 
+def check_pinterest(creds_env: str = "NINNITALES") -> dict:
+    """Diagnose a Pinterest token. Never raises on failure.
+
+    Mints an access token from the long-lived refresh token (the live test that it still
+    works) and reads the account username. Returns {alive, username, error, creds_env}.
+    """
+    run_pipeline._load_env()
+    out: dict = {"alive": False, "username": None, "error": None, "creds_env": creds_env}
+    app_id = (os.environ.get(f"PINTEREST_APP_ID_{creds_env}")
+              or os.environ.get("PINTEREST_APP_ID"))
+    app_secret = (os.environ.get(f"PINTEREST_APP_SECRET_{creds_env}")
+                  or os.environ.get("PINTEREST_APP_SECRET"))
+    refresh = (os.environ.get(f"PINTEREST_REFRESH_TOKEN_{creds_env}")
+               or os.environ.get("PINTEREST_REFRESH_TOKEN"))
+    if not all((app_id, app_secret, refresh)):
+        out["error"] = f"PINTEREST_*_{creds_env} not set (app id/secret + refresh token)"
+        return out
+    try:
+        from publishers import pinterest
+        token = pinterest.access_token(
+            {"app_id": app_id, "app_secret": app_secret, "refresh": refresh})
+        r = requests.get("https://api.pinterest.com/v5/user_account",
+                         headers={"Authorization": f"Bearer {token}"}, timeout=30)
+    except Exception as e:
+        out["error"] = str(e)
+        return out
+    if not r.ok:
+        out["error"] = r.text[:160]
+        return out
+    out["alive"] = True
+    out["username"] = r.json().get("username")
+    return out
+
+
 def _report(d: dict) -> None:
     print("\n" + "=" * 60)
     print("NINNITALES TOKEN DOCTOR")

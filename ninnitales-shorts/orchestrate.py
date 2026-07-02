@@ -26,6 +26,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import notify_telegram
+import outbox as outbox_writer
 import run_pipeline
 import token_doctor
 from analytics import ledger
@@ -91,6 +92,13 @@ def _ig_health_line(account: Account, ig: dict) -> str:
     return f"✅ <b>Instagram</b>: @{ig.get('username')} ({account.id})"
 
 
+def _pinterest_health_line(account: Account, pin: dict) -> str:
+    if not pin["alive"]:
+        return (f"❌ <b>Pinterest token DEAD</b> ({account.id})\n"
+                f"Reason: <code>{pin.get('error')}</code>\nFix: re-Connect in the connect-helper.")
+    return f"✅ <b>Pinterest</b>: @{pin.get('username')} ({account.id})"
+
+
 def _preflight(accounts: list[Account]) -> tuple[str, bool]:
     """Per-platform token health for the platforms in THIS run → (snapshot, all_ok).
 
@@ -108,6 +116,10 @@ def _preflight(accounts: list[Account]) -> tuple[str, bool]:
             ig = token_doctor.check_instagram(a.creds_env)
             lines.append(_ig_health_line(a, ig))
             ok = ok and ig["alive"]
+        elif a.platform == "pinterest":
+            pin = token_doctor.check_pinterest(a.creds_env)
+            lines.append(_pinterest_health_line(a, pin))
+            ok = ok and pin["alive"]
     return ("\n".join(lines) if lines else "(no token-bearing platforms)"), ok
 
 
@@ -195,6 +207,12 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
             print(f"    📦 built (no publish): {asset.path.name}")
             continue
 
+        if mode == "outbox":
+            dest = outbox_writer.stash(asset, copy, account)
+            print(f"    📥 outbox: {dest.relative_to(outbox_writer.HERE)}")
+            result["scheduled"] += 1
+            continue
+
         res = publisher.publish(asset, copy, account, publish_at=slot)
         if "error" in res:
             alert = f"{account.id} publish failed: {res['error']}"
@@ -232,8 +250,9 @@ def run(mode: str = "live", only_account: str | None = None,
         print("❌ no matching enabled accounts.")
         return 1
 
-    # Per-platform token pre-flight (skip in plan mode — plan touches no credentials).
-    if mode != "plan":
+    # Per-platform token pre-flight (skip when no publishing happens — plan/outbox touch
+    # no credentials, so they run even before an account is connected).
+    if mode not in ("plan", "outbox"):
         snapshot, ok = _preflight(accounts)
         if tg:
             plats = ", ".join(sorted({a.platform for a in accounts}))
@@ -252,9 +271,12 @@ def run(mode: str = "live", only_account: str | None = None,
         totals["scheduled"] += r["scheduled"]
         totals["alerts"] += r["alerts"]
 
-    verb = "posted" if now else "scheduled"
+    verb = "stashed" if mode == "outbox" else ("posted" if now else "scheduled")
     print(f"\nDone. {verb.title()} {totals['scheduled']}/{totals['slots']}. "
           f"Alerts: {len(totals['alerts'])}.")
+    if mode == "outbox" and totals["scheduled"]:
+        print(f"→ {totals['scheduled']} pin(s) in {outbox_writer.OUTBOX.relative_to(HERE)}/ "
+              "— open each .txt for the copy, upload the .png in Pinterest, pick the board.")
     if tg and mode == "live":
         icon = "✅" if totals["scheduled"] == totals["slots"] else (
             "⚠️" if totals["scheduled"] else "❌")
@@ -273,6 +295,9 @@ if __name__ == "__main__":
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--plan", action="store_true", help="Print decisions only; no build/publish.")
     g.add_argument("--dry-run", action="store_true", help="Build media but do not publish.")
+    g.add_argument("--outbox", action="store_true",
+                   help="Build + stash pins to outbox/ for MANUAL posting (no API publish, "
+                        "no creds needed) — use while on Pinterest Trial access.")
     ap.add_argument("--account", default=None, help="Restrict to one account id.")
     ap.add_argument("--platform", default=None,
                     help="Restrict to one platform (youtube|instagram|tiktok).")
@@ -280,5 +305,6 @@ if __name__ == "__main__":
                     help="Post N items immediately (ignore schedule_et) — for platforms "
                          "without native scheduling like Instagram. Default 1 when given.")
     args = ap.parse_args()
-    mode = "plan" if args.plan else "dry-run" if args.dry_run else "live"
+    mode = ("plan" if args.plan else "dry-run" if args.dry_run
+            else "outbox" if args.outbox else "live")
     raise SystemExit(run(mode, args.account, args.platform, args.now))

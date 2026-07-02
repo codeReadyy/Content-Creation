@@ -16,13 +16,14 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from core.models import CAROUSEL, VIDEO, Asset, Niche, PostCopy
+from core.models import CAROUSEL, IMAGE, VIDEO, Asset, Niche, PostCopy
 
 # Per-platform hard limits (conservative; tighten as needed).
 PLATFORM_LIMITS = {
     "youtube":   {"max_video_sec": 180, "title_max": 100},
     "instagram": {"max_video_sec": 90,  "caption_max": 2200, "max_carousel": 10},
     "tiktok":    {"max_video_sec": 600, "caption_max": 2200},
+    "pinterest": {"title_max": 100, "caption_max": 800},   # pin title/description caps
 }
 
 # Generic over-claim phrases blocked everywhere; a niche can add its own via
@@ -74,6 +75,8 @@ def check(asset: Asset, copy: PostCopy, platform: str, niche: Niche) -> Verdict:
         mx = lim.get("max_carousel")
         if mx and len(asset.paths) > mx:
             problems.append(f"carousel has {len(asset.paths)} slides > {platform} max {mx}")
+    if asset.kind == IMAGE and not asset.paths:
+        problems.append("image asset has no media file")
 
     # 3. copy length
     if lim.get("title_max") and len(copy.title) > lim["title_max"]:

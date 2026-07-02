@@ -137,6 +137,143 @@ def _norm(title: str) -> str:
     return " ".join((title or "").lower().split()).rstrip(".!?")
 
 
+# ── Pinterest pins ──────────────────────────────────────────────────────────────
+# Pinterest is a SEARCH engine: parents type "toddler bedtime routine", "calming
+# stories", "sleep tips" and pins surface for months. So a pin's title + description
+# are keyword-first (like a YouTube Short title), but longer-lived and click-driven —
+# the win is the OUTBOUND CLICK to ninnitales.com, not a like. This reuses the same
+# research signals as write_post (themes, measured weights, recent performance, dedup)
+# so Pinterest rides the SAME content loop as YouTube/Instagram.
+PIN_SYSTEM = """You are the Pinterest ghostwriter for NinniTales — an app where a parent
+records ~90 seconds of their voice ONCE, and the app then narrates bedtime stories in the
+parent's OWN voice so their young child falls asleep to it, anywhere (even when the parent
+is away). The buyer is the exhausted PARENT.
+
+Pinterest is a SEARCH engine for parents. Your job: write ONE pin that (1) gets FOUND when
+a parent searches bedtime/sleep topics and (2) makes them click through to the app.
+
+Hard rules:
+- TITLE: keyword-first, the exact phrase a parent would SEARCH, <= 100 characters,
+  scannable and specific (e.g. "Toddler Bedtime Routine That Actually Works"). No emojis.
+- DESCRIPTION: 300-500 characters, keyword-rich but natural and genuinely helpful — real
+  bedtime advice a parent can use, woven with relevant search phrases. End with a soft,
+  human CTA to try recording a bedtime story in your own voice (NinniTales) — never a hard
+  sell. You may include 2-4 hashtags inline at the end.
+- Weave the NinniTales idea in plain words ("play a bedtime story in your own recorded
+  voice") as ONE helpful tip among others — not the whole pin.
+- Pick a "theme" from the allowed list that matches the pin's intent, and a "board" from
+  the allowed boards that best fits the topic.
+- Be genuinely DIFFERENT from the recently-used titles you are given.
+
+Return ONLY JSON:
+{
+  "theme": "<one allowed theme key>",
+  "board": "<one allowed board name, verbatim>",
+  "title": "<keyword-first pin title <=100 chars>",
+  "description": "<300-500 char keyword-rich helpful description with a soft CTA>",
+  "hashtags": ["#tag1", "#tag2", "#tag3"]
+}"""
+
+
+def _pin_user_prompt(themes: dict, boards: list[str], avoid_titles: list[str]) -> str:
+    weights = _theme_weights()
+    perf = _recent_performance()
+    themes_block = "\n".join(f'- {k}: parents search "{v}"' for k, v in themes.items())
+    boards_block = "\n".join(f"- {b}" for b in boards) or "- Toddler Bedtime"
+    weights_block = (json.dumps(weights, indent=2) if weights
+                     else "(no measured data yet — explore freely)")
+    perf_block = json.dumps(perf, indent=2) if perf else "(nothing measured yet)"
+    avoid_block = ("\n".join(f"- {t}" for t in avoid_titles[-15:])
+                   if avoid_titles else "(none yet)")
+    return (
+        "Allowed themes (key: what parents type):\n"
+        f"{themes_block}\n\n"
+        "Allowed boards (pick the best topical fit, name verbatim):\n"
+        f"{boards_block}\n\n"
+        "Theme weights so far (avg click/search-driven views per theme):\n"
+        f"{weights_block}\n\n"
+        "How recent posts performed:\n"
+        f"{perf_block}\n\n"
+        "Pin titles already used recently — DO NOT repeat or paraphrase these:\n"
+        f"{avoid_block}\n\n"
+        "Write today's pin as JSON only."
+    )
+
+
+def write_pin(rng: random.Random | None = None,
+              avoid_titles: list[str] | None = None,
+              themes: dict | None = None,
+              boards: list[str] | None = None,
+              attempts: int = 4) -> dict | None:
+    """Write a fresh Pinterest pin {theme, board, title, description, hashtags}.
+
+    Reuses the research signals (themes, measured weights, recent performance) and the
+    dedup discipline of write_post, tuned for Pinterest SEO. Returns None on any failure
+    so the caller (formats/pin.py) can fall back to its template pin.
+    """
+    themes = themes or THEMES
+    boards = boards or []
+    avoid = list(avoid_titles or [])
+    avoid_norm = {_norm(t) for t in avoid}
+    try:
+        client = _client()
+    except RuntimeError as e:
+        print(f"  ⚠️  pin ghostwriter: {e} — falling back to template.")
+        return None
+    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
+                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+
+    for i in range(attempts):
+        try:
+            resp = client.chat.completions.create(
+                model=deployment,
+                messages=[{"role": "system", "content": PIN_SYSTEM},
+                          {"role": "user",
+                           "content": _pin_user_prompt(themes, boards, avoid)}],
+                temperature=1.0,
+                response_format={"type": "json_object"},
+            )
+        except Exception as e:
+            print(f"  ⚠️  pin ghostwriter call failed ({e}) — falling back to template.")
+            return None
+        choice = resp.choices[0]
+        if choice.finish_reason == "content_filter" or not choice.message.content:
+            print(f"  ⚠️  pin ghostwriter filtered (attempt {i + 1}/{attempts}), retrying...")
+            continue
+        try:
+            data = json.loads(choice.message.content)
+        except json.JSONDecodeError:
+            continue
+
+        title = (data.get("title") or "").strip()
+        desc = (data.get("description") or "").strip()
+        theme = (data.get("theme") or "").strip()
+        board = (data.get("board") or "").strip()
+        hashtags = [h.strip() for h in data.get("hashtags") or [] if h and h.strip()]
+        if not title or len(desc) < 80 or theme not in themes:
+            continue
+        if _norm(title) in avoid_norm:
+            print("  ↩️  pin ghostwriter reused a recent title — retrying for a fresh one.")
+            avoid.append(title)
+            avoid_norm.add(_norm(title))
+            continue
+        # Snap the board onto an allowed one (case-insensitive); caller may still rotate.
+        if boards:
+            match = next((b for b in boards if b.lower() == board.lower()), None)
+            board = match or rng_choice(boards, rng)
+        print(f"  ✍️  pin ghostwriter: {title!r} (theme={theme}, board={board})")
+        return {"theme": theme, "board": board, "title": title,
+                "description": desc, "hashtags": hashtags}
+
+    print("  ⚠️  pin ghostwriter produced nothing usable — falling back to template.")
+    return None
+
+
+def rng_choice(items: list, rng: random.Random | None):
+    """random.choice that tolerates a None rng (uses the module default)."""
+    return (rng or random).choice(items)
+
+
 def write_post(rng: random.Random | None = None,
                avoid_titles: list[str] | None = None,
                attempts: int = 4) -> dict | None:
