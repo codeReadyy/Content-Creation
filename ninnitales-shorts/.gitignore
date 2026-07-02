@@ -20,3 +20,6 @@ cta-remotion/out/
 
 # NOTE: state.json (dedupe of used video IDs) is intentionally TRACKED so the
 # GitHub Actions cron can persist which hooks it already used across runs.
+
+# Pinterest pins staged for manual posting (generated, regenerated each run)
+outbox/

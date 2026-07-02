@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 output/
 .venv/
+
+# Demo recordings + rendered videos (local, large)
+demo-raw/
+demo-out/
