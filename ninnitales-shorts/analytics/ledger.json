@@ -888,5 +888,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "25DDxp6YrBA",
+    "platform": "youtube",
+    "title": "5 useful tips for getting your toddler to sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/25DDxp6YrBA",
+    "status": "scheduled",
+    "posted_at": "2026-07-02T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "yTyug6CMesM",
+    "platform": "youtube",
+    "title": "5 tips to help your toddler sleep through the night",
+    "theme": "through_night",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/yTyug6CMesM",
+    "status": "scheduled",
+    "posted_at": "2026-07-02T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "Adl6l5z-EyM",
+    "platform": "youtube",
+    "title": "5 ways to help your toddler sleep when they won't",
+    "theme": "wont_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/Adl6l5z-EyM",
+    "status": "scheduled",
+    "posted_at": "2026-07-02T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
