@@ -341,7 +341,7 @@ def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int,
     if not hook:
         return None
     return {"path": hook["path"], "slug": hook["video_id"], "title": None,
-            "source": "scraped"}
+            "source": "scraped", "channel": hook.get("channel")}
 
 
 def run(count: int, source: str, cookies: str | None, stitch_only: bool) -> int:

@@ -59,43 +59,47 @@ def _font(path: Path, size: int) -> ImageFont.FreeTypeFont:
         return ImageFont.load_default()
 
 
-def _gradient() -> Image.Image:
-    base = Image.new("RGB", (W, H), BG_TOP)
+def _gradient(w: int = W, h: int = H) -> Image.Image:
+    base = Image.new("RGB", (w, h), BG_TOP)
     px = base.load()
-    for y in range(H):
-        t = y / H
+    for y in range(h):
+        t = y / h
         row = tuple(int(BG_TOP[i] + (BG_BOTTOM[i] - BG_TOP[i]) * t) for i in range(3))
-        for x in range(W):
+        for x in range(w):
             px[x, y] = row
     return base
 
 
-def _background(scene: str) -> Image.Image:
-    """A cozy-anime bedtime background via gpt-image-1; gradient fallback on any failure."""
+def _background(scene: str, w: int = W, h: int = H) -> Image.Image:
+    """A cozy-anime bedtime background via gpt-image-1; gradient fallback on any failure.
+
+    Parametrized by size so other formats can reuse it (the Instagram carousel cover
+    calls this at 1080x1350)."""
     from io import BytesIO
 
     import generate_hook
     try:
         raw = generate_hook.generate_image(scene)
         img = Image.open(BytesIO(raw)).convert("RGB")
-        return generate_hook._cover_crop(img, W, H)
+        return generate_hook._cover_crop(img, w, h)
     except (Exception, SystemExit) as e:
         # generate_image raises SystemExit when image creds are absent; treat any failure
         # (missing creds, safety filter, network) as "fall back to the gradient render".
         print(f"  ⚠️  pin image gen failed ({e}) — using gradient background.")
-        return _gradient()
+        return _gradient(w, h)
 
 
 def _scrim(img: Image.Image, top: bool) -> None:
     """Darken one half so overlaid text stays legible over any photo."""
-    band = Image.new("L", (W, H), 0)
+    w, h = img.size
+    band = Image.new("L", (w, h), 0)
     d = ImageDraw.Draw(band)
-    for y in range(H):
+    for y in range(h):
         # opaque toward the chosen edge, fading to transparent at the middle.
-        t = (1 - y / (H * 0.6)) if top else ((y - H * 0.4) / (H * 0.6))
+        t = (1 - y / (h * 0.6)) if top else ((y - h * 0.4) / (h * 0.6))
         a = int(max(0.0, min(1.0, t)) * 165)
-        d.line([(0, y), (W, y)], fill=a)
-    overlay = Image.new("RGB", (W, H), (12, 8, 28))
+        d.line([(0, y), (w, y)], fill=a)
+    overlay = Image.new("RGB", (w, h), (12, 8, 28))
     img.paste(overlay, (0, 0), band)
 
 

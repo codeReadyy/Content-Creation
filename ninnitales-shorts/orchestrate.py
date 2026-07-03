@@ -222,7 +222,9 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
                           status="scheduled" if slot else "posted",
                           publish_at=slot, source=asset.source,
                           fmt=used, account_id=account.id,
-                          product=account.product, niche=account.niche)
+                          product=account.product, niche=account.niche,
+                          hook_channel=asset.meta.get("hook_channel"),
+                          hook_id=asset.meta.get("hook_id"))
         result["scheduled"] += 1
         print(f"    ✅ {'scheduled' if slot else 'posted'}: {res['url']}")
         # gate=true → send a veto preview so it can still be cancelled before going live.

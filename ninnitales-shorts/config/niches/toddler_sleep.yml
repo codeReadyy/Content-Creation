@@ -16,7 +16,10 @@ brand_context: >
 # Selection tunables (explore/exploit + dedup window).
 min_sample_per_theme: 4
 explore_rate: 0.20
-dedup_window_days: 7
+# GLOBAL title dedup (was 7 days): the audit found literal duplicate titles posted
+# 3-4x ("5 steps to a bedtime routine that actually works") — a repetition fingerprint
+# YouTube demotes. Titles must never repeat across the channel's whole history.
+dedup_window_days: 3650
 
 # Search-first keyword buckets (key -> the query a parent actually types).
 themes:

@@ -45,9 +45,13 @@ class ScrapedCTA:
             print(f"  ⚠️  stitch failed: {e}")
             return None
         music_bed.add_music(out, volume=0.30)  # quiet bed under the clip's own audio
+        # hook_channel/hook_id: WHICH clip carried this post — the audit showed the
+        # hook clip (not the title theme) is what separates 1,000-view breakouts from
+        # 1-view posts, so analyze.py ranks hook sources with this attribution.
         return Asset(kind=VIDEO, paths=[out], theme=theme, source="scraped",
                      meta={"title": title, "description": description,
-                           "tags": niche.tags})
+                           "tags": niche.tags, "hook_channel": hook.get("channel"),
+                           "hook_id": hook["slug"]})
 
 
 register(ScrapedCTA())

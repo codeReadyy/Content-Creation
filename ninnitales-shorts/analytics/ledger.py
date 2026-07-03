@@ -51,7 +51,8 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
                platform: str = "youtube", status: str = "posted",
                publish_at: str | None = None, source: str = "generated",
                fmt: str | None = None, account_id: str | None = None,
-               product: str | None = None, niche: str | None = None) -> None:
+               product: str | None = None, niche: str | None = None,
+               hook_channel: str | None = None, hook_id: str | None = None) -> None:
     """Append a freshly published post. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
@@ -80,8 +81,11 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
         "finalized": False,
     }
     # Only attach the new dimensions when supplied (keeps legacy rows clean).
+    # hook_channel/hook_id attribute a scraped post to the CLIP that carried it —
+    # the variable that actually decides breakouts (see analyze.py hook standings).
     for k, v in {"format": fmt, "account_id": account_id, "product": product,
-                 "niche": niche}.items():
+                 "niche": niche, "hook_channel": hook_channel,
+                 "hook_id": hook_id}.items():
         if v is not None:
             row[k] = v
     rows.append(row)

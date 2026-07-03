@@ -22,13 +22,16 @@
 #   enabled     false = ignored by the orchestrator (scaffolding for later phases)
 
 accounts:
+  # 2 slots, not 3: the Jul-2026 audit showed 3 near-identical Shorts/day from a small
+  # channel meant ~2 of 3 got ZERO feed impressions (repetition sampling). Fewer,
+  # distinct uploads → each one actually gets its feed test.
   - id: ninnitales_yt_main
     platform: youtube
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES            # -> YOUTUBE_*_NINNITALES
     formats: [scraped_cta]           # proven ~50x winner; flip to [anime_cta] to switch
-    schedule_et: ["08:00", "12:30", "19:00"]
+    schedule_et: ["08:00", "19:00"]
     gate: false
     enabled: true
 
@@ -44,14 +47,19 @@ accounts:
     gate: false
     enabled: false
 
-  # --- scaffolded by connect-helper (@ninni_tales_) — set `formats` + flip `enabled: true` to go live ---
+  # IG = value-first CAROUSELS (the save-magnet format for the parenting niche): unique
+  # LLM copy + AI cover per post — fixes the duplicate-content demotion the recycled
+  # reels + identical captions caused (Jul-2026 audit). Reels return later on a SECOND
+  # IG account (pain-point hooks), ranked head-to-head by analyze.py account standings.
+  # ONE slot: the 6pm-ET post died every time (1-5 views vs 94-205 midday) — on IG the
+  # cron time IS the post time.
   - id: instagram_ninnitales
     platform: instagram
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES
-    formats: [scraped_cta]
-    schedule_et: ["09:00", "18:00"]
+    formats: [carousel]
+    schedule_et: ["09:00"]
     gate: false
     enabled: true
 
@@ -68,21 +76,3 @@ accounts:
     schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
     gate: false
     enabled: true
-  - id: pinterest_dummy
-    platform: pinterest
-    product: ninnitales
-    niche: toddler_sleep
-    creds_env: DUMMY
-    formats: [pin]
-    schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
-    gate: false
-    enabled: false
-  - id: pinterest_dummay1
-    platform: pinterest
-    product: ninnitales
-    niche: toddler_sleep
-    creds_env: DUMMAY1
-    formats: [pin]
-    schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
-    gate: false
-    enabled: false

@@ -1,10 +1,10 @@
-# NinniTales — Instagram Reels. Instagram has NO native scheduling, so instead of
-# uploading-private-with-publishAt (the YouTube trick), we run at the desired POST times
-# and publish immediately: `orchestrate.py --platform instagram --now 1` builds + posts ONE
-# Reel per run for each enabled Instagram account. Two crons = two posts/day.
+# NinniTales — Instagram (value-first CAROUSELS). Instagram has NO native scheduling, so
+# we run at the desired POST time and publish immediately: `orchestrate.py --platform
+# instagram --now 1` builds + posts ONE carousel per run for each enabled IG account.
 #
-# Times: 9:00 AM & 6:00 PM ET. Cron is UTC and DST-naive, so these are set for EDT
-# (summer, UTC-4); in EST (winter) they fire ~1h earlier. Consistency > exact minute.
+# ONE cron, 9:00 AM ET: the Jul-2026 audit showed the 6:00 PM ET slot got 1-5 views
+# every time vs 94-205 midday — posting into a void. Cron is UTC and DST-naive (EDT
+# summer, UTC-4); in EST (winter) it fires ~1h earlier. Consistency > exact minute.
 #
 # Required repo secrets:
 #   INSTAGRAM_ACCESS_TOKEN_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES
@@ -22,8 +22,7 @@ name: NinniTales Instagram
 
 on:
   schedule:
-    - cron: "0 13 * * *"   # 9:00 AM ET (EDT)
-    - cron: "0 22 * * *"   # 6:00 PM ET (EDT)
+    - cron: "0 13 * * *"   # 9:00 AM ET (EDT) — the proven slot
   workflow_dispatch:
 
 jobs:

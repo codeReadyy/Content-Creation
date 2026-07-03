@@ -167,6 +167,30 @@ def _measure_instagram(min_age_hours: float) -> int:
     return done
 
 
+def _avg_view_pct(token: str, video_id: str, posted_at: str) -> float | None:
+    """Average % of the Short watched (loops push it >100%). None if unavailable.
+
+    THE retention signal: the Jul-2026 audit showed every Short that entered the feed
+    held >100%, while 'dead' posts had 0 views — they were never tested at all. This
+    lets the digest separate 'skipped by the feed' from 'shown but failed'."""
+    start = posted_at[:10]
+    end = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        r = requests.get(ANALYTICS_API, params={
+            "ids": "channel==MINE", "startDate": start, "endDate": end,
+            "metrics": "averageViewPercentage", "filters": f"video=={video_id}",
+        }, headers={"Authorization": f"Bearer {token}"}, timeout=30)
+    except requests.RequestException:
+        return None
+    rows = r.json().get("rows") if r.ok else None
+    return round(float(rows[0][0]), 1) if rows else None
+
+
+# Below this many views a Short effectively never entered the Shorts feed — the
+# audit's dead posts sat at 0-11 views while every feed-tested one cleared 600+.
+FEED_TEST_MIN_VIEWS = 20
+
+
 # ── Pinterest measurement (api.pinterest.com/v5) ────────────────────────────────
 PIN_ANALYTICS = "https://api.pinterest.com/v5/pins"
 
@@ -262,9 +286,16 @@ def measure(min_age_hours: float) -> int:
             if search is None:
                 analytics_ok = False  # don't hammer the API once we know scope is missing
             pct = round(search / st["views"], 3) if (search and st["views"]) else None
-            ledger.update(vid, finalized=True, search_views=search, search_pct=pct, **st)
+            avg_pct = (_avg_view_pct(token, vid, row["posted_at"])
+                       if analytics_ok else None)
+            tested = st["views"] >= FEED_TEST_MIN_VIEWS
+            ledger.update(vid, finalized=True, search_views=search, search_pct=pct,
+                          avg_view_pct=avg_pct, feed_tested=tested, **st)
             sv = f", search {search}" if search is not None else ""
-            print(f"  ✓ {vid} [{row['theme']}] {st['views']} views{sv} — {row['title']!r}")
+            rp = f", ret {avg_pct}%" if avg_pct is not None else ""
+            flag = "" if tested else "  🚫 never fed"
+            print(f"  ✓ {vid} [{row['theme']}] {st['views']} views{sv}{rp}"
+                  f" — {row['title']!r}{flag}")
             done += 1
     else:
         print("No YouTube videos due for measurement.")
@@ -385,12 +416,30 @@ def compute_winners() -> dict:
             "total_views": sum(views),
         }
 
+    # Per-HOOK-SOURCE standings (scraped posts only): the clip is the variable that
+    # decides breakouts — the audit's 5 winners (627-1,273 views) were all scraped,
+    # with interchangeable titles. Rows predating hook attribution are skipped.
+    by_hook = defaultdict(list)
+    for r in ledger.load():
+        if (r.get("finalized") and r.get("views") is not None
+                and r.get("hook_channel")):
+            by_hook[r["hook_channel"]].append(r)
+    hooks = {}
+    for ch, rows in by_hook.items():
+        views = [r.get("views", 0) for r in rows]
+        hooks[ch] = {"n": len(rows),
+                     "median_views": round(statistics.median(views), 1),
+                     "avg_views": round(sum(views) / len(views), 1),
+                     "total_views": sum(views),
+                     "tested": sum(1 for r in rows if r.get("feed_tested"))}
+
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "themes": themes,
         "sources": sources,
         "surfaces": surfaces,
         "accounts": accounts,
+        "hooks": hooks,
         # run_pipeline reads this: weight per theme = MEDIAN search-driven views
         # (outlier-robust, so the content loop chases repeatable themes, not flukes).
         "theme_weights": {t: v["median_search_views"] for t, v in themes.items()},
@@ -436,6 +485,15 @@ def report(winners: dict) -> None:
             win = max(accts.items(), key=lambda kv: kv[1].get("median_views", 0))
             print(f"  → {win[0]} ({win[1]['format']}) leads by median. Compare once each "
                   "account has a solid sample.")
+
+    # Hook-source standings — which scraped channel's clips actually carry posts.
+    hks = winners.get("hooks", {})
+    if hks:
+        print("\n" + "-" * 64)
+        print("HOOK-SOURCE STANDINGS  (scraped clips; median views/post)")
+        for ch, v in sorted(hks.items(), key=lambda kv: -kv[1]["median_views"]):
+            print(f"  {ch:<22} n={v['n']:<3} median={v['median_views']:<8} "
+                  f"tested={v['tested']}/{v['n']}  total={v['total_views']}")
 
     # The scraped-vs-generated verdict (by MEDIAN — one viral fluke shouldn't decide it).
     src = winners.get("sources", {})
@@ -526,6 +584,27 @@ def telegram_digest(winners: dict) -> None:
                         ("pinterest", "📌 Pinterest")):
         if by_plat.get(plat):
             lines.append(_platform_block(label, by_plat[plat]))
+
+    # Feed-test diagnosis: "skipped by the feed" and "shown but failed" need opposite
+    # fixes (dedupe/frequency vs content) — say which is happening.
+    yt = by_plat.get("youtube", [])
+    if yt:
+        skipped = sum(1 for r in yt if r.get("views", 0) < FEED_TEST_MIN_VIEWS)
+        if skipped:
+            lines.append(f"\n🚫 <b>{skipped}/{len(yt)}</b> YouTube posts never entered "
+                         "the Shorts feed (<20 views) — repetition throttling, not "
+                         "audience rejection. Tested posts' retention:")
+            pcts = [r["avg_view_pct"] for r in yt
+                    if r.get("avg_view_pct") and r.get("views", 0) >= FEED_TEST_MIN_VIEWS]
+            if pcts:
+                lines.append(f"   👀 avg {sum(pcts)/len(pcts):.0f}% watched "
+                             f"(>100% = loops) across {len(pcts)} tested posts")
+    hks = winners.get("hooks", {})
+    ready_hooks = {c: v for c, v in hks.items() if v["n"] >= 2}
+    if ready_hooks:
+        top = max(ready_hooks.items(), key=lambda kv: kv[1]["median_views"])
+        lines.append(f"🎣 Best hook source: <b>{top[0]}</b> "
+                     f"({top[1]['median_views']:.0f} median, n={top[1]['n']})")
     if ranked:
         b = ranked[0]
         lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1].get('median_views', 0):.0f} "

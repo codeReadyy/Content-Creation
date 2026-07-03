@@ -1,13 +1,16 @@
 """formats/carousel.py — a multi-slide carousel (images), as a CAROUSEL Asset.
 
-The third content format. An LLM writes a niche-specific carousel (a hook slide, a few
-value slides with the NinniTales method woven in, and a CTA slide); a compact PIL
-renderer paints each slide on a warm gradient with the Poppins brand font. No AI image
-model required (gradient backgrounds), so it runs anywhere; if the LLM call fails it
-falls back to a template carousel built from the niche themes.
+The third content format, and the primary INSTAGRAM format: value-first swipeable
+slides (parenting is the save-heaviest niche on IG, and saves/shares are the strongest
+distribution signals). An LLM writes a niche-specific carousel (a hook slide, a few
+value slides with the NinniTales method woven in, and a soft-CTA close) plus a UNIQUE,
+save-oriented caption per post — never a repeated template (identical captions were
+getting the account demoted as duplicate content).
 
-Routes natively to Instagram (carousel). For YouTube the orchestrator can later turn
-the slides into a slideshow Short (slides_to_video); that adapter is a follow-up.
+Slide 1 (the cover — it decides the swipe) is a cozy-anime gpt-image scene with the
+headline overlaid, reusing the Pinterest pin renderer at 1080x1350; value slides stay
+on the fast gradient renderer. Everything degrades gracefully: no image model → cover
+falls back to the gradient; LLM down → template carousel from the niche themes.
 """
 
 from __future__ import annotations
@@ -45,9 +48,15 @@ def _llm_carousel(niche: Niche, avoid_titles: list[str]) -> dict | None:
     system = (f"{niche.brand_context}\n\nYou write Instagram CAROUSEL copy for parents. "
               "Return ONLY JSON: {\"theme\":\"<one theme key>\", \"headline\":\"<bold slide-1 "
               "hook, <8 words>\", \"slides\":[\"slide 2 tip\",\"slide 3 tip (the NinniTales "
-              "one, plain words)\",\"slide 4 tip\",\"slide 5 tip\"], \"caption\":\"<IG caption, "
-              "2-3 sentences, soft CTA to the app>\", \"hashtags\":[\"#..\",...]}. The slides "
-              "are short, real, scannable bedtime advice. NO emojis in the headline.")
+              "one, plain words)\",\"slide 4 tip\",\"slide 5 tip\"], \"caption\":\"<IG caption>\", "
+              "\"hashtags\":[\"#..\",...]}. The slides are short, real, scannable bedtime "
+              "advice. NO emojis in the headline.\n"
+              "CAPTION rules — it must be UNIQUE every day, never a template: first line = a "
+              "fresh scroll-stopping hook (a feeling or pain the parent recognizes, different "
+              "wording from the headline); middle = 1-2 sentences of real value or empathy; "
+              "end = a save nudge in YOUR OWN fresh words (vary it: 'save this for tonight', "
+              "'send this to a tired parent', 'try step 3 tonight'...) plus ONE gentle "
+              "question to invite a comment. Soft mention of the app at most — never a pitch.")
     user = (f"Allowed theme keys: {themes}.\nDon't reuse these headlines: {avoid}.\n"
             "Write today's carousel as JSON only.")
     try:
@@ -79,8 +88,13 @@ def _template_carousel(niche: Niche, rng) -> dict:
             "Keep the room cool and dark — around 68°F is the sweet spot.",
             "Same three steps every night — bath, book, bed — so bedtime feels predictable.",
         ],
-        "caption": "Save this for tonight's bedtime. Record your voice once and let your "
-                   f"little one fall asleep to you, any night → {niche.waitlist_url}",
+        "caption": rng.choice([
+            "Save this for tonight's bedtime — and if bedtime is a battle at yours, "
+            "which step will you try first?",
+            "Send this to a parent running on no sleep. Which of these do you already do?",
+            "Try step 3 tonight and tell me if it worked. What's your toughest bedtime "
+            "moment?",
+        ]) + f" 🌙 More gentle-bedtime ideas → {niche.waitlist_url}",
         "hashtags": niche.default_hashtags,
     }
 
@@ -129,6 +143,33 @@ def _render_slide(text: str, idx: int, total: int, big: bool, out: Path) -> Path
     return out
 
 
+def _render_cover(headline: str, slot_index: int, total: int, out: Path) -> Path:
+    """Slide 1 — the swipe-decider: a cozy-anime scene with the headline overlaid.
+
+    Reuses the Pinterest pin renderer (gpt-image background + scrim) at IG's 1080x1350;
+    falls back to the gradient inside pin._background if the image model is unavailable."""
+    from formats import pin as pin_fmt
+
+    img = pin_fmt._background(pin_fmt.SCENES[slot_index % len(pin_fmt.SCENES)], W, H)
+    pin_fmt._scrim(img, top=True)
+    draw = ImageDraw.Draw(img)
+    font = _font(FONT_BOLD, 88)
+    lines = textwrap.wrap(headline, width=18) or [headline]
+    y = 100
+    for line in lines:
+        w = draw.textlength(line, font=font)
+        draw.text(((W - w) // 2 + 3, y + 3), line, font=font, fill=(0, 0, 0))
+        draw.text(((W - w) // 2, y), line, font=font, fill=(255, 255, 255))
+        y += int(88 * 1.28)
+    small = _font(FONT_SEMI, 40)
+    draw.text((60, H - 90), f"1/{total}", font=small, fill=(255, 255, 255))
+    brand = "NinniTales"
+    bw = draw.textlength(brand, font=small)
+    draw.text((W - bw - 60, H - 90), brand, font=small, fill=(255, 235, 180))
+    img.save(out)
+    return out
+
+
 class Carousel:
     name = "carousel"
     produces = CAROUSEL
@@ -143,7 +184,10 @@ class Carousel:
         paths = []
         total = len(slides_text)
         for i, text in enumerate(slides_text, 1):
-            p = _render_slide(text, i, total, big=(i == 1), out=out_dir / f"slide_{i}.png")
+            if i == 1:
+                p = _render_cover(text, ctx.slot_index, total, out=out_dir / "slide_1.png")
+            else:
+                p = _render_slide(text, i, total, big=False, out=out_dir / f"slide_{i}.png")
             paths.append(p)
         caption = data.get("caption") or headline
         return Asset(kind=CAROUSEL, paths=paths, theme=data.get("theme", "bedtime"),
