@@ -981,5 +981,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "bK1LDrt-u2s",
+    "platform": "youtube",
+    "title": "5 helpful tips for getting toddlers to sleep quickly",
+    "theme": "sleep_fast",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/bK1LDrt-u2s",
+    "status": "scheduled",
+    "posted_at": "2026-07-03T16:30:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
