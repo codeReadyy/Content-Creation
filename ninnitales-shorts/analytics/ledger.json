@@ -996,5 +996,20 @@
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18127038175653495",
+    "platform": "instagram",
+    "title": "5 creative ways to make your toddler fall asleep faster",
+    "theme": "make_sleep",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18127038175653495/",
+    "status": "posted",
+    "posted_at": "2026-07-03T15:17:15Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
