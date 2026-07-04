@@ -47,7 +47,11 @@ def _llm_carousel(niche: Niche, avoid_titles: list[str]) -> dict | None:
     avoid = "; ".join(avoid_titles[-12:]) or "(none)"
     system = (f"{niche.brand_context}\n\nYou write Instagram CAROUSEL copy for parents. "
               "Return ONLY JSON: {\"theme\":\"<one theme key>\", \"headline\":\"<bold slide-1 "
-              "hook, <8 words>\", \"slides\":[\"slide 2 tip\",\"slide 3 tip (the NinniTales "
+              "hook, <8 words>\", \"cover_scene\":\"<a short VISUAL description for a photo "
+              "of a tired parent in a messy home that matches the headline's feeling — e.g. "
+              "'sitting on the floor of a toy-strewn playroom rubbing their eyes at night'; "
+              "a realistic bedtime/parenting moment, NO child in it>\", "
+              "\"slides\":[\"slide 2 tip\",\"slide 3 tip (the NinniTales "
               "one, plain words)\",\"slide 4 tip\",\"slide 5 tip\"], \"caption\":\"<IG caption>\", "
               "\"hashtags\":[\"#..\",...]}. The slides are short, real, scannable bedtime "
               "advice. NO emojis in the headline.\n"
@@ -143,14 +147,31 @@ def _render_slide(text: str, idx: int, total: int, big: bool, out: Path) -> Path
     return out
 
 
-def _render_cover(headline: str, slot_index: int, total: int, out: Path) -> Path:
-    """Slide 1 — the swipe-decider: a cozy-anime scene with the headline overlaid.
-
-    Reuses the Pinterest pin renderer (gpt-image background + scrim) at IG's 1080x1350;
-    falls back to the gradient inside pin._background if the image model is unavailable."""
+def _cover_image(niche: Niche, cover_scene: str, slot_index: int):
+    """The cover background. `carousel_cover_style: realistic` (niche) → a photoreal,
+    consistent NinniTales parent (mom/dad rotate) dropped into a messy-home scene via the
+    locked character reference; otherwise the cozy-anime pin background. Both cover-crop
+    to W x H and degrade to a gradient if the image model is unavailable."""
     from formats import pin as pin_fmt
 
-    img = pin_fmt._background(pin_fmt.SCENES[slot_index % len(pin_fmt.SCENES)], W, H)
+    style = niche.extra.get("carousel_cover_style", "anime")
+    if style == "realistic":
+        import characters
+        if characters.available():
+            character = "mom" if slot_index % 2 == 0 else "dad"
+            prompt = cover_scene or characters.FALLBACK_SCENES[
+                slot_index % len(characters.FALLBACK_SCENES)]
+            return characters.scene(character, prompt, W, H)
+    return pin_fmt._background(pin_fmt.SCENES[slot_index % len(pin_fmt.SCENES)], W, H)
+
+
+def _render_cover(headline: str, cover_scene: str, niche: Niche, slot_index: int,
+                  total: int, out: Path) -> Path:
+    """Slide 1 — the swipe-decider: the cover image (realistic parent or anime) with the
+    headline overlaid and a top scrim for legibility."""
+    from formats import pin as pin_fmt
+
+    img = _cover_image(niche, cover_scene, slot_index)
     pin_fmt._scrim(img, top=True)
     draw = ImageDraw.Draw(img)
     font = _font(FONT_BOLD, 88)
@@ -185,7 +206,8 @@ class Carousel:
         total = len(slides_text)
         for i, text in enumerate(slides_text, 1):
             if i == 1:
-                p = _render_cover(text, ctx.slot_index, total, out=out_dir / "slide_1.png")
+                p = _render_cover(text, data.get("cover_scene", ""), niche,
+                                  ctx.slot_index, total, out=out_dir / "slide_1.png")
             else:
                 p = _render_slide(text, i, total, big=False, out=out_dir / f"slide_{i}.png")
             paths.append(p)

@@ -87,6 +87,12 @@ pinterest_boards:
   - Gentle Bedtime for Parents
 pinterest_link: https://ninnitales.com
 
+# Instagram carousel cover style: "realistic" = a consistent photoreal NinniTales parent
+# (assets/characters/{mom,dad}.png, mom/dad rotate per post) dropped into a fresh messy-home
+# scene via gpt-image-2's edit endpoint — real, relatable, child always implied. Set to
+# "anime" to fall back to the cozy-Ghibli cover. Value slides stay on the gradient renderer.
+carousel_cover_style: realistic
+
 # SYSTEM prompt the copywriter uses for LLM-written (generated/anime) Shorts.
 ghostwriter_system: |
   You are the ghostwriter for NinniTales — an app where a parent records ~90 seconds
