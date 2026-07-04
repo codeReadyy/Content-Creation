@@ -2,9 +2,11 @@
 # we run at the desired POST time and publish immediately: `orchestrate.py --platform
 # instagram --now 1` builds + posts ONE carousel per run for each enabled IG account.
 #
-# ONE cron, 9:00 AM ET: the Jul-2026 audit showed the 6:00 PM ET slot got 1-5 views
-# every time vs 94-205 midday — posting into a void. Cron is UTC and DST-naive (EDT
-# summer, UTC-4); in EST (winter) it fires ~1h earlier. Consistency > exact minute.
+# Two crons = two carousels/day:
+#   13:00 UTC = 9:00 AM ET — the proven US-midday slot (audit: 94-205 views vs 1-5 in
+#               the evening). DST-naive, so ~1h earlier in EST winter.
+#   02:00 UTC = 7:30 AM IST — an India-morning slot to test that audience (India has no
+#               DST, so this is always exactly 7:30 AM IST).
 #
 # Required repo secrets:
 #   INSTAGRAM_ACCESS_TOKEN_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES
@@ -22,7 +24,8 @@ name: NinniTales Instagram
 
 on:
   schedule:
-    - cron: "0 13 * * *"   # 9:00 AM ET (EDT) — the proven slot
+    - cron: "0 13 * * *"   # 9:00 AM ET (EDT) — proven US-midday slot
+    - cron: "0 2 * * *"    # 7:30 AM IST (02:00 UTC) — India-morning slot
   workflow_dispatch:
 
 jobs:

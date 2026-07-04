@@ -51,15 +51,16 @@ accounts:
   # LLM copy + AI cover per post — fixes the duplicate-content demotion the recycled
   # reels + identical captions caused (Jul-2026 audit). Reels return later on a SECOND
   # IG account (pain-point hooks), ranked head-to-head by analyze.py account standings.
-  # ONE slot: the 6pm-ET post died every time (1-5 views vs 94-205 midday) — on IG the
-  # cron time IS the post time.
+  # Two slots: 09:00 ET (proven US-midday) + 22:00 ET ≈ 7:30 AM IST (India-morning test).
+  # On IG the cron time IS the post time (--now 1) — the crons in ninnitales-instagram.yml
+  # actually drive timing; schedule_et just mirrors them for the record.
   - id: instagram_ninnitales
     platform: instagram
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES
     formats: [carousel]
-    schedule_et: ["09:00"]
+    schedule_et: ["09:00", "22:00"]   # 22:00 EDT == 02:00 UTC == 7:30 AM IST
     gate: false
     enabled: true
 
