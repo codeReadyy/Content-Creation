@@ -79,6 +79,9 @@ Type a short label (e.g. `yt_main`), click **Connect YouTube** / **Connect Insta
 The home page lists every account with inline controls — all of which edit
 `../ninnitales-shorts/config/accounts.yml` for you (round-trip, comments preserved):
 - **Format** — dropdown (only the formats that platform can post); one per account.
+- **Cover style** (carousel accounts only) — `realistic` (a consistent photoreal NinniTales
+  parent in a messy-home scene) or `anime` (cozy-Ghibli). Writes `carousel_cover_style`
+  into the account's niche file.
 - **Schedule (ET)** — comma-separated `HH:MM` times; bad entries are dropped.
 - **Status** — toggle the account **on/off** (`enabled`).
 - **Disconnect** — deletes the account's tokens from `.env` **and** GitHub, and removes

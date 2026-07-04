@@ -32,6 +32,7 @@ from flask import Flask, redirect, request
 
 import accounts
 import config
+import niches
 import store
 from oauth import google, meta, pinterest
 
@@ -135,6 +136,17 @@ def _account_table() -> str:
         fmt_form = (f'<form class="inline" method="post" action="/account/{aid}/format">'
                     f'<select class="s" name="format" onchange="this.form.submit()">{sel}'
                     f'</select></form>')
+        # carousel cover style (only meaningful for carousel accounts; edits the niche yml)
+        if cur == "carousel":
+            style = niches.get_cover_style(a["niche"])
+            style_sel = "".join(
+                f'<option {"selected" if s == style else ""}>{s}</option>'
+                for s in niches.COVER_STYLES)
+            fmt_form += (
+                f'<br><span class="muted" style="font-size:.8rem">cover:</span> '
+                f'<form class="inline" method="post" action="/account/{aid}/cover-style">'
+                f'<select class="s" name="style" onchange="this.form.submit()">{style_sel}'
+                f'</select></form>')
         # schedule
         sched_form = (f'<form class="inline" method="post" action="/account/{aid}/schedule">'
                       f'<input name="times" size="16" value="{", ".join(a["schedule_et"])}">'
@@ -366,6 +378,15 @@ def set_schedule(aid):
     times = _parse_times(request.form.get("times", ""))
     if times:
         accounts.set_schedule(aid, times)
+    return redirect("/")
+
+
+@app.post("/account/<aid>/cover-style")
+def set_cover_style(aid):
+    acct = next((a for a in accounts.list_accounts() if a["id"] == aid), None)
+    style = request.form.get("style", "")
+    if acct and style in niches.COVER_STYLES:
+        niches.set_cover_style(acct["niche"], style)
     return redirect("/")
 
 

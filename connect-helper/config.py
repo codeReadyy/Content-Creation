@@ -61,6 +61,8 @@ PINTEREST_REDIRECT = f"{BASE_URL}/callback/pinterest"
 TARGET_ENV = Path(os.environ.get("TARGET_ENV", ENGINE_DIR / ".env"))
 TARGET_ACCOUNTS_YML = Path(
     os.environ.get("TARGET_ACCOUNTS_YML", ENGINE_DIR / "config" / "accounts.yml"))
+TARGET_NICHES_DIR = Path(
+    os.environ.get("TARGET_NICHES_DIR", ENGINE_DIR / "config" / "niches"))
 
 # Defaults for the scaffolded accounts.yml block (user edits these afterwards).
 DEFAULT_PRODUCT = os.environ.get("DEFAULT_PRODUCT", "ninnitales")
