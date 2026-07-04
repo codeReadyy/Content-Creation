@@ -1128,5 +1128,20 @@
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
     "hook_id": "d0LUyP5oyy0"
+  },
+  {
+    "video_id": "18114354746512447",
+    "platform": "instagram",
+    "title": "Healthy bedtime routines start with small steps",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18114354746512447/",
+    "status": "posted",
+    "posted_at": "2026-07-04T14:43:16Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
