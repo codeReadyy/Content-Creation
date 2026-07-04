@@ -1067,5 +1067,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17906964738268686",
+    "platform": "instagram",
+    "title": "Create a magical nighttime routine tonight",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17906964738268686/",
+    "status": "posted",
+    "posted_at": "2026-07-04T10:06:17Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
