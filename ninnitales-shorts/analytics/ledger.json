@@ -1208,5 +1208,20 @@
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
     "hook_id": "0kZ9QJWMZPc"
+  },
+  {
+    "video_id": "17937114486274048",
+    "platform": "instagram",
+    "title": "Your voice can be their bedtime magic",
+    "theme": "bedtime_stories",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17937114486274048/",
+    "status": "posted",
+    "posted_at": "2026-07-05T14:50:39Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
