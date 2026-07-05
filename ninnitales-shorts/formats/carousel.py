@@ -7,10 +7,17 @@ value slides with the NinniTales method woven in, and a soft-CTA close) plus a U
 save-oriented caption per post — never a repeated template (identical captions were
 getting the account demoted as duplicate content).
 
-Slide 1 (the cover — it decides the swipe) is a cozy-anime gpt-image scene with the
-headline overlaid, reusing the Pinterest pin renderer at 1080x1350; value slides stay
-on the fast gradient renderer. Everything degrades gracefully: no image model → cover
-falls back to the gradient; LLM down → template carousel from the niche themes.
+EVERY slide gets its own generated background from the SAME renderer, so the whole
+carousel is visually consistent. For a `realistic` niche that means the SAME locked
+parent (mom/dad, chosen once per carousel) dropped into a fresh scene on every slide via
+characters.scene; for an anime niche it's the cozy-anime pin background. The LLM supplies
+the cover scene + one per-slide scene, each matched to that slide's tip. The cover (the
+swipe-decider) overlays the headline under a top scrim; value slides overlay the tip under
+a full dark veil for legibility. Everything degrades gracefully: no image model / slow /
+safety-filtered → that slide falls back to the gradient; LLM down → template carousel
+(with per-slide fallback scenes) from the niche themes. Realistic edits run ~2-4 min each
+and every slide now generates one, so a full carousel is slow — but it builds in the
+background and only posts once ready, so latency is invisible to the end viewer.
 """
 
 from __future__ import annotations
@@ -52,9 +59,17 @@ def _llm_carousel(niche: Niche, avoid_titles: list[str]) -> dict | None:
               "'sitting on the floor of a toy-strewn playroom rubbing their eyes at night'; "
               "a realistic bedtime/parenting moment, NO child in it>\", "
               "\"slides\":[\"slide 2 tip\",\"slide 3 tip (the NinniTales "
-              "one, plain words)\",\"slide 4 tip\",\"slide 5 tip\"], \"caption\":\"<IG caption>\", "
+              "one, plain words)\",\"slide 4 tip\",\"slide 5 tip\"], "
+              "\"slide_scenes\":[\"<short VISUAL for slide 2 matching its tip — the SAME "
+              "tired parent doing a small real action in a lived-in home, NO child, e.g. "
+              "'dimming a bedside lamp in a cozy messy bedroom at night'>\",\"<visual for "
+              "slide 3>\",\"<visual for slide 4>\",\"<visual for slide 5>\"], "
+              "\"caption\":\"<IG caption>\", "
               "\"hashtags\":[\"#..\",...]}. The slides are short, real, scannable bedtime "
-              "advice. NO emojis in the headline.\n"
+              "advice; each slide_scenes entry describes one calm, relevant parenting/home "
+              "moment (a tired parent, NO child — image models refuse depicted minors) that "
+              "illustrates that slide's tip. slide_scenes MUST have the same length as "
+              "slides. NO emojis in the headline.\n"
               "CAPTION rules — it must be UNIQUE every day, never a template: first line = a "
               "fresh scroll-stopping hook (a feeling or pain the parent recognizes, different "
               "wording from the headline); middle = 1-2 sentences of real value or empathy; "
@@ -92,6 +107,14 @@ def _template_carousel(niche: Niche, rng) -> dict:
             "Keep the room cool and dark — around 68°F is the sweet spot.",
             "Same three steps every night — bath, book, bed — so bedtime feels predictable.",
         ],
+        "slide_scenes": [
+            "dimming a warm bedside lamp in a cozy messy bedroom at dusk, tired but tender",
+            "sitting on the edge of an unmade bed holding a phone playing a bedtime story, "
+            "an open storybook on a blanket beside them",
+            "pulling a curtain closed in a dark, cool, tidy bedroom at night, moonlight "
+            "spilling in, worn out but calm",
+            "tidying a small stack of picture books in a snug lamplit reading nook",
+        ],
         "caption": rng.choice([
             "Save this for tonight's bedtime — and if bedtime is a battle at yours, "
             "which step will you try first?",
@@ -122,13 +145,23 @@ def _gradient() -> Image.Image:
     return base
 
 
-def _render_slide(text: str, idx: int, total: int, big: bool, out: Path) -> Path:
-    img = _gradient()
+def _veil(img: Image.Image, alpha: int = 150) -> None:
+    """Darken the whole image uniformly so centered white tip text stays legible over any
+    photo background."""
+    overlay = Image.new("RGB", img.size, (12, 8, 28))
+    mask = Image.new("L", img.size, alpha)
+    img.paste(overlay, (0, 0), mask)
+
+
+def _render_slide(text: str, idx: int, total: int, scene: str, niche: Niche,
+                  slot_index: int, out: Path) -> Path:
+    img = _scene_image(niche, scene, slot_index)
+    _veil(img)
     draw = ImageDraw.Draw(img)
-    font = _font(FONT_BOLD, 92 if big else 60)
-    wrap_at = 16 if big else 26
+    font = _font(FONT_BOLD, 60)
+    wrap_at = 26
     lines = textwrap.wrap(text, width=wrap_at) or [text]
-    line_h = int((92 if big else 60) * 1.3)
+    line_h = int(60 * 1.3)
     total_h = line_h * len(lines)
     y = (H - total_h) // 2
     for line in lines:
@@ -147,11 +180,12 @@ def _render_slide(text: str, idx: int, total: int, big: bool, out: Path) -> Path
     return out
 
 
-def _cover_image(niche: Niche, cover_scene: str, slot_index: int):
-    """The cover background. `carousel_cover_style: realistic` (niche) → a photoreal,
-    consistent NinniTales parent (mom/dad rotate) dropped into a messy-home scene via the
-    locked character reference; otherwise the cozy-anime pin background. Both cover-crop
-    to W x H and degrade to a gradient if the image model is unavailable."""
+def _scene_image(niche: Niche, scene: str, slot_index: int):
+    """The background for ANY slide (cover or value). `carousel_cover_style: realistic`
+    (niche) → the photoreal, consistent NinniTales parent (mom/dad, chosen by slot_index so
+    it's the SAME parent across every slide of this carousel) dropped into `scene` via the
+    locked character reference; otherwise the cozy-anime pin background. Both cover-crop to
+    W x H and degrade to a gradient if the image model is unavailable/slow/filtered."""
     from formats import pin as pin_fmt
 
     style = niche.extra.get("carousel_cover_style", "anime")
@@ -159,10 +193,11 @@ def _cover_image(niche: Niche, cover_scene: str, slot_index: int):
         import characters
         if characters.available():
             character = "mom" if slot_index % 2 == 0 else "dad"
-            prompt = cover_scene or characters.FALLBACK_SCENES[
+            prompt = scene or characters.FALLBACK_SCENES[
                 slot_index % len(characters.FALLBACK_SCENES)]
             return characters.scene(character, prompt, W, H)
-    return pin_fmt._background(pin_fmt.SCENES[slot_index % len(pin_fmt.SCENES)], W, H)
+    return pin_fmt._background(scene or pin_fmt.SCENES[slot_index % len(pin_fmt.SCENES)],
+                              W, H)
 
 
 def _render_cover(headline: str, cover_scene: str, niche: Niche, slot_index: int,
@@ -171,7 +206,7 @@ def _render_cover(headline: str, cover_scene: str, niche: Niche, slot_index: int
     headline overlaid and a top scrim for legibility."""
     from formats import pin as pin_fmt
 
-    img = _cover_image(niche, cover_scene, slot_index)
+    img = _scene_image(niche, cover_scene, slot_index)
     pin_fmt._scrim(img, top=True)
     draw = ImageDraw.Draw(img)
     font = _font(FONT_BOLD, 88)
@@ -199,6 +234,7 @@ class Carousel:
         data = _llm_carousel(niche, ctx.avoid_titles) or _template_carousel(niche, ctx.rng)
         headline = data["headline"]
         slides_text = [headline] + list(data["slides"])
+        slide_scenes = list(data.get("slide_scenes") or [])
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         out_dir = run_pipeline.QUEUE_DIR / f"carousel_{stamp}"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -209,7 +245,10 @@ class Carousel:
                 p = _render_cover(text, data.get("cover_scene", ""), niche,
                                   ctx.slot_index, total, out=out_dir / "slide_1.png")
             else:
-                p = _render_slide(text, i, total, big=False, out=out_dir / f"slide_{i}.png")
+                # slides_text[0] is the headline, so value slide i maps to slide_scenes[i-2]
+                scene = slide_scenes[i - 2] if i - 2 < len(slide_scenes) else ""
+                p = _render_slide(text, i, total, scene, niche, ctx.slot_index,
+                                  out=out_dir / f"slide_{i}.png")
             paths.append(p)
         caption = data.get("caption") or headline
         return Asset(kind=CAROUSEL, paths=paths, theme=data.get("theme", "bedtime"),
