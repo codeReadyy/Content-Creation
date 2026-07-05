@@ -1174,5 +1174,39 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "-tgE4tSOZkg",
+    "platform": "youtube",
+    "title": "4 calming tricks for a peaceful toddler bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/-tgE4tSOZkg",
+    "status": "scheduled",
+    "posted_at": "2026-07-05T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "dFyHwVYD6c8"
+  },
+  {
+    "video_id": "tlUP4pR4uNQ",
+    "platform": "youtube",
+    "title": "6 calming tricks for an overtired toddler at bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/tlUP4pR4uNQ",
+    "status": "scheduled",
+    "posted_at": "2026-07-05T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "0kZ9QJWMZPc"
   }
 ]
