@@ -1223,5 +1223,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17942276910255410",
+    "platform": "instagram",
+    "title": "Make bedtime easier with these simple tips",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17942276910255410/",
+    "status": "posted",
+    "posted_at": "2026-07-06T06:45:59Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
