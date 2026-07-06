@@ -1270,5 +1270,20 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18096193358462772",
+    "platform": "instagram",
+    "title": "Your voice is the perfect bedtime companion",
+    "theme": "bedtime_stories",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18096193358462772/",
+    "status": "posted",
+    "posted_at": "2026-07-06T16:29:55Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
