@@ -1316,5 +1316,39 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "vvfA2g_m2h4",
+    "platform": "youtube",
+    "title": "5 ways to calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/vvfA2g_m2h4",
+    "status": "scheduled",
+    "posted_at": "2026-07-07T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "LNh5FG4whzM"
+  },
+  {
+    "video_id": "rWV-39IvlDQ",
+    "platform": "youtube",
+    "title": "6 clever ways to calm your toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/rWV-39IvlDQ",
+    "status": "scheduled",
+    "posted_at": "2026-07-08T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "im4rU3ssmSg"
   }
 ]
