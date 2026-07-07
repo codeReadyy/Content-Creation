@@ -1233,13 +1233,21 @@
     "url": "https://youtube.com/shorts/tlUP4pR4uNQ",
     "status": "scheduled",
     "posted_at": "2026-07-05T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
-    "hook_id": "0kZ9QJWMZPc"
+    "hook_id": "0kZ9QJWMZPc",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 14,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-07T11:38:37Z"
   },
   {
     "video_id": "17937114486274048",
@@ -1250,11 +1258,15 @@
     "url": "https://www.instagram.com/p/17937114486274048/",
     "status": "posted",
     "posted_at": "2026-07-05T14:50:39Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "likes": 0,
+    "comments": 0,
+    "views": 2,
+    "measured_at": "2026-07-07T11:38:38Z"
   },
   {
     "video_id": "17942276910255410",
@@ -1265,11 +1277,15 @@
     "url": "https://www.instagram.com/p/17942276910255410/",
     "status": "posted",
     "posted_at": "2026-07-06T06:45:59Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "likes": 1,
+    "comments": 0,
+    "views": 4,
+    "measured_at": "2026-07-07T11:38:39Z"
   },
   {
     "video_id": "18096193358462772",
