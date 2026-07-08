@@ -1388,5 +1388,39 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "5Dww_wktyE8",
+    "platform": "youtube",
+    "title": "6 tips to help your toddler sleep when they won't",
+    "theme": "wont_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/5Dww_wktyE8",
+    "status": "scheduled",
+    "posted_at": "2026-07-08T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "hHLbYkUcMgQ"
+  },
+  {
+    "video_id": "4SHN57WbJNA",
+    "platform": "youtube",
+    "title": "6 calming techniques to help toddlers sleep better",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/4SHN57WbJNA",
+    "status": "scheduled",
+    "posted_at": "2026-07-09T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "1h3kk1Okwls"
   }
 ]
