@@ -1422,5 +1422,20 @@
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
     "hook_id": "1h3kk1Okwls"
+  },
+  {
+    "video_id": "18012765164864073",
+    "platform": "instagram",
+    "title": "Create bedtime memories that last forever",
+    "theme": "bedtime_stories",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18012765164864073/",
+    "status": "posted",
+    "posted_at": "2026-07-08T15:31:51Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
