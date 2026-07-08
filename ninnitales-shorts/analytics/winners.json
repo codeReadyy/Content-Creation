@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-07T11:38:39Z",
+  "generated_at": "2026-07-08T10:54:42Z",
   "themes": {
     "bedtime_routine": {
       "n": 15,
@@ -20,13 +20,13 @@
       "total_views": 222
     },
     "bedtime_stories": {
-      "n": 5,
-      "avg_views": 8.0,
+      "n": 7,
+      "avg_views": 7.4,
       "median_views": 6,
-      "avg_search_views": 8.0,
+      "avg_search_views": 7.4,
       "median_search_views": 6,
       "avg_search_pct": null,
-      "total_views": 40
+      "total_views": 52
     },
     "through_night": {
       "n": 9,
@@ -88,10 +88,10 @@
       "total_views": 5751
     },
     "carousel": {
-      "n": 5,
-      "avg_views": 4.2,
+      "n": 7,
+      "avg_views": 4.7,
       "median_views": 4,
-      "total_views": 21
+      "total_views": 33
     }
   },
   "surfaces": {
@@ -128,12 +128,12 @@
       "total_views": 1017
     },
     "instagram/carousel": {
-      "n": 5,
-      "avg_views": 4.2,
+      "n": 7,
+      "avg_views": 4.7,
       "median_views": 4,
-      "avg_search_views": 4.2,
+      "avg_search_views": 4.7,
       "median_search_views": 4,
-      "total_views": 21
+      "total_views": 33
     }
   },
   "accounts": {
@@ -149,15 +149,15 @@
       "total_views": 4916
     },
     "instagram_ninnitales": {
-      "n": 18,
+      "n": 20,
       "platform": "instagram",
       "format": "scraped_cta",
       "niche": "toddler_sleep",
-      "avg_views": 57.7,
+      "avg_views": 52.5,
       "median_views": 5.5,
-      "avg_search_views": 57.7,
+      "avg_search_views": 52.5,
       "median_search_views": 5.5,
-      "total_views": 1038
+      "total_views": 1050
     }
   },
   "hooks": {
