@@ -150,8 +150,11 @@ class Pin:
         data = ghostwriter.write_pin(ctx.rng, ctx.avoid_titles, niche.themes, boards) \
             or _template_pin(niche, ctx.rng)
 
-        # Rotate boards per slot so successive pins spread across boards.
-        board = (boards[ctx.slot_index % len(boards)] if boards
+        # Rotate boards across RUNS, not just slots: slot_index resets each run, so
+        # offsetting by the ledger length (which grows with every post) keeps the
+        # rotation advancing — otherwise a 3-pin run would hit boards 0-2 forever.
+        base = len(run_pipeline.ledger.load())
+        board = (boards[(base + ctx.slot_index) % len(boards)] if boards
                  else (data.get("board") or "Toddler Bedtime"))
 
         scene = SCENES[ctx.slot_index % len(SCENES)]
