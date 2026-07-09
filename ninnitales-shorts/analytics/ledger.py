@@ -52,7 +52,9 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
                publish_at: str | None = None, source: str = "generated",
                fmt: str | None = None, account_id: str | None = None,
                product: str | None = None, niche: str | None = None,
-               hook_channel: str | None = None, hook_id: str | None = None) -> None:
+               hook_channel: str | None = None, hook_id: str | None = None,
+               hook_type: str | None = None, engagement_cta: str | None = None,
+               keyword: str | None = None, bonus_content: str | None = None) -> None:
     """Append a freshly published post. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
@@ -83,9 +85,14 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
     # Only attach the new dimensions when supplied (keeps legacy rows clean).
     # hook_channel/hook_id attribute a scraped post to the CLIP that carried it —
     # the variable that actually decides breakouts (see analyze.py hook standings).
+    # hook_type/engagement_cta attribute a CAROUSEL to its hook style + engagement
+    # mechanic (analyze.py carousel_hooks / carousel_ctas standings); keyword +
+    # bonus_content are what engage.py replies with on comment-keyword posts.
     for k, v in {"format": fmt, "account_id": account_id, "product": product,
                  "niche": niche, "hook_channel": hook_channel,
-                 "hook_id": hook_id}.items():
+                 "hook_id": hook_id, "hook_type": hook_type,
+                 "engagement_cta": engagement_cta, "keyword": keyword,
+                 "bonus_content": bonus_content}.items():
         if v is not None:
             row[k] = v
     rows.append(row)

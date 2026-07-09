@@ -87,10 +87,45 @@ pinterest_boards:
   - Gentle Bedtime for Parents
 pinterest_link: https://ninnitales.com
 
-# Instagram carousel cover style: "realistic" = a consistent photoreal NinniTales parent
-# (assets/characters/{mom,dad}.png, mom/dad rotate per post) dropped into a fresh messy-home
-# scene via gpt-image-2's edit endpoint — real, relatable, child always implied. Set to
-# "anime" to fall back to the cozy-Ghibli cover. Value slides stay on the gradient renderer.
+# Instagram carousel style: "flashcard" = flat typographic value cards (Big Little
+# Feelings / Good Inside style) with a real photo-library cover (assets/library/) and a
+# dark CTA close — no AI images, brand only on cover handle + last slide. Remove the key
+# (or set anything else) to fall back to the legacy AI-background path below.
+carousel_style: flashcard
+ig_handle: "@ninni_tales_"
+brand_line: "NinniTales · bedtime stories in your own voice"
+
+# Value buckets for CAROUSELS only (YouTube/pins keep `themes:` above). Audience is
+# parents of kids 1-7. Value format: "<age band> | <what parents search>"; keys that
+# overlap `themes` keep their measured weight history in winners.json.
+carousel_themes:
+  # toddler (1-3)
+  sleep_fast: "1-3 | how to get toddler to sleep faster"
+  bedtime_routine: "1-3 | toddler bedtime routine that works"
+  tantrums: "1-3 | how to handle toddler tantrums"
+  picky_eating: "1-3 | foods and tricks for picky eater toddlers"
+  daycare: "1-3 | daycare drop-off without tears"
+  # preschool / early school (3-7)
+  listening: "3-7 | get kids to listen without yelling"
+  bedtime_fears: "3-7 | kids scared of the dark and monsters at bedtime"
+  sibling_fights: "3-7 | stop sibling fights without picking sides"
+  reading_habit: "3-7 | build a daily reading habit kids love"
+  learning_games: "3-7 | play-based learning games at home"
+  confidence: "3-7 | raise a confident kid who tries new things"
+  school_mornings: "3-7 | school morning routine without chaos"
+  chores_independence: "3-7 | age-appropriate chores and independence"
+  friendship_skills: "3-7 | help kids make friends and share"
+  # all ages (1-7)
+  games_activities: "1-7 | easy games to play with kids at home"
+  screen_time: "1-7 | reduce screen time without meltdowns"
+  routines: "1-7 | daily routines that make parenting easier"
+  travel: "1-7 | traveling with young kids survival tips"
+  big_feelings: "1-7 | help kids handle big emotions"
+  parent_sanity: "1-7 | sanity savers for exhausted parents"
+
+# LEGACY cover style (only read when carousel_style is NOT "flashcard"): "realistic" =
+# a consistent photoreal NinniTales parent (assets/characters/{mom,dad}.png) dropped
+# into a fresh messy-home scene via gpt-image-2's edit endpoint; "anime" = cozy-Ghibli.
 carousel_cover_style: realistic
 
 # SYSTEM prompt the copywriter uses for LLM-written (generated/anime) Shorts.

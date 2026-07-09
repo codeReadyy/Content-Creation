@@ -47,33 +47,39 @@ accounts:
     gate: false
     enabled: false
 
-  # IG = value-first CAROUSELS (the save-magnet format for the parenting niche): unique
-  # LLM copy + AI cover per post — fixes the duplicate-content demotion the recycled
-  # reels + identical captions caused (Jul-2026 audit). Reels return later on a SECOND
+  # IG = value-first flashcard CAROUSELS (the save-magnet format for the parenting
+  # niche): flat typographic value cards, photo-library covers, rotating engagement
+  # CTAs, brand only on the last slide (~2 of 3 posts). Reels return later on a SECOND
   # IG account (pain-point hooks), ranked head-to-head by analyze.py account standings.
-  # Two slots: 09:00 ET (proven US-midday) + 22:00 ET ≈ 7:30 AM IST (India-morning test).
-  # On IG the cron time IS the post time (--now 1) — the crons in ninnitales-instagram.yml
-  # actually drive timing; schedule_et just mirrors them for the record.
+  # Two slots: 09:00 ET (proven US-midday) + 19:00 ET (US-evening; the 7:30 AM IST test
+  # slot measured 0-5 views and was dropped). On IG the cron time IS the post time
+  # (--now 1) — the crons in ninnitales-instagram.yml actually drive timing; schedule_et
+  # just mirrors them for the record.
   - id: instagram_ninnitales
     platform: instagram
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES
     formats: [carousel]
-    schedule_et: ["09:00", "22:00"]   # 22:00 EDT == 02:00 UTC == 7:30 AM IST
+    schedule_et: ["09:00", "19:00"]   # 19:00 EDT == 23:00 UTC
     gate: false
     enabled: true
 
-  # Pinterest — evergreen image pins (one per slot), recycled across boards. Pinterest has
-  # no native scheduling, so the cron posts immediately (orchestrate.py --platform pinterest
-  # --now N). 5 slots ≈ 5 pins/day; bump the workflow's --now / add slots to reach 5-10/day.
-  # enabled:false until PINTEREST_* creds are connected via the connect-helper.
+  # Pinterest — evergreen image pins (one per slot), recycled across boards, published
+  # via RSS AUTO-PUBLISH (publish_via: rss): Standard API access keeps getting denied and
+  # Trial pins are sandbox-only, so the publisher appends items to per-board RSS feeds in
+  # the public media repo and Pinterest's native Auto-publish creates the real pins within
+  # 24-48h (no PINTEREST_* creds; needs MEDIA_REPO*). One-time setup: claim ninnitales.com
+  # on the Pinterest profile + paste the feed URLs from `python rss_feed.py`. Timing is
+  # Pinterest's ingestion cycle, so slot times just set how often items are ADDED. Flip
+  # publish_via back off if Standard access is ever granted.
   - id: pinterest_ninnitales
     platform: pinterest
     product: ninnitales
     niche: toddler_sleep
-    creds_env: NINNITALES            # -> PINTEREST_*_NINNITALES
+    creds_env: NINNITALES            # -> PINTEREST_*_NINNITALES (unused in rss mode)
     formats: [pin]
     schedule_et: ["08:00", "11:00", "14:00", "17:00", "20:00"]
+    publish_via: rss
     gate: false
     enabled: true

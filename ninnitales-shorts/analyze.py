@@ -145,6 +145,16 @@ def _ig_stats(token: str, media_id: str) -> dict:
                   "re-Connect Instagram in the connect-helper to grant it.")
             break
         # 400 = metric not valid for this media → try the next name
+    # saves — the strongest distribution signal for carousels, and what the rotating
+    # engagement CTAs (carousel_ctas standings) are ultimately judged on.
+    if "views" in out:
+        r = requests.get(f"{IG_GRAPH}/{media_id}/insights",
+                         params={"metric": "saved", "access_token": token}, timeout=30)
+        if r.ok:
+            data = r.json().get("data", [])
+            v = _ig_insight_value(data[0]) if data else None
+            if v is not None:
+                out["saves"] = int(v)
     return out
 
 
@@ -242,12 +252,27 @@ def _pin_stats(token: str, pin_id: str, start: str) -> dict:
     return out
 
 
+def _is_rss_pinterest(account_id: str | None) -> bool:
+    """RSS-published pins never get per-pin API analytics (no Standard access) — they
+    are finalized without stats so they don't clog the pending queue forever."""
+    if account_id and acct_config is not None:
+        try:
+            return acct_config.get_account(account_id).extra.get("publish_via") == "rss"
+        except Exception:
+            pass
+    return False
+
+
 def _measure_pinterest(min_age_hours: float) -> int:
     due = ledger.pending(min_age_hours=min_age_hours, platform="pinterest")
     if not due:
         return 0
     done = 0
     for row in due:
+        if _is_rss_pinterest(row.get("account_id")):
+            ledger.update(row["video_id"], platform="pinterest", finalized=True,
+                          rss=True)
+            continue
         creds_env = _ig_creds_env(row.get("account_id"))  # same account_id -> creds_env map
         token = _pinterest_token(creds_env)
         if not token:
@@ -433,6 +458,31 @@ def compute_winners() -> dict:
                      "total_views": sum(views),
                      "tested": sum(1 for r in rows if r.get("feed_tested"))}
 
+    # Per-CAROUSEL-HOOK-TYPE and per-ENGAGEMENT-CTA standings: carousels record which
+    # hook style (number_promise/curiosity_gap/...) and engagement mechanic (save/
+    # share/caption_bonus/comment_keyword) each post used, so the loop can learn the
+    # MECHANIC, not just the topic. NOTE: carousel themes share the global theme_weights
+    # namespace with Shorts/pins — harmless, since each consumer validates against its
+    # own theme set. Rows predating the attribution are skipped.
+    def _dim_standings(key: str) -> dict:
+        by = defaultdict(list)
+        for r in ledger.load():
+            if r.get("finalized") and r.get("views") is not None and r.get(key):
+                by[r[key]].append(r)
+        out = {}
+        for k, rows in by.items():
+            views = [r.get("views", 0) for r in rows]
+            out[k] = {"n": len(rows),
+                      "median_views": round(statistics.median(views), 1),
+                      "avg_views": round(sum(views) / len(views), 1),
+                      "total_views": sum(views),
+                      "comments": sum(r.get("comments", 0) for r in rows),
+                      "saves": sum(r.get("saves", 0) for r in rows)}
+        return out
+
+    carousel_hooks = _dim_standings("hook_type")
+    carousel_ctas = _dim_standings("engagement_cta")
+
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "themes": themes,
@@ -440,6 +490,8 @@ def compute_winners() -> dict:
         "surfaces": surfaces,
         "accounts": accounts,
         "hooks": hooks,
+        "carousel_hooks": carousel_hooks,
+        "carousel_ctas": carousel_ctas,
         # run_pipeline reads this: weight per theme = MEDIAN search-driven views
         # (outlier-robust, so the content loop chases repeatable themes, not flukes).
         "theme_weights": {t: v["median_search_views"] for t, v in themes.items()},
@@ -494,6 +546,17 @@ def report(winners: dict) -> None:
         for ch, v in sorted(hks.items(), key=lambda kv: -kv[1]["median_views"]):
             print(f"  {ch:<22} n={v['n']:<3} median={v['median_views']:<8} "
                   f"tested={v['tested']}/{v['n']}  total={v['total_views']}")
+
+    # Carousel hook-style + engagement-CTA standings — which MECHANICS win on IG.
+    for key, label in (("carousel_hooks", "CAROUSEL HOOK-TYPE STANDINGS"),
+                       ("carousel_ctas", "CAROUSEL ENGAGEMENT-CTA STANDINGS")):
+        std = winners.get(key, {})
+        if std:
+            print("\n" + "-" * 64)
+            print(f"{label}  (median views/post)")
+            for k, v in sorted(std.items(), key=lambda kv: -kv[1]["median_views"]):
+                print(f"  {k:<18} n={v['n']:<3} median={v['median_views']:<8} "
+                      f"saves={v['saves']:<5} comments={v['comments']}")
 
     # The scraped-vs-generated verdict (by MEDIAN — one viral fluke shouldn't decide it).
     src = winners.get("sources", {})
@@ -605,6 +668,13 @@ def telegram_digest(winners: dict) -> None:
         top = max(ready_hooks.items(), key=lambda kv: kv[1]["median_views"])
         lines.append(f"🎣 Best hook source: <b>{top[0]}</b> "
                      f"({top[1]['median_views']:.0f} median, n={top[1]['n']})")
+    for key, label in (("carousel_hooks", "Best carousel hook"),
+                       ("carousel_ctas", "Best carousel CTA")):
+        ready = {k: v for k, v in (winners.get(key) or {}).items() if v["n"] >= 2}
+        if ready:
+            top = max(ready.items(), key=lambda kv: kv[1]["median_views"])
+            lines.append(f"🃏 {label}: <b>{top[0]}</b> "
+                         f"({top[1]['median_views']:.0f} median, n={top[1]['n']})")
     if ranked:
         b = ranked[0]
         lines.append(f"\n🏆 Best theme: <b>{b[0]}</b> — {b[1].get('median_views', 0):.0f} "

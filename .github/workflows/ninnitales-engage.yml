@@ -1,0 +1,53 @@
+# NinniTales — comment auto-responder. Carousels with the comment-keyword CTA
+# ("Comment SLEEP and we'll reply with the full checklist") need something that
+# actually replies: engage.py polls comments on the last 3 days' keyword posts and
+# replies with the stored bonus content. Every 2 hours keeps replies feeling human
+# without hammering the Graph API.
+#
+# Required repo secrets:
+#   INSTAGRAM_ACCESS_TOKEN_NINNITALES — the same long-lived IG token that posts
+#   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID — permission alerts (optional)
+
+name: NinniTales Engage
+
+on:
+  schedule:
+    - cron: "17 */2 * * *"   # every 2h (offset minute to dodge cron congestion)
+  workflow_dispatch:
+
+jobs:
+  engage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # to commit replied-comment ids + engage state back
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (requests only — no media toolchain needed)
+        run: python -m pip install --quiet requests
+
+      - name: Reply to keyword comments
+        env:
+          INSTAGRAM_ACCESS_TOKEN_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_NINNITALES }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python engage.py
+
+      - name: Persist replied-comment ids + engage state
+        if: always()
+        run: |
+          git add analytics/ledger.json analytics/engage_state.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(ninnitales): log comment replies [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push
+          fi

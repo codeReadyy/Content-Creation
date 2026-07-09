@@ -5,8 +5,9 @@
 # Two crons = two carousels/day:
 #   13:00 UTC = 9:00 AM ET — the proven US-midday slot (audit: 94-205 views vs 1-5 in
 #               the evening). DST-naive, so ~1h earlier in EST winter.
-#   02:00 UTC = 7:30 AM IST — an India-morning slot to test that audience (India has no
-#               DST, so this is always exactly 7:30 AM IST).
+#   23:00 UTC = 7:00 PM ET — US-evening slot (replaced the 02:00 UTC / 7:30 AM IST test:
+#               it measured 0-5 views/post, a dead slot; both posts now get real US
+#               feed distribution).
 #
 # Required repo secrets:
 #   INSTAGRAM_ACCESS_TOKEN_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES
@@ -25,7 +26,7 @@ name: NinniTales Instagram
 on:
   schedule:
     - cron: "0 13 * * *"   # 9:00 AM ET (EDT) — proven US-midday slot
-    - cron: "0 2 * * *"    # 7:30 AM IST (02:00 UTC) — India-morning slot
+    - cron: "0 23 * * *"   # 7:00 PM ET (EDT) — US-evening slot
   workflow_dispatch:
 
 jobs:

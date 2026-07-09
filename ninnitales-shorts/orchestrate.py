@@ -117,9 +117,14 @@ def _preflight(accounts: list[Account]) -> tuple[str, bool]:
             lines.append(_ig_health_line(a, ig))
             ok = ok and ig["alive"]
         elif a.platform == "pinterest":
-            pin = token_doctor.check_pinterest(a.creds_env)
-            lines.append(_pinterest_health_line(a, pin))
-            ok = ok and pin["alive"]
+            if a.extra.get("publish_via") == "rss":
+                # RSS mode needs no Pinterest token — hosting creds are checked at
+                # publish time (a failure surfaces as a slot alert, not an abort).
+                lines.append(f"✅ <b>Pinterest</b>: RSS auto-publish ({a.id}, no API token)")
+            else:
+                pin = token_doctor.check_pinterest(a.creds_env)
+                lines.append(_pinterest_health_line(a, pin))
+                ok = ok and pin["alive"]
     return ("\n".join(lines) if lines else "(no token-bearing platforms)"), ok
 
 
@@ -224,7 +229,11 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
                           fmt=used, account_id=account.id,
                           product=account.product, niche=account.niche,
                           hook_channel=asset.meta.get("hook_channel"),
-                          hook_id=asset.meta.get("hook_id"))
+                          hook_id=asset.meta.get("hook_id"),
+                          hook_type=asset.meta.get("hook_type"),
+                          engagement_cta=asset.meta.get("engagement_cta"),
+                          keyword=asset.meta.get("keyword"),
+                          bonus_content=asset.meta.get("bonus_content"))
         result["scheduled"] += 1
         print(f"    ✅ {'scheduled' if slot else 'posted'}: {res['url']}")
         # gate=true → send a veto preview so it can still be cancelled before going live.
