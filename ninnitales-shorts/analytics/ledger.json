@@ -1468,5 +1468,50 @@
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783619135-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Calming Bedtime Stories to Help Toddlers Sleep Soundly",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-09T17:45:38Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783619248-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Tips to Calm an Overtired Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-09T17:47:31Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783619362-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Engaging Bedtime Stories for Peaceful Sleep Every Night",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-07-09T17:49:24Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
