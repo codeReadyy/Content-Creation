@@ -1663,5 +1663,50 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "pin-1783724490-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Engaging Bedtime Stories That Nurture Sleep in Your Child",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-07-10T23:01:32Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783724610-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Bedtime Stories to Help Your Child Fall Asleep in Your Voice",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-10T23:03:35Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783724746-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Gentle Bedtime Stories to Help Your Toddler Sleep Peacefully",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-10T23:05:48Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
