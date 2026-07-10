@@ -1646,5 +1646,22 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "17890642329584971",
+    "platform": "instagram",
+    "title": "5 tricks to get your toddler to sleep",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17890642329584971/",
+    "status": "posted",
+    "posted_at": "2026-07-10T15:35:45Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "share"
   }
 ]
