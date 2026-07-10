@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-09T11:45:30Z",
+  "generated_at": "2026-07-10T11:43:16Z",
   "themes": {
     "bedtime_routine": {
       "n": 15,
@@ -20,13 +20,13 @@
       "total_views": 222
     },
     "bedtime_stories": {
-      "n": 9,
-      "avg_views": 7.2,
+      "n": 11,
+      "avg_views": 6.9,
       "median_views": 6,
-      "avg_search_views": 7.2,
+      "avg_search_views": 6.9,
       "median_search_views": 6,
       "avg_search_pct": null,
-      "total_views": 65
+      "total_views": 76
     },
     "through_night": {
       "n": 9,
@@ -47,13 +47,13 @@
       "total_views": 2190
     },
     "calm_before_bed": {
-      "n": 9,
-      "avg_views": 79.0,
-      "median_views": 8,
-      "avg_search_views": 79.0,
-      "median_search_views": 8,
+      "n": 10,
+      "avg_views": 72.9,
+      "median_views": 8.5,
+      "avg_search_views": 72.9,
+      "median_search_views": 8.5,
       "avg_search_pct": null,
-      "total_views": 711
+      "total_views": 729
     },
     "make_sleep": {
       "n": 5,
@@ -65,13 +65,13 @@
       "total_views": 147
     },
     "wont_sleep": {
-      "n": 3,
-      "avg_views": 71.0,
-      "median_views": 6,
-      "avg_search_views": 71.0,
-      "median_search_views": 6,
+      "n": 4,
+      "avg_views": 53.5,
+      "median_views": 4.0,
+      "avg_search_views": 53.5,
+      "median_search_views": 4.0,
       "avg_search_pct": null,
-      "total_views": 213
+      "total_views": 214
     }
   },
   "sources": {
@@ -82,16 +82,16 @@
       "total_views": 182
     },
     "scraped": {
-      "n": 46,
-      "avg_views": 125.2,
+      "n": 48,
+      "avg_views": 120.4,
       "median_views": 6.5,
-      "total_views": 5760
+      "total_views": 5779
     },
     "carousel": {
-      "n": 9,
-      "avg_views": 5.1,
+      "n": 11,
+      "avg_views": 5.2,
       "median_views": 4,
-      "total_views": 46
+      "total_views": 57
     }
   },
   "surfaces": {
@@ -112,12 +112,12 @@
       "total_views": 106
     },
     "youtube/scraped_cta": {
-      "n": 33,
-      "avg_views": 143.7,
+      "n": 35,
+      "avg_views": 136.1,
       "median_views": 6,
-      "avg_search_views": 143.7,
+      "avg_search_views": 136.1,
       "median_search_views": 6,
-      "total_views": 4743
+      "total_views": 4762
     },
     "instagram/scraped_cta": {
       "n": 13,
@@ -128,56 +128,58 @@
       "total_views": 1017
     },
     "instagram/carousel": {
-      "n": 9,
-      "avg_views": 5.1,
+      "n": 11,
+      "avg_views": 5.2,
       "median_views": 4,
-      "avg_search_views": 5.1,
+      "avg_search_views": 5.2,
       "median_search_views": 4,
-      "total_views": 46
+      "total_views": 57
     }
   },
   "accounts": {
     "ninnitales_yt_main": {
-      "n": 47,
+      "n": 49,
       "platform": "youtube",
       "format": "unknown",
       "niche": null,
-      "avg_views": 104.8,
+      "avg_views": 100.9,
       "median_views": 6,
-      "avg_search_views": 104.8,
+      "avg_search_views": 100.9,
       "median_search_views": 6,
-      "total_views": 4925
+      "total_views": 4944
     },
     "instagram_ninnitales": {
-      "n": 22,
+      "n": 24,
       "platform": "instagram",
       "format": "scraped_cta",
       "niche": "toddler_sleep",
-      "avg_views": 48.3,
+      "avg_views": 44.8,
       "median_views": 5.5,
-      "avg_search_views": 48.3,
+      "avg_search_views": 44.8,
       "median_search_views": 5.5,
-      "total_views": 1063
+      "total_views": 1074
     }
   },
   "hooks": {
     "@babiesbarks": {
-      "n": 5,
+      "n": 7,
       "median_views": 5,
-      "avg_views": 6.6,
-      "total_views": 33,
+      "avg_views": 7.4,
+      "total_views": 52,
       "tested": 0
     }
   },
+  "carousel_hooks": {},
+  "carousel_ctas": {},
   "theme_weights": {
     "bedtime_routine": 5,
     "sleep_fast": 7.5,
     "bedtime_stories": 6,
     "through_night": 50,
     "brand": 8,
-    "calm_before_bed": 8,
+    "calm_before_bed": 8.5,
     "make_sleep": 1,
-    "wont_sleep": 6
+    "wont_sleep": 4.0
   },
   "surface_weights": {
     "youtube/unknown": 25,
