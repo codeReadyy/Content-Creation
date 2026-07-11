@@ -1790,5 +1790,24 @@
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
     "hook_id": "PP9PqIxDsy0"
+  },
+  {
+    "video_id": "18015968045909122",
+    "platform": "instagram",
+    "title": "5 sanity savers for exhausted parents",
+    "theme": "parent_sanity",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18015968045909122/",
+    "status": "posted",
+    "posted_at": "2026-07-11T14:25:57Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SANITY",
+    "bonus_content": "1. Establish a quiet hour: Designate an hour before bed for calm activities like reading, drawing, or puzzles. 2. Use a timer for tasks: Set a timer for chores or play to create structure and encourage focus while keeping it fun. 3. Implement simple rewards: Use stickers or points for positive behavior to encourage kids and lighten your parenting load. 4. Take ‘me’ time breaks: Schedule short breaks in your day for a quick recharge, even if it's just a five-minute breather. 5. Tap into audio stories: Use audio stories or music at bedtime to help your child relax without your constant presence."
   }
 ]
