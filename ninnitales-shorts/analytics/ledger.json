@@ -1809,5 +1809,50 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SANITY",
     "bonus_content": "1. Establish a quiet hour: Designate an hour before bed for calm activities like reading, drawing, or puzzles. 2. Use a timer for tasks: Set a timer for chores or play to create structure and encourage focus while keeping it fun. 3. Implement simple rewards: Use stickers or points for positive behavior to encourage kids and lighten your parenting load. 4. Take ‘me’ time breaks: Schedule short breaks in your day for a quick recharge, even if it's just a five-minute breather. 5. Tap into audio stories: Use audio stories or music at bedtime to help your child relax without your constant presence."
+  },
+  {
+    "video_id": "pin-1783810303-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Simple Strategies to Calm Your Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-11T22:51:45Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783810441-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Soothing Strategies to Calm an Overtired Toddler at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-11T22:54:03Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783810558-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Techniques to Calm Your Toddler for a Better Night's Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-11T22:56:00Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
