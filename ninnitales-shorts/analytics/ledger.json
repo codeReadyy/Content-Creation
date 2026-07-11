@@ -1756,5 +1756,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "61OepUEP-L4",
+    "platform": "youtube",
+    "title": "5 unique bedtime practices to help toddlers sleep better",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/61OepUEP-L4",
+    "status": "scheduled",
+    "posted_at": "2026-07-11T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "eL3243YwSS0"
+  },
+  {
+    "video_id": "9l7cb6OHEUA",
+    "platform": "youtube",
+    "title": "5 bedtime tips to soothe your toddler to sleep",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/9l7cb6OHEUA",
+    "status": "scheduled",
+    "posted_at": "2026-07-11T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "PP9PqIxDsy0"
   }
 ]
