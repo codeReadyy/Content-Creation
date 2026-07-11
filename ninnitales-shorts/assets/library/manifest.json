@@ -1,1 +1,24 @@
-[]
+[
+  {"file": "sleep-crib-01.jpg", "tags": ["sleep", "bedtime", "crib", "routine", "nursery"], "age": "1-3", "note": "pink crib, bedtime plushies lined up"},
+  {"file": "sleep-crib-02.jpg", "tags": ["sleep", "bedtime", "crib", "routine", "nursery"], "age": "1-3", "note": "pink crib wide"},
+  {"file": "sleep-crib-03.jpg", "tags": ["sleep", "bedtime", "crib", "routine", "nursery"], "age": "1-3", "note": "pink crib angle"},
+  {"file": "sleep-crib-04.jpg", "tags": ["sleep", "bedtime", "crib", "routine", "nursery"], "age": "1-3", "note": "pink crib top-down"},
+  {"file": "sleep-sack-01.jpg", "tags": ["sleep", "bedtime", "routine", "cozy"], "age": "1-3", "note": "grey sleep sack on floral bedding"},
+  {"file": "sleep-bedroom-01.jpg", "tags": ["sleep", "bedtime", "routine", "nursery"], "age": "1-7", "note": "toddler bed + crib, pikachu on bed"},
+  {"file": "soothe-swing-01.jpg", "tags": ["sleep", "routine", "calm", "nursery"], "age": "1-3", "note": "baby swing / soothing seat"},
+  {"file": "soothe-swing-02.jpg", "tags": ["sleep", "routine", "calm", "nursery"], "age": "1-3", "note": "baby swing in kitchen"},
+  {"file": "soothe-swing-03.jpg", "tags": ["sleep", "routine", "calm", "nursery"], "age": "1-3", "note": "baby swing on rug"},
+  {"file": "soothe-swing-04.jpg", "tags": ["sleep", "routine", "calm", "nursery"], "age": "1-3", "note": "baby swing on rug angle"},
+  {"file": "feeding-pillow-01.jpg", "tags": ["play", "bedtime", "toys", "games", "home"], "age": "1-3", "note": "nursing pillow, penguin plush, sensory ball"},
+  {"file": "books-shelf-01.jpg", "tags": ["reading", "books", "bedtime", "learning", "stories", "habit"], "age": "1-7", "note": "kids bookshelf, bedtime & story books"},
+  {"file": "play-desk-01.jpg", "tags": ["play", "learning", "games", "school", "home", "activities"], "age": "3-7", "note": "desk with toys, crafts, drawing"},
+  {"file": "play-corner-01.jpg", "tags": ["play", "games", "toys", "home", "routines"], "age": "1-7", "note": "play corner, toy storage + stuffed animals"},
+  {"file": "organize-caddy-01.jpg", "tags": ["routine", "routines", "home", "nursery", "organized"], "age": "1-3", "note": "diaper caddy + drawer tower by crib"},
+  {"file": "organize-caddy-02.jpg", "tags": ["routine", "routines", "home", "organized"], "age": "1-3", "note": "diaper caddy close-up"},
+  {"file": "organize-caddy-03.jpg", "tags": ["routine", "routines", "home", "organized"], "age": "1-3", "note": "diaper caddy close-up"},
+  {"file": "organize-caddy-04.jpg", "tags": ["routine", "routines", "home", "organized"], "age": "1-3", "note": "diaper caddy close-up"},
+  {"file": "organize-caddy-05.jpg", "tags": ["routine", "routines", "home", "organized"], "age": "1-3", "note": "diaper caddy close-up"},
+  {"file": "organize-closet-01.jpg", "tags": ["routine", "routines", "home", "school", "morning", "organized"], "age": "1-7", "note": "kids closet, clothes + labelled storage bins"},
+  {"file": "diapering-stock-01.jpg", "tags": ["routine", "routines", "home"], "age": "1-3", "note": "diaper packs on bedding"},
+  {"file": "diapering-stock-02.jpg", "tags": ["routine", "routines", "home"], "age": "1-3", "note": "diaper packs on blanket"}
+]
