@@ -380,6 +380,26 @@ def compute_winners() -> dict:
             "total_views": sum(views),
         }
 
+    # Per-PLATFORM theme stats. _score() is a different UNIT per platform (YouTube =
+    # search views, Instagram = raw views, Pinterest = outbound clicks), so a theme's
+    # weight is only meaningful within ONE platform — mixing them lets IG's bigger raw
+    # numbers inflate a theme for the YouTube picker. Each picker reads its own
+    # platform's entry; the global `themes`/`theme_weights` above stay for the report
+    # and as a legacy fallback for stale winners.json readers.
+    by_plat_theme = defaultdict(lambda: defaultdict(list))
+    for r in ledger.load():
+        if r.get("finalized") and r.get("views") is not None:
+            by_plat_theme[_platform_of(r)][r["theme"]].append(r)
+    themes_by_platform = {}
+    for plat, tmap in by_plat_theme.items():
+        themes_by_platform[plat] = {}
+        for theme, rows in tmap.items():
+            scores = [_score(r) for r in rows]
+            themes_by_platform[plat][theme] = {
+                "n": len(rows),
+                "median_search_views": round(statistics.median(scores), 1),
+            }
+
     # Scraped (real footage) vs generated (AI anime) — the head-to-head test.
     by_source = defaultdict(list)
     for r in ledger.load():
@@ -492,9 +512,16 @@ def compute_winners() -> dict:
         "hooks": hooks,
         "carousel_hooks": carousel_hooks,
         "carousel_ctas": carousel_ctas,
-        # run_pipeline reads this: weight per theme = MEDIAN search-driven views
-        # (outlier-robust, so the content loop chases repeatable themes, not flukes).
+        # LEGACY global weights (mixed units across platforms) — kept only so a reader
+        # built before the per-platform split still finds something. Pickers should
+        # read theme_weights_by_platform instead.
         "theme_weights": {t: v["median_search_views"] for t, v in themes.items()},
+        # What pickers actually read: weight per theme = MEDIAN score within ONE
+        # platform's KPI (outlier-robust AND unit-consistent).
+        "themes_by_platform": themes_by_platform,
+        "theme_weights_by_platform": {
+            plat: {t: v["median_search_views"] for t, v in tmap.items()}
+            for plat, tmap in themes_by_platform.items()},
         # orchestrator format selection can read this: weight per surface (median).
         "surface_weights": {s: v["median_search_views"] for s, v in surfaces.items()},
     }

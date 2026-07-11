@@ -207,7 +207,11 @@ DEDUP_WINDOW_DAYS = 7
 
 
 def _confident_weights() -> dict[str, float]:
-    """Theme weights from analyze.py, but ONLY for themes with enough samples.
+    """YOUTUBE theme weights from analyze.py, but ONLY for themes with enough samples.
+
+    Reads the per-platform split (theme_weights_by_platform) so the picker never
+    weighs YouTube search views against Instagram raw views — different units. A
+    stale winners.json (pre-split) falls back to the legacy mixed keys.
 
     Returns {} (→ uniform exploration) until at least one theme has been measured
     MIN_SAMPLE_PER_THEME times, so we never double down on a single-video fluke.
@@ -218,8 +222,11 @@ def _confident_weights() -> dict[str, float]:
         data = json.loads(WINNERS_PATH.read_text())
     except (json.JSONDecodeError, ValueError):
         return {}
-    themes = data.get("themes", {})
-    weights = data.get("theme_weights", {})
+    themes = (data.get("themes_by_platform") or {}).get("youtube")
+    weights = (data.get("theme_weights_by_platform") or {}).get("youtube")
+    if themes is None or weights is None:  # stale winners.json (pre per-platform)
+        themes = data.get("themes", {})
+        weights = data.get("theme_weights", {})
     out = {}
     for theme, w in weights.items():
         n = themes.get(theme, {}).get("n", 0)
@@ -262,7 +269,8 @@ def choose_post(rng: random.Random, avoid_titles: list[str] | None = None) -> di
     """
     avoid = {_norm_title(t) for t in (avoid_titles or [])}
     weights = _confident_weights()
-    if not weights or rng.random() < EXPLORE_RATE:
+    # <2 trusted themes = nothing to compare — explore rather than hammer one theme.
+    if len(weights) < 2 or rng.random() < EXPLORE_RATE:
         candidates = list(POSTS)
     else:
         themes = sorted({p["theme"] for p in POSTS})

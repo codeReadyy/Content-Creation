@@ -79,10 +79,13 @@ def _client() -> AzureOpenAI:
     return AzureOpenAI(api_key=key, azure_endpoint=endpoint, api_version=version)
 
 
-def _recent_performance(limit: int = 2) -> list[dict]:
-    """The last `limit` finalized Shorts with their measured numbers."""
+def _recent_performance(limit: int = 2, platform: str = "youtube") -> list[dict]:
+    """The last `limit` finalized posts ON ONE PLATFORM with their measured numbers
+    (the ledger is multi-platform now; an IG carousel's raw views shown as 'how the
+    last Shorts performed' would mislead the writer)."""
     finalized = [r for r in run_pipeline.ledger.load()
-                 if r.get("finalized") and r.get("views") is not None]
+                 if r.get("finalized") and r.get("views") is not None
+                 and r.get("platform", "youtube") == platform]
     finalized.sort(key=lambda r: r.get("measured_at") or r.get("posted_at") or "",
                    reverse=True)
     out = []
@@ -97,14 +100,27 @@ def _recent_performance(limit: int = 2) -> list[dict]:
     return out
 
 
-def _theme_weights() -> dict:
-    """Per-theme avg search-driven views from winners.json (empty until measured)."""
+def _theme_weights(platform: str = "youtube") -> dict:
+    """Per-theme MEDIAN score from winners.json for ONE platform (scores are
+    different units per platform, so they must never be read mixed).
+
+    Pinterest has no API analytics yet (RSS mode) — its pins fall back to the
+    YOUTUBE weights as a prior: same theme keys, and both KPIs measure search
+    demand for the keyword. A stale pre-split winners.json falls back to the
+    legacy mixed weights."""
     if not run_pipeline.WINNERS_PATH.exists():
         return {}
     try:
-        return json.loads(run_pipeline.WINNERS_PATH.read_text()).get("theme_weights", {})
+        data = json.loads(run_pipeline.WINNERS_PATH.read_text())
     except (json.JSONDecodeError, ValueError, AttributeError):
         return {}
+    per = data.get("theme_weights_by_platform")
+    if per is None:  # stale winners.json (pre per-platform)
+        return data.get("theme_weights", {})
+    weights = per.get(platform) or {}
+    if not weights and platform == "pinterest":
+        weights = per.get("youtube") or {}
+    return weights
 
 
 def _user_prompt(avoid_titles: list[str]) -> str:
@@ -123,7 +139,7 @@ def _user_prompt(avoid_titles: list[str]) -> str:
     return (
         "Allowed themes (key: what parents type):\n"
         f"{themes_block}\n\n"
-        "Theme weights so far (avg search-driven views per theme):\n"
+        "Theme weights so far (median search-driven views per theme, YouTube only):\n"
         f"{weights_block}\n\n"
         "How the last 1-2 Shorts actually performed:\n"
         f"{perf_block}{note}\n\n"
@@ -176,7 +192,9 @@ Return ONLY JSON:
 
 
 def _pin_user_prompt(themes: dict, boards: list[str], avoid_titles: list[str]) -> str:
-    weights = _theme_weights()
+    # Pinterest weights (falls back to YouTube's search medians as a prior while
+    # RSS-mode pins have no analytics); recent perf likewise shows YouTube numbers.
+    weights = _theme_weights("pinterest")
     perf = _recent_performance()
     themes_block = "\n".join(f'- {k}: parents search "{v}"' for k, v in themes.items())
     boards_block = "\n".join(f"- {b}" for b in boards) or "- Toddler Bedtime"
@@ -190,7 +208,8 @@ def _pin_user_prompt(themes: dict, boards: list[str], avoid_titles: list[str]) -
         f"{themes_block}\n\n"
         "Allowed boards (pick the best topical fit, name verbatim):\n"
         f"{boards_block}\n\n"
-        "Theme weights so far (avg click/search-driven views per theme):\n"
+        "Theme weights so far (median search-driven views per theme; YouTube data "
+        "doubles as the pin prior until Pinterest analytics unlock):\n"
         f"{weights_block}\n\n"
         "How recent posts performed:\n"
         f"{perf_block}\n\n"

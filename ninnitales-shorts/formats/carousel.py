@@ -368,13 +368,23 @@ def _carousel_themes(niche: Niche) -> dict[str, tuple[str, str]]:
     return {k: _parse_theme_value(str(v)) for k, v in raw.items()}
 
 
+def _ig_theme_data(data: dict) -> tuple[dict, dict]:
+    """(themes, weights) for INSTAGRAM only. The per-platform split keeps units
+    consistent (IG raw views vs YouTube search views); a stale winners.json
+    (pre-split) falls back to the legacy mixed keys."""
+    themes = (data.get("themes_by_platform") or {}).get("instagram")
+    weights = (data.get("theme_weights_by_platform") or {}).get("instagram")
+    if themes is None or weights is None:
+        return data.get("themes") or {}, data.get("theme_weights") or {}
+    return themes, weights
+
+
 def _confident_carousel_weights(niche: Niche, keys) -> dict[str, float]:
-    """winners.json theme_weights restricted to carousel themes with enough samples
-    (mirrors run_pipeline._confident_weights, parameterized by niche)."""
-    data = _load_json(run_pipeline.WINNERS_PATH, {})
-    themes = data.get("themes", {})
+    """winners.json INSTAGRAM theme weights restricted to carousel themes with enough
+    samples (mirrors run_pipeline._confident_weights, parameterized by niche)."""
+    themes, weights = _ig_theme_data(_load_json(run_pipeline.WINNERS_PATH, {}))
     out = {}
-    for t, w in (data.get("theme_weights") or {}).items():
+    for t, w in weights.items():
         if t in keys and themes.get(t, {}).get("n", 0) >= niche.min_sample_per_theme:
             try:
                 out[t] = float(w)
@@ -393,7 +403,10 @@ def _pick_theme(niche: Niche, rng) -> tuple[str, str, str]:
     if not themes:
         return "bedtime", "", "toddler bedtime"
     weights = _confident_carousel_weights(niche, themes.keys())
-    if weights and rng.random() >= niche.explore_rate:
+    # Exploit only once >=2 themes are trusted: with a single measured theme there is
+    # nothing to compare against, and "exploit" would just hammer that one theme for
+    # 80% of picks however weak it is — keep exploring until a real leader exists.
+    if len(weights) >= 2 and rng.random() >= niche.explore_rate:
         keys = list(weights)
         key = rng.choices(keys, [max(weights[k], 0.1) for k in keys])[0]
     else:
@@ -496,8 +509,8 @@ def _flash_user(niche: Niche, theme_key: str, age_band: str, phrase: str,
     themes_block = "\n".join(
         f'- {k} (ages {a or "1-7"}): parents search "{p}"' for k, (a, p) in themes.items())
     winners = _load_json(run_pipeline.WINNERS_PATH, {})
-    weights = {k: v for k, v in (winners.get("theme_weights") or {}).items()
-               if k in themes}
+    _, ig_weights = _ig_theme_data(winners)  # IG-only numbers, same units as the KPI
+    weights = {k: v for k, v in ig_weights.items() if k in themes}
     hooks = winners.get("carousel_hooks") or {}
     perf = _recent_carousel_performance()
     avoid = "\n".join(f"- {t}" for t in avoid_titles[-15:]) or "(none yet)"
