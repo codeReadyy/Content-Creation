@@ -1966,5 +1966,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18129852031616031",
+    "platform": "instagram",
+    "title": "5 ways to make reading a daily joy",
+    "theme": "reading_habit",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18129852031616031/",
+    "status": "posted",
+    "posted_at": "2026-07-12T14:36:44Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
