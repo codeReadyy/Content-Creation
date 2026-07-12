@@ -1983,5 +1983,50 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "pin-1783896749-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Tips to Soothe an Overtired Toddler at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-12T22:52:31Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783896868-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Gentle Ways to Help Your Toddler Wind Down Before Bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-12T22:54:30Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1783896983-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Gentle Techniques to Calm Your Toddler for Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-12T22:56:26Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
