@@ -1887,5 +1887,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "2-hj8SRVrQs",
+    "platform": "youtube",
+    "title": "5 tips to help your toddler fall asleep faster",
+    "theme": "sleep_fast",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/2-hj8SRVrQs",
+    "status": "scheduled",
+    "posted_at": "2026-07-12T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "oJfK5vQTeZY"
+  },
+  {
+    "video_id": "BV5rUZF264w",
+    "platform": "youtube",
+    "title": "5 effective ways to help your toddler sleep at night",
+    "theme": "wont_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/BV5rUZF264w",
+    "status": "scheduled",
+    "posted_at": "2026-07-12T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "z2DtCmUkAcs"
   }
 ]
