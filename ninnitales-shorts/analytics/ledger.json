@@ -2028,5 +2028,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18347556652172640",
+    "platform": "instagram",
+    "title": "5 steps for a calming bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18347556652172640/",
+    "status": "posted",
+    "posted_at": "2026-07-12T23:55:06Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
