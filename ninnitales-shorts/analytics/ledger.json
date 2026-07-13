@@ -2077,5 +2077,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "BAnwR0Cljxw",
+    "platform": "youtube",
+    "title": "5 calming strategies for getting toddlers to sleep peacefully",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/BAnwR0Cljxw",
+    "status": "scheduled",
+    "posted_at": "2026-07-13T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "HmWI0F6pZvU"
+  },
+  {
+    "video_id": "91YWniRpczE",
+    "platform": "youtube",
+    "title": "4 calming techniques to ease your toddler to sleep tonight",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/91YWniRpczE",
+    "status": "scheduled",
+    "posted_at": "2026-07-14T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "XlUpLiw-1sc"
   }
 ]
