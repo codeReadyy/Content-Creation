@@ -1782,13 +1782,21 @@
     "url": "https://youtube.com/shorts/61OepUEP-L4",
     "status": "scheduled",
     "posted_at": "2026-07-11T12:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
-    "hook_id": "eL3243YwSS0"
+    "hook_id": "eL3243YwSS0",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 0,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-13T11:52:07Z"
   },
   {
     "video_id": "9l7cb6OHEUA",
@@ -1799,13 +1807,21 @@
     "url": "https://youtube.com/shorts/9l7cb6OHEUA",
     "status": "scheduled",
     "posted_at": "2026-07-11T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_channel": "@babiesbarks",
-    "hook_id": "PP9PqIxDsy0"
+    "hook_id": "PP9PqIxDsy0",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 7,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-13T11:52:08Z"
   },
   {
     "video_id": "18015968045909122",
@@ -1816,7 +1832,7 @@
     "url": "https://www.instagram.com/p/18015968045909122/",
     "status": "posted",
     "posted_at": "2026-07-11T14:25:57Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
@@ -1824,7 +1840,12 @@
     "hook_type": "number_promise",
     "engagement_cta": "comment_keyword",
     "keyword": "SANITY",
-    "bonus_content": "1. Establish a quiet hour: Designate an hour before bed for calm activities like reading, drawing, or puzzles. 2. Use a timer for tasks: Set a timer for chores or play to create structure and encourage focus while keeping it fun. 3. Implement simple rewards: Use stickers or points for positive behavior to encourage kids and lighten your parenting load. 4. Take ‘me’ time breaks: Schedule short breaks in your day for a quick recharge, even if it's just a five-minute breather. 5. Tap into audio stories: Use audio stories or music at bedtime to help your child relax without your constant presence."
+    "bonus_content": "1. Establish a quiet hour: Designate an hour before bed for calm activities like reading, drawing, or puzzles. 2. Use a timer for tasks: Set a timer for chores or play to create structure and encourage focus while keeping it fun. 3. Implement simple rewards: Use stickers or points for positive behavior to encourage kids and lighten your parenting load. 4. Take ‘me’ time breaks: Schedule short breaks in your day for a quick recharge, even if it's just a five-minute breather. 5. Tap into audio stories: Use audio stories or music at bedtime to help your child relax without your constant presence.",
+    "likes": 0,
+    "comments": 0,
+    "views": 2,
+    "saves": 0,
+    "measured_at": "2026-07-13T11:52:09Z"
   },
   {
     "video_id": "pin-1783810303-calm_before_bed",
@@ -1835,11 +1856,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-07-11T22:51:45Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-13T11:52:10Z"
   },
   {
     "video_id": "pin-1783810441-calm_before_bed",
@@ -1850,11 +1873,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-07-11T22:54:03Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-13T11:52:10Z"
   },
   {
     "video_id": "pin-1783810558-calm_before_bed",
@@ -1865,11 +1890,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-07-11T22:56:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-13T11:52:10Z"
   },
   {
     "video_id": "18158199328474062",
@@ -1880,13 +1907,18 @@
     "url": "https://www.instagram.com/p/18158199328474062/",
     "status": "posted",
     "posted_at": "2026-07-11T23:56:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
-    "engagement_cta": "share"
+    "engagement_cta": "share",
+    "likes": 0,
+    "comments": 0,
+    "views": 3,
+    "saves": 0,
+    "measured_at": "2026-07-13T11:52:10Z"
   },
   {
     "video_id": "2-hj8SRVrQs",
