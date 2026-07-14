@@ -2256,5 +2256,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "pD9NI4XyMnw",
+    "platform": "youtube",
+    "title": "4 calming techniques to help your toddler wind down",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/pD9NI4XyMnw",
+    "status": "scheduled",
+    "posted_at": "2026-07-14T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "HtlHQ7YE_iA"
+  },
+  {
+    "video_id": "VNPMe2cIM8A",
+    "platform": "youtube",
+    "title": "6 ways to calm your overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/VNPMe2cIM8A",
+    "status": "scheduled",
+    "posted_at": "2026-07-14T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@babiesbarks",
+    "hook_id": "0KRXcZMO0PE"
   }
 ]
