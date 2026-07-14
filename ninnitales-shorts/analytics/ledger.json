@@ -2335,5 +2335,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17901665208463577",
+    "platform": "instagram",
+    "title": "5 strategies to reduce screen time peacefully",
+    "theme": "screen_time",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17901665208463577/",
+    "status": "posted",
+    "posted_at": "2026-07-14T15:00:08Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
