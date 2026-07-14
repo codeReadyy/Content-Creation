@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-07-13T11:52:10Z",
+  "generated_at": "2026-07-14T10:29:38Z",
   "themes": {
     "bedtime_routine": {
-      "n": 17,
-      "avg_views": 14.0,
-      "median_views": 5,
-      "avg_search_views": 14.0,
-      "median_search_views": 5,
+      "n": 18,
+      "avg_views": 13.3,
+      "median_views": 4.5,
+      "avg_search_views": 13.3,
+      "median_search_views": 4.5,
       "avg_search_pct": null,
-      "total_views": 238
+      "total_views": 239
     },
     "sleep_fast": {
-      "n": 10,
-      "avg_views": 23.6,
-      "median_views": 7.5,
-      "avg_search_views": 23.6,
-      "median_search_views": 7.5,
+      "n": 11,
+      "avg_views": 22.1,
+      "median_views": 7,
+      "avg_search_views": 22.1,
+      "median_search_views": 7,
       "avg_search_pct": null,
-      "total_views": 236
+      "total_views": 243
     },
     "bedtime_stories": {
       "n": 11,
@@ -65,13 +65,13 @@
       "total_views": 147
     },
     "wont_sleep": {
-      "n": 4,
-      "avg_views": 53.5,
-      "median_views": 4.0,
-      "avg_search_views": 53.5,
-      "median_search_views": 4.0,
+      "n": 5,
+      "avg_views": 43.4,
+      "median_views": 3,
+      "avg_search_views": 43.4,
+      "median_search_views": 3,
       "avg_search_pct": null,
-      "total_views": 214
+      "total_views": 217
     },
     "big_feelings": {
       "n": 1,
@@ -99,6 +99,15 @@
       "median_search_views": 3,
       "avg_search_pct": null,
       "total_views": 3
+    },
+    "reading_habit": {
+      "n": 1,
+      "avg_views": 4.0,
+      "median_views": 4,
+      "avg_search_views": 4.0,
+      "median_search_views": 4,
+      "avg_search_pct": null,
+      "total_views": 4
     }
   },
   "sources": {
@@ -109,16 +118,16 @@
       "total_views": 182
     },
     "scraped": {
-      "n": 51,
-      "avg_views": 113.5,
+      "n": 53,
+      "avg_views": 109.4,
       "median_views": 6,
-      "total_views": 5789
+      "total_views": 5799
     },
     "carousel": {
-      "n": 16,
-      "avg_views": 4.9,
+      "n": 18,
+      "avg_views": 4.7,
       "median_views": 4.0,
-      "total_views": 79
+      "total_views": 84
     }
   },
   "surfaces": {
@@ -139,12 +148,12 @@
       "total_views": 106
     },
     "youtube/scraped_cta": {
-      "n": 38,
-      "avg_views": 125.6,
+      "n": 40,
+      "avg_views": 119.5,
       "median_views": 5.5,
-      "avg_search_views": 125.6,
+      "avg_search_views": 119.5,
       "median_search_views": 5.5,
-      "total_views": 4772
+      "total_views": 4782
     },
     "instagram/scraped_cta": {
       "n": 13,
@@ -155,64 +164,64 @@
       "total_views": 1017
     },
     "instagram/carousel": {
-      "n": 16,
-      "avg_views": 4.9,
+      "n": 18,
+      "avg_views": 4.7,
       "median_views": 4.0,
-      "avg_search_views": 4.9,
+      "avg_search_views": 4.7,
       "median_search_views": 4.0,
-      "total_views": 79
+      "total_views": 84
     }
   },
   "accounts": {
     "ninnitales_yt_main": {
-      "n": 52,
+      "n": 54,
       "platform": "youtube",
       "format": "unknown",
       "niche": null,
-      "avg_views": 95.3,
+      "avg_views": 91.9,
       "median_views": 6.0,
-      "avg_search_views": 95.3,
+      "avg_search_views": 91.9,
       "median_search_views": 6.0,
-      "total_views": 4954
+      "total_views": 4964
     },
     "instagram_ninnitales": {
-      "n": 29,
+      "n": 31,
       "platform": "instagram",
       "format": "scraped_cta",
       "niche": "toddler_sleep",
-      "avg_views": 37.8,
-      "median_views": 5,
-      "avg_search_views": 37.8,
-      "median_search_views": 5,
-      "total_views": 1096
+      "avg_views": 35.5,
+      "median_views": 4,
+      "avg_search_views": 35.5,
+      "median_search_views": 4,
+      "total_views": 1101
     }
   },
   "hooks": {
     "@babiesbarks": {
-      "n": 10,
+      "n": 12,
       "median_views": 4.0,
-      "avg_views": 6.2,
-      "total_views": 62,
+      "avg_views": 6.0,
+      "total_views": 72,
       "tested": 0
     }
   },
   "carousel_hooks": {
     "number_promise": {
-      "n": 5,
+      "n": 7,
       "median_views": 3,
-      "avg_views": 4.4,
-      "total_views": 22,
-      "comments": 0,
+      "avg_views": 3.9,
+      "total_views": 27,
+      "comments": 3,
       "saves": 0
     }
   },
   "carousel_ctas": {
     "save": {
-      "n": 2,
-      "median_views": 7.5,
-      "avg_views": 7.5,
-      "total_views": 15,
-      "comments": 0,
+      "n": 4,
+      "median_views": 3.5,
+      "avg_views": 5.0,
+      "total_views": 20,
+      "comments": 3,
       "saves": 0
     },
     "share": {
@@ -233,17 +242,18 @@
     }
   },
   "theme_weights": {
-    "bedtime_routine": 5,
-    "sleep_fast": 7.5,
+    "bedtime_routine": 4.5,
+    "sleep_fast": 7,
     "bedtime_stories": 6,
     "through_night": 50,
     "brand": 8,
     "calm_before_bed": 8,
     "make_sleep": 1,
-    "wont_sleep": 4.0,
+    "wont_sleep": 3,
     "big_feelings": 3,
     "parent_sanity": 2,
-    "routines": 3
+    "routines": 3,
+    "reading_habit": 4
   },
   "themes_by_platform": {
     "youtube": {
@@ -252,8 +262,8 @@
         "median_search_views": 5
       },
       "sleep_fast": {
-        "n": 7,
-        "median_search_views": 7
+        "n": 8,
+        "median_search_views": 7.0
       },
       "bedtime_stories": {
         "n": 4,
@@ -276,8 +286,8 @@
         "median_search_views": 0.5
       },
       "wont_sleep": {
-        "n": 2,
-        "median_search_views": 3.5
+        "n": 3,
+        "median_search_views": 3
       }
     },
     "instagram": {
@@ -302,8 +312,8 @@
         "median_search_views": 111
       },
       "bedtime_routine": {
-        "n": 8,
-        "median_search_views": 4.5
+        "n": 9,
+        "median_search_views": 4
       },
       "make_sleep": {
         "n": 1,
@@ -324,19 +334,23 @@
       "routines": {
         "n": 1,
         "median_search_views": 3
+      },
+      "reading_habit": {
+        "n": 1,
+        "median_search_views": 4
       }
     }
   },
   "theme_weights_by_platform": {
     "youtube": {
       "bedtime_routine": 5,
-      "sleep_fast": 7,
+      "sleep_fast": 7.0,
       "bedtime_stories": 7.0,
       "through_night": 31.0,
       "brand": 6.5,
       "calm_before_bed": 7.0,
       "make_sleep": 0.5,
-      "wont_sleep": 3.5
+      "wont_sleep": 3
     },
     "instagram": {
       "brand": 94,
@@ -344,12 +358,13 @@
       "wont_sleep": 103.5,
       "calm_before_bed": 37,
       "through_night": 111,
-      "bedtime_routine": 4.5,
+      "bedtime_routine": 4,
       "make_sleep": 142,
       "bedtime_stories": 4,
       "big_feelings": 3,
       "parent_sanity": 2,
-      "routines": 3
+      "routines": 3,
+      "reading_habit": 4
     }
   },
   "surface_weights": {
