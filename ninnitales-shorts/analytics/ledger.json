@@ -2439,5 +2439,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "ZGWgSMmcvzY",
+    "platform": "youtube",
+    "title": "4 easy ways to calm your overtired toddler at bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/ZGWgSMmcvzY",
+    "status": "scheduled",
+    "posted_at": "2026-07-15T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@livjowen",
+    "hook_id": "tYx8BmYyDAA"
+  },
+  {
+    "video_id": "-cLfD3YcQi0",
+    "platform": "youtube",
+    "title": "4 tips to help your toddler fall asleep quickly",
+    "theme": "make_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/-cLfD3YcQi0",
+    "status": "scheduled",
+    "posted_at": "2026-07-15T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "5zNPBG9IYjQ"
   }
 ]
