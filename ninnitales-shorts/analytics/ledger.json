@@ -2518,5 +2518,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18083864684658800",
+    "platform": "instagram",
+    "title": "5 ways to ease bedtime fears",
+    "theme": "bedtime_fears",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18083864684658800/",
+    "status": "posted",
+    "posted_at": "2026-07-15T14:59:25Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "caption_bonus"
   }
 ]
