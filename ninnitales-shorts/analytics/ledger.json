@@ -2722,5 +2722,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17976548757059229",
+    "platform": "instagram",
+    "title": "5 easy tricks to get your toddler asleep faster",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17976548757059229/",
+    "status": "posted",
+    "posted_at": "2026-07-16T15:09:15Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "share"
   }
 ]
