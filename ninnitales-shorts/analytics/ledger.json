@@ -2643,5 +2643,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "rqX5Ca56TtU",
+    "platform": "youtube",
+    "title": "6 tricks to help your toddler fall asleep easier",
+    "theme": "make_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/rqX5Ca56TtU",
+    "status": "scheduled",
+    "posted_at": "2026-07-16T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "BexK6xnwDGI"
+  },
+  {
+    "video_id": "mY37b-wkeAs",
+    "platform": "youtube",
+    "title": "4 ways to help your toddler calm down and sleep",
+    "theme": "wont_sleep",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/mY37b-wkeAs",
+    "status": "scheduled",
+    "posted_at": "2026-07-16T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "4PxJJQcYzGE"
   }
 ]
