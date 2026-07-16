@@ -2677,5 +2677,50 @@
     "niche": "toddler_sleep",
     "hook_channel": "@Kyoot",
     "hook_id": "4PxJJQcYzGE"
+  },
+  {
+    "video_id": "pin-1784214065-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Tips to Calm Your Toddler Before Bed and Encourage Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-16T15:01:08Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784214195-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Gentle Ways to Calm Your Toddler for Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-16T15:03:18Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784214315-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Simple Strategies to Help Calm Your Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-16T15:05:17Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
