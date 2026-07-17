@@ -2918,5 +2918,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18072386645376246",
+    "platform": "instagram",
+    "title": "5 steps to a successful bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18072386645376246/",
+    "status": "posted",
+    "posted_at": "2026-07-17T23:53:57Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
