@@ -2794,5 +2794,39 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "YinLS27kWG4",
+    "platform": "youtube",
+    "title": "6 bedtime strategies to help your toddler sleep better",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/YinLS27kWG4",
+    "status": "scheduled",
+    "posted_at": "2026-07-17T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@livjowen",
+    "hook_id": "joGKNbUWERQ"
+  },
+  {
+    "video_id": "a0nb2PcRz6k",
+    "platform": "youtube",
+    "title": "6 tips to create a calming bedtime routine for toddlers",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/a0nb2PcRz6k",
+    "status": "scheduled",
+    "posted_at": "2026-07-17T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "1ZMaFPnZP9A"
   }
 ]
