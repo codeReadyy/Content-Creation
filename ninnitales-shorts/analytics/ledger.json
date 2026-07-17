@@ -2739,5 +2739,22 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "18602151925014902",
+    "platform": "instagram",
+    "title": "5 steps for a smoother toddler bedtime",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18602151925014902/",
+    "status": "posted",
+    "posted_at": "2026-07-17T00:00:28Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "caption_bonus"
   }
 ]
