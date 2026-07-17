@@ -2828,5 +2828,50 @@
     "niche": "toddler_sleep",
     "hook_channel": "@Kyoot",
     "hook_id": "1ZMaFPnZP9A"
+  },
+  {
+    "video_id": "pin-1784299419-through_night",
+    "platform": "pinterest",
+    "title": "Help Your Baby Sleep Through the Night with These Simple Tips",
+    "theme": "through_night",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-17T14:43:41Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784299539-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Strategies to Calm Your Toddler at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-17T14:45:41Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784299656-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Strategies to Calm Your Toddler Before Bedtime Effectively",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-07-17T14:47:38Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
