@@ -43,7 +43,8 @@ class AnimeCTA:
         music_bed.add_music(out, volume=0.55)  # lullaby is the only audio
         return Asset(kind=VIDEO, paths=[out], theme=theme, source="generated",
                      meta={"title": title, "description": description,
-                           "tags": niche.tags, "hook_text": hook.get("title")})
+                           "tags": niche.tags, "hook_text": hook.get("title"),
+                           "cta_clip": ctx.cta_path.stem if ctx.cta_path else None})
 
 
 register(AnimeCTA())

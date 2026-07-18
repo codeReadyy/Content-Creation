@@ -401,9 +401,12 @@ def _follower_line(rows: list[dict]) -> str | None:
 def write_strategy(winners: dict) -> dict:
     """strategy.json = the watchdog verdict + the learned format mix per multi-format
     account — the machine-readable 'what the agent decided and why' record."""
+    rows = ledger.load()
     out: dict = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "instagram": strategy.ig_verdict(ledger.load()),
+        "instagram": strategy.ig_verdict(rows),
+        # orchestrate reads this: suppressed → recovery cadence (1 upload/day).
+        "youtube": strategy.yt_verdict(rows),
     }
     if acct_config is not None:
         try:
@@ -494,7 +497,7 @@ def compute_winners() -> dict:
     by_theme = defaultdict(list)
     for r in ledger.load():
         if (r.get("finalized") and r.get("views") is not None
-                and strategy.ig_distributed(r)):
+                and strategy.distributed(r)):
             by_theme[r["theme"]].append(r)
 
     themes = {}
@@ -524,7 +527,7 @@ def compute_winners() -> dict:
     by_plat_theme = defaultdict(lambda: defaultdict(list))
     for r in ledger.load():
         if (r.get("finalized") and r.get("views") is not None
-                and strategy.ig_distributed(r)):
+                and strategy.distributed(r)):
             by_plat_theme[_platform_of(r)][r["theme"]].append(r)
     themes_by_platform = {}
     for plat, tmap in by_plat_theme.items():
@@ -600,10 +603,13 @@ def compute_winners() -> dict:
     # Per-HOOK-SOURCE standings (scraped posts only): the clip is the variable that
     # decides breakouts — the audit's 5 winners (627-1,273 views) were all scraped,
     # with interchangeable titles. Rows predating hook attribution are skipped.
+    # NOTE: hook standings deliberately keep NON-distributed rows — a channel whose
+    # clips never get feed-tested is exactly what the scraper's channel_order needs
+    # to see (its low median demotes it); the `tested` ratio is the channel's hit rate.
     by_hook = defaultdict(list)
     for r in ledger.load():
         if (r.get("finalized") and r.get("views") is not None
-                and r.get("hook_channel") and strategy.ig_distributed(r)):
+                and r.get("hook_channel")):
             by_hook[r["hook_channel"]].append(r)
     hooks = {}
     for ch, rows in by_hook.items():
@@ -624,7 +630,7 @@ def compute_winners() -> dict:
         by = defaultdict(list)
         for r in ledger.load():
             if (r.get("finalized") and r.get("views") is not None and r.get(key)
-                    and strategy.ig_distributed(r)):
+                    and strategy.distributed(r)):
                 by[r[key]].append(r)
         out = {}
         for k, rows in by.items():
@@ -639,6 +645,9 @@ def compute_winners() -> dict:
 
     carousel_hooks = _dim_standings("hook_type")
     carousel_ctas = _dim_standings("engagement_cta")
+    # Which CTA tail (cta1/cta2/...) each video carried — the rotation is only an
+    # experiment if the arm is logged and ranked.
+    cta_clips = _dim_standings("cta_clip")
 
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -649,6 +658,7 @@ def compute_winners() -> dict:
         "hooks": hooks,
         "carousel_hooks": carousel_hooks,
         "carousel_ctas": carousel_ctas,
+        "cta_clips": cta_clips,
         # LEGACY global weights (mixed units across platforms) — kept only so a reader
         # built before the per-platform split still finds something. Pickers should
         # read theme_weights_by_platform instead.
@@ -838,6 +848,19 @@ def telegram_digest(winners: dict) -> None:
         except Exception:
             pass
 
+    # YouTube gets the same watchdog: when the feed stops testing uploads, the agent
+    # thins cadence (orchestrate reads strategy.json) — say so instead of ranking noise.
+    yv = strategy.yt_verdict(rows)
+    if yv.get("status") == "suppressed":
+        lines.append(
+            f"🧯 <b>YT distribution: SUPPRESSED</b> — median "
+            f"{yv['median_reach_recent']:.0f} views over the last {yv['n']} Shorts "
+            f"({yv['distributed_posts']} feed-tested). Recovery cadence: 1 upload/day "
+            "until feed tests return.")
+    elif yv.get("status") == "healthy":
+        lines.append(f"🧯 YT distribution: healthy — median "
+                     f"{yv['median_reach_recent']:.0f} views (last {yv['n']}).")
+
     # Feed-test diagnosis: "skipped by the feed" and "shown but failed" need opposite
     # fixes (dedupe/frequency vs content) — say which is happening.
     yt = by_plat.get("youtube", [])
@@ -859,7 +882,8 @@ def telegram_digest(winners: dict) -> None:
         lines.append(f"🎣 Best hook source: <b>{top[0]}</b> "
                      f"({top[1]['median_views']:.0f} median, n={top[1]['n']})")
     for key, label in (("carousel_hooks", "Best carousel hook"),
-                       ("carousel_ctas", "Best carousel CTA")):
+                       ("carousel_ctas", "Best carousel CTA"),
+                       ("cta_clips", "Best CTA clip")):
         ready = {k: v for k, v in (winners.get(key) or {}).items() if v["n"] >= 2}
         if ready:
             top = max(ready.items(), key=lambda kv: kv[1]["median_views"])

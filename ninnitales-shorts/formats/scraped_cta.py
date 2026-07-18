@@ -37,6 +37,16 @@ class ScrapedCTA:
         if not hook:
             print("  ⚠️  no scraped hook available (proxy/scrape failed).")
             return None
+        # Burn the keyword promise onto the clip: an original text layer from second
+        # 0 (what the docstring above always promised), instead of shipping the
+        # borrowed footage untouched. Burn failure falls back to the raw clip —
+        # never blocks the post.
+        try:
+            import generate_hook
+            burned = run_pipeline.WORK_DIR / f"burn_{hook['slug']}.mp4"
+            hook["path"] = generate_hook.burn_caption(hook["path"], title, burned)
+        except Exception as e:
+            print(f"  ⚠️  caption burn failed ({e}) — using raw clip")
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         out = run_pipeline.QUEUE_DIR / f"scraped_{stamp}_{hook['slug']}.mp4"
         try:
@@ -48,10 +58,13 @@ class ScrapedCTA:
         # hook_channel/hook_id: WHICH clip carried this post — the audit showed the
         # hook clip (not the title theme) is what separates 1,000-view breakouts from
         # 1-view posts, so analyze.py ranks hook sources with this attribution.
+        # cta_clip: WHICH CTA tail this post used (cta1/cta2/...), so the rotating
+        # variants become a measurable A/B instead of an unlogged constant.
         return Asset(kind=VIDEO, paths=[out], theme=theme, source="scraped",
                      meta={"title": title, "description": description,
                            "tags": niche.tags, "hook_channel": hook.get("channel"),
-                           "hook_id": hook["slug"]})
+                           "hook_id": hook["slug"],
+                           "cta_clip": ctx.cta_path.stem if ctx.cta_path else None})
 
 
 register(ScrapedCTA())

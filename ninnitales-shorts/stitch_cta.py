@@ -48,9 +48,16 @@ def _duration(info: dict) -> float:
     return float(info.get("format", {}).get("duration", 0.0))
 
 
-def stitch(hook_path: Path, cta_path: Path, out_path: Path) -> Path:
+def stitch(hook_path: Path, cta_path: Path, out_path: Path,
+           fade: float = 0.25) -> Path:
     """
     Re-encode `hook_path` then `cta_path` into a single 1080x1920 h264 Short.
+
+    Hooks WITH audio (scraped clips) get a `fade`-second video+audio CROSSFADE into
+    the CTA — the old hard cut from borrowed footage to the ad card was a visible
+    swipe trigger. Silent (generated) hooks keep the plain concat: their CTA music
+    is extended back over the hook, so the join is already seamless. A crossfade
+    failure falls back to the hard concat rather than losing the post.
 
     Returns out_path on success; raises on ffmpeg failure.
     """
@@ -60,6 +67,12 @@ def stitch(hook_path: Path, cta_path: Path, out_path: Path) -> Path:
     hook_info = _probe(hook_path)
     hook_has_audio = _has_audio(hook_info)
     hook_dur = _duration(hook_info)
+
+    if hook_has_audio and fade > 0 and hook_dur > 2 * fade:
+        try:
+            return _stitch_xfade(hook_path, cta_path, out_path, hook_dur, fade)
+        except subprocess.CalledProcessError:
+            print("  ⚠️  crossfade stitch failed — falling back to hard cut.")
 
     cmd = ["ffmpeg", "-y", "-i", str(hook_path), "-i", str(cta_path)]
     # Input indices: 0 = hook, 1 = cta.
@@ -76,11 +89,11 @@ def stitch(hook_path: Path, cta_path: Path, out_path: Path) -> Path:
         # Silent (generated) hook: extend the CTA's own music back over it. Split
         # the CTA audio — a fade-in intro slice trimmed to the hook's length covers
         # [a0], the full CTA track stays under the CTA at [a1] in its original sync.
-        fade = min(0.5, hook_dur)
+        afade = min(0.5, hook_dur)
         parts.append("[1:a]asplit=2[cta_a][cta_b]")
         parts.append(
             f"[cta_a]atrim=0:{hook_dur:.3f},asetpts=PTS-STARTPTS,"
-            f"afade=t=in:st=0:d={fade:.3f},{_AFILTER}[a0]")
+            f"afade=t=in:st=0:d={afade:.3f},{_AFILTER}[a0]")
         parts.append(f"[cta_b]{_AFILTER}[a1]")
 
     parts.append("[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]")
@@ -95,6 +108,36 @@ def stitch(hook_path: Path, cta_path: Path, out_path: Path) -> Path:
         str(out_path),
     ]
 
+    subprocess.run(cmd, check=True, capture_output=True, text=True)
+    return out_path
+
+
+def _stitch_xfade(hook_path: Path, cta_path: Path, out_path: Path,
+                  hook_dur: float, fade: float) -> Path:
+    """Crossfade join for hooks that carry their own audio (the scraped path).
+
+    The CTA has a silent track (prepare_cta bakes one in), so the audio crossfade
+    just eases the clip's sound out instead of chopping it.
+    """
+    offset = max(hook_dur - fade, 0.1)
+    parts = [
+        f"[0:v]{_VFILTER}[v0]",
+        f"[1:v]{_VFILTER}[v1]",
+        f"[0:a]{_AFILTER}[a0]",
+        f"[1:a]{_AFILTER}[a1]",
+        f"[v0][v1]xfade=transition=fade:duration={fade:.3f}:offset={offset:.3f}[v]",
+        f"[a0][a1]acrossfade=d={fade:.3f}[a]",
+    ]
+    cmd = [
+        "ffmpeg", "-y", "-i", str(hook_path), "-i", str(cta_path),
+        "-filter_complex", ";".join(parts),
+        "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+        "-pix_fmt", "yuv420p", "-r", str(FPS),
+        "-c:a", "aac", "-b:a", "128k", "-ar", SAR,
+        "-movflags", "+faststart",
+        str(out_path),
+    ]
     subprocess.run(cmd, check=True, capture_output=True, text=True)
     return out_path
 

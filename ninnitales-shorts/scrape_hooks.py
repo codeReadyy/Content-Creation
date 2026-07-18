@@ -19,17 +19,23 @@ Locally (residential IP) no proxy is needed.
 
 import json
 import os
+import random
 import subprocess
 from pathlib import Path
 
 HERE = Path(__file__).parent
 CHANNELS_FILE = HERE / "channels.txt"
 STATE_FILE = HERE / "state.json"
+WINNERS_FILE = HERE / "analytics" / "winners.json"
 
-# How many seconds of the hook to keep.
-HOOK_SECONDS = 3.0
+# How many seconds of the hook to keep. 3s cut most clips mid-beat AND left the
+# fixed 5s CTA tail as ~62% of every upload (a repetition fingerprint); at 5s the
+# clip gets a full beat and the identical tail share drops.
+HOOK_SECONDS = 5.0
 # How many recent Shorts to consider per channel when picking a fresh one.
 PLAYLIST_DEPTH = 30
+# A channel's standings are trusted once it has this many measured posts.
+CHANNEL_MIN_SAMPLE = 3
 
 
 def _load_state() -> dict:
@@ -53,6 +59,42 @@ def load_channels() -> list[str]:
             continue
         out.append(line)
     return out
+
+
+def _handle(channel: str) -> str:
+    """channels.txt entry → the '@handle' form the ledger stores as hook_channel."""
+    tail = channel.rstrip("/").rsplit("/", 1)[-1]
+    return tail if tail.startswith("@") else "@" + tail
+
+
+def channel_order(channels: list[str]) -> list[str]:
+    """Weighted-shuffle channels by their hook-source standings (winners.json).
+
+    File order used to BE the policy: the first channel with a fresh clip won every
+    run, so one channel carried 16 straight posts while its clips tested 0/16. Now
+    a channel's weight is its median views (all its posts — clips the feed never
+    tests ARE its track record), unmeasured channels explore at parity with the
+    best, and the weighted shuffle itself breaks streaks."""
+    if len(channels) < 2:
+        return list(channels)
+    try:
+        hooks = json.loads(WINNERS_FILE.read_text()).get("hooks") or {}
+    except (OSError, ValueError):
+        hooks = {}
+    med, n = {}, {}
+    for c in channels:
+        st = hooks.get(_handle(c)) or {}
+        med[c] = float(st.get("median_views") or 0.0)
+        n[c] = int(st.get("n") or 0)
+    best = max([med[c] for c in channels if n[c] >= CHANNEL_MIN_SAMPLE] or [1.0])
+    weights = {c: (best if n[c] < CHANNEL_MIN_SAMPLE else max(med[c], 0.5))
+               for c in channels}
+    order, pool = [], list(channels)
+    while pool:
+        pick = random.choices(pool, [weights[c] for c in pool])[0]
+        order.append(pick)
+        pool.remove(pick)
+    return order
 
 
 def _shorts_url(channel: str) -> str:
@@ -135,7 +177,7 @@ def next_hook(out_dir: Path, cookies: str | None = None) -> dict | None:
     Marks the chosen id as used in state.json.
     """
     out_dir = Path(out_dir)
-    channels = load_channels()
+    channels = channel_order(load_channels())
     if not channels:
         print("❌ No channels in channels.txt — add channel handles/URLs first.")
         return None

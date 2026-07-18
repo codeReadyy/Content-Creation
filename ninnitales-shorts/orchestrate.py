@@ -98,6 +98,15 @@ def _plan_formats(compat: list[str], n: int, platform: str,
     return rng.choices(compat, weights=[mix[f] for f in compat], k=n)
 
 
+def _strategy_status(platform: str) -> str | None:
+    """The analyzer's distribution verdict for a platform (analytics/strategy.json)."""
+    try:
+        data = json.loads((ledger.LEDGER_PATH.parent / "strategy.json").read_text())
+        return (data.get(platform) or {}).get("status")
+    except (OSError, ValueError):
+        return None
+
+
 def _yt_health_line(h: dict) -> str:
     if not h["alive"]:
         return (f"❌ <b>YouTube token DEAD</b>\nReason: <code>{h['error']}</code>\n"
@@ -193,6 +202,19 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
         return result
 
     slots = [None] * now if now else next_slots(account.schedule_et)
+    # Recovery cadence: when the analyzer's watchdog says the platform stopped
+    # feed-testing this account's uploads (strategy.json), thin to 1 upload/day —
+    # the Jul-2026 audit showed over-posting a throttled channel just means more
+    # posts sampled to zero impressions. Applies to scheduled platforms (YouTube);
+    # IG runs --now with the cron as its cadence.
+    if (len(slots) > 1 and account.platform == "youtube"
+            and _strategy_status(account.platform) == "suppressed"):
+        print(f"  🧯 {account.platform} suppressed → recovery cadence: "
+              f"1 of {len(slots)} slots today")
+        result["alerts"].append(
+            f"{account.id}: feed suppressed → posting 1/day (recovery) until "
+            "feed tests return")
+        slots = slots[:1]
     result["slots"] = len(slots)
     chosen = _plan_formats(compat, len(slots), account.platform, rng)
     ctas = sorted((HERE / niche.cta_dir).glob("cta*.mp4"))
@@ -254,7 +276,8 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
                           hook_type=asset.meta.get("hook_type"),
                           engagement_cta=asset.meta.get("engagement_cta"),
                           keyword=asset.meta.get("keyword"),
-                          bonus_content=asset.meta.get("bonus_content"))
+                          bonus_content=asset.meta.get("bonus_content"),
+                          cta_clip=asset.meta.get("cta_clip"))
         result["scheduled"] += 1
         print(f"    ✅ {'scheduled' if slot else 'posted'}: {res['url']}")
         # gate=true → send a veto preview so it can still be cancelled before going live.

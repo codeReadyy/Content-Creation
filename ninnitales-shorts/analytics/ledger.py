@@ -54,7 +54,8 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
                product: str | None = None, niche: str | None = None,
                hook_channel: str | None = None, hook_id: str | None = None,
                hook_type: str | None = None, engagement_cta: str | None = None,
-               keyword: str | None = None, bonus_content: str | None = None) -> None:
+               keyword: str | None = None, bonus_content: str | None = None,
+               cta_clip: str | None = None) -> None:
     """Append a freshly published post. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
@@ -92,7 +93,7 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
                  "niche": niche, "hook_channel": hook_channel,
                  "hook_id": hook_id, "hook_type": hook_type,
                  "engagement_cta": engagement_cta, "keyword": keyword,
-                 "bonus_content": bonus_content}.items():
+                 "bonus_content": bonus_content, "cta_clip": cta_clip}.items():
         if v is not None:
             row[k] = v
     rows.append(row)

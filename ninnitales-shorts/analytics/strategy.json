@@ -1,8 +1,14 @@
 {
-  "generated_at": "2026-07-18T06:06:57Z",
+  "generated_at": "2026-07-18T06:40:54Z",
   "instagram": {
     "status": "suppressed",
     "median_reach_recent": 3.0,
+    "distributed_posts": 0,
+    "n": 14
+  },
+  "youtube": {
+    "status": "suppressed",
+    "median_reach_recent": 2.5,
     "distributed_posts": 0,
     "n": 14
   },

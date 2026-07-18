@@ -355,6 +355,40 @@ def _text_overlay(hook_text: str) -> Image.Image:
     return overlay
 
 
+def burn_caption(video: Path, text: str, out_path: Path) -> Path:
+    """Burn the Poppins bottom-scrim caption onto an arbitrary clip → 1080x1920 mp4.
+
+    Used by the SCRAPED path so the upload carries an original text layer — the
+    title's keyword promise, on-screen from second 0 — instead of shipping the
+    borrowed clip untouched. (The scraped_cta docstring always claimed the title was
+    "burned on-screen"; until now only generated hooks actually did it.) Keeps the
+    clip's own audio. Raises on ffmpeg failure — callers fall back to the raw clip.
+    """
+    video, out_path = Path(video), Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    png = out_path.with_suffix(".overlay.png")
+    _text_overlay(clean_caption(text)).save(png)
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nw=1:nk=1", str(video)],
+        capture_output=True, text=True, check=True)
+    dur = float(probe.stdout.strip())
+    filt = (f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
+            f"crop={W}:{H},setsar=1[base];[base][1:v]overlay=0:0[v]")
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", str(video), "-loop", "1", "-i", str(png),
+             "-filter_complex", filt, "-map", "[v]", "-map", "0:a?",
+             "-t", f"{dur:.3f}",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k",
+             str(out_path)],
+            check=True, capture_output=True, text=True)
+    finally:
+        png.unlink(missing_ok=True)
+    return out_path
+
+
 def _badge_overlay() -> Image.Image:
     """Top pill nudging viewers to open the description for the full list."""
     label = "Full list in description"

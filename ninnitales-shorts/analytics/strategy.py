@@ -30,7 +30,10 @@ PROBE_RATE = 0.20
 # followers-only bubble — it carries ZERO information about content quality, so
 # analyze.py excludes it from theme/hook/CTA standings and flags it in the ledger.
 IG_DISTRIBUTED_MIN_REACH = 25
-# Distribution-health verdict window: the most recent N finalized IG posts.
+# Same idea for YouTube: below this a Short never entered the Shorts feed (the
+# Jul-2026 audit: dead posts sat at 0-11 views, every feed-tested one cleared 600+).
+YT_FEED_MIN_VIEWS = 20
+# Distribution-health verdict window: the most recent N finalized posts per platform.
 IG_RECENT_WINDOW = 14
 
 
@@ -83,37 +86,61 @@ def ig_row_reach(row: dict) -> int:
     return int(v or 0)
 
 
-def ig_distributed(row: dict) -> bool:
-    """Did Instagram actually show this post to anyone beyond the follower bubble?
+def distributed(row: dict) -> bool:
+    """Did the platform actually show this post to anyone?
 
-    Rows measured after the distributed-flag rollout carry it explicitly; older rows
-    are inferred from reach/views so history doesn't pollute the standings either.
+    Instagram: the measured `distributed` flag (reach ≥ 25), inferred from
+    reach/views on rows that predate the flag. YouTube: the `feed_tested` flag
+    (views ≥ 20 = entered the Shorts feed), same inference for older rows. A post
+    the platform never distributed says NOTHING about its content — content
+    standings must skip it, or the loop learns from noise.
     """
-    if row.get("platform") != "instagram":
-        return True
-    d = row.get("distributed")
-    if d is not None:
-        return bool(d)
-    return ig_row_reach(row) >= IG_DISTRIBUTED_MIN_REACH
+    plat = row.get("platform", "youtube")
+    if plat == "instagram":
+        d = row.get("distributed")
+        if d is not None:
+            return bool(d)
+        return ig_row_reach(row) >= IG_DISTRIBUTED_MIN_REACH
+    if plat == "youtube":
+        ft = row.get("feed_tested")
+        if ft is not None:
+            return bool(ft)
+        return int(row.get("views") or 0) >= YT_FEED_MIN_VIEWS
+    return True
 
 
-def ig_verdict(rows: list[dict]) -> dict:
-    """Distribution-health verdict over the last IG_RECENT_WINDOW finalized IG posts.
+# Back-compat alias (pre-YouTube generalization).
+ig_distributed = distributed
 
-    This is the meta-level watchdog the loop was missing: theme/CTA optimization is
-    meaningless while median reach is single-digit — the account's problem is
-    DISTRIBUTION, and the fix is the format mix + time, not a better save-CTA.
+
+def platform_verdict(rows: list[dict], platform: str) -> dict:
+    """Distribution-health verdict over the platform's last IG_RECENT_WINDOW
+    finalized posts.
+
+    This is the meta-level watchdog the loop was missing: theme/CTA/title
+    optimization is meaningless while the feed shows posts to nobody — the problem
+    is DISTRIBUTION, and the fix is mix/cadence/variety, not a better save-CTA.
     """
-    rows = sorted((r for r in rows if r.get("platform") == "instagram"
+    reach_of = ig_row_reach if platform == "instagram" \
+        else (lambda r: int(r.get("views") or 0))
+    floor = IG_DISTRIBUTED_MIN_REACH if platform == "instagram" else YT_FEED_MIN_VIEWS
+    rows = sorted((r for r in rows if r.get("platform", "youtube") == platform
                    and r.get("finalized") and r.get("views") is not None),
                   key=lambda r: r.get("posted_at") or "")[-IG_RECENT_WINDOW:]
     if len(rows) < 6:
         return {"status": "insufficient_data", "n": len(rows)}
-    med = statistics.median(ig_row_reach(r) for r in rows)
-    distributed = sum(1 for r in rows if ig_distributed(r))
+    med = statistics.median(reach_of(r) for r in rows)
     return {
-        "status": "suppressed" if med < IG_DISTRIBUTED_MIN_REACH else "healthy",
+        "status": "suppressed" if med < floor else "healthy",
         "median_reach_recent": round(med, 1),
-        "distributed_posts": distributed,
+        "distributed_posts": sum(1 for r in rows if distributed(r)),
         "n": len(rows),
     }
+
+
+def ig_verdict(rows: list[dict]) -> dict:
+    return platform_verdict(rows, "instagram")
+
+
+def yt_verdict(rows: list[dict]) -> dict:
+    return platform_verdict(rows, "youtube")
