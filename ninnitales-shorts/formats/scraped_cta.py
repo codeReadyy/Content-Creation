@@ -37,14 +37,17 @@ class ScrapedCTA:
         if not hook:
             print("  ⚠️  no scraped hook available (proxy/scrape failed).")
             return None
-        # Burn the keyword promise onto the clip: an original text layer from second
-        # 0 (what the docstring above always promised), instead of shipping the
-        # borrowed footage untouched. Burn failure falls back to the raw clip —
-        # never blocks the post.
+        # Burn the keyword promise onto the clip (an original text layer from second
+        # 0), then a VALUE BEAT — one real tip from the post's numbered list — so
+        # the clip delivers on the promise on-screen instead of teasing the
+        # description. Burn failure falls back to the raw clip — never blocks.
+        tips = (post.get("steps")
+                or run_pipeline.steps_from_description(post.get("description")))
         try:
             import generate_hook
             burned = run_pipeline.WORK_DIR / f"burn_{hook['slug']}.mp4"
-            hook["path"] = generate_hook.burn_caption(hook["path"], title, burned)
+            hook["path"] = generate_hook.burn_caption(hook["path"], title, burned,
+                                                      tips=tips)
         except Exception as e:
             print(f"  ⚠️  caption burn failed ({e}) — using raw clip")
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")

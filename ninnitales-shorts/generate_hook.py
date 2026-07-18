@@ -355,37 +355,83 @@ def _text_overlay(hook_text: str) -> Image.Image:
     return overlay
 
 
-def burn_caption(video: Path, text: str, out_path: Path) -> Path:
-    """Burn the Poppins bottom-scrim caption onto an arbitrary clip → 1080x1920 mp4.
+# Value-beat tuning: below this clip length there's no room for a second text
+# beat (each needs ~2s of reading time), and the title beat holds this share of
+# the clip before the tip takes over.
+MIN_BEAT_CLIP_SECONDS = 4.0
+TITLE_BEAT_SHARE = 0.55
+# The brand step ("play a story in YOUR voice...") never becomes the on-clip tip —
+# it would turn the value beat back into an ad, and the CTA card carries the brand.
+_BRAND_TIP_MARKERS = ("voice", "ninnitales")
 
-    Used by the SCRAPED path so the upload carries an original text layer — the
-    title's keyword promise, on-screen from second 0 — instead of shipping the
-    borrowed clip untouched. (The scraped_cta docstring always claimed the title was
-    "burned on-screen"; until now only generated hooks actually did it.) Keeps the
-    clip's own audio. Raises on ffmpeg failure — callers fall back to the raw clip.
+
+def _beat_tip(tips: list[str] | None) -> str | None:
+    """The first non-brand tip, trimmed to its leading clause so it reads in ~2s.
+
+    Keeps the tip's true list number ("3. Keep the room cool and dark") so the
+    on-screen beat matches the numbered list waiting in the description."""
+    for i, raw in enumerate(tips or []):
+        text = str(raw).strip()
+        if any(m in text.lower() for m in _BRAND_TIP_MARKERS):
+            continue
+        lead = re.split(r"\s+—\s+|—|;|\.\s", text, maxsplit=1)[0].strip().rstrip(".!")
+        if 8 <= len(lead) <= 60:
+            return f"{i + 1}. {lead}"
+    return None
+
+
+def burn_caption(video: Path, text: str, out_path: Path,
+                 tips: list[str] | None = None) -> Path:
+    """Burn Poppins bottom-scrim caption BEATS onto an arbitrary clip → 1080x1920 mp4.
+
+    Beat 1 is the title's keyword promise, on-screen from second 0. When `tips`
+    holds a usable step and the clip is long enough, beat 2 delivers a REAL tip
+    from the list — the clip gives value on-screen instead of being a pure teaser
+    for the description, and the swipe-bait "clip + ad" anatomy becomes
+    "promise → value → signature". Keeps the clip's own audio. Raises on ffmpeg
+    failure — callers fall back to the raw clip.
     """
     video, out_path = Path(video), Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    png = out_path.with_suffix(".overlay.png")
-    _text_overlay(clean_caption(text)).save(png)
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(video)],
         capture_output=True, text=True, check=True)
     dur = float(probe.stdout.strip())
-    filt = (f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
-            f"crop={W}:{H},setsar=1[base];[base][1:v]overlay=0:0[v]")
+
+    beats = [(clean_caption(text), 0.0, dur + 1.0)]
+    tip = _beat_tip(tips)
+    if tip and dur >= MIN_BEAT_CLIP_SECONDS:
+        t1 = round(dur * TITLE_BEAT_SHARE, 2)
+        beats = [(clean_caption(text), 0.0, t1),
+                 (clean_caption(tip), t1, dur + 1.0)]
+        print(f"  📝 value beat @{t1}s: {tip!r}")
+
+    pngs: list[Path] = []
     try:
+        inputs = ["-i", str(video)]
+        filt = (f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
+                f"crop={W}:{H},setsar=1[base]")
+        last = "base"
+        for i, (beat_text, start, end) in enumerate(beats):
+            png = out_path.with_suffix(f".beat{i}.png")
+            _text_overlay(beat_text).save(png)
+            pngs.append(png)
+            inputs += ["-loop", "1", "-i", str(png)]
+            filt += (f";[{last}][{i + 1}:v]overlay=0:0:"
+                     f"enable='between(t,{start:.2f},{end:.2f})'[v{i}]")
+            last = f"v{i}"
         subprocess.run(
-            ["ffmpeg", "-y", "-i", str(video), "-loop", "1", "-i", str(png),
-             "-filter_complex", filt, "-map", "[v]", "-map", "0:a?",
+            ["ffmpeg", "-y", *inputs,
+             "-filter_complex", filt, "-map", f"[{last}]", "-map", "0:a?",
              "-t", f"{dur:.3f}",
              "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
              "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k",
              str(out_path)],
             check=True, capture_output=True, text=True)
     finally:
-        png.unlink(missing_ok=True)
+        for p in pngs:
+            p.unlink(missing_ok=True)
     return out_path
 
 

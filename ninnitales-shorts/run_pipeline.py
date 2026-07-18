@@ -25,6 +25,7 @@ import itertools
 import json
 import os
 import random
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -49,6 +50,20 @@ WAITLIST_URL = "https://ninnitales.com"
 # FIRST ~40 chars (mobile truncates). Each post carries a `theme` (keyword bucket)
 # so analyze.py can attribute views back to it and run_pipeline can double down on
 # the winners. The on-screen hook is independent of this metadata.
+def steps_from_description(description: str) -> list[str]:
+    """Recover the numbered value list from a _desc-formatted description.
+
+    The template POSTS bake their steps into the description at module load; the
+    on-clip value beat (generate_hook.burn_caption tips) needs them back as a list.
+    """
+    out = []
+    for line in (description or "").splitlines():
+        m = re.match(r"\s*\d+[.)]\s+(.+)", line)
+        if m:
+            out.append(m.group(1).strip())
+    return out
+
+
 def _desc(title: str, steps: list[str], tags: str) -> str:
     """Build a VALUE-LIST description that delivers on the title's promise.
 

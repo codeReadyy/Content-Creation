@@ -55,10 +55,13 @@ posting — no API publish/creds; used for Pinterest while the app is on Trial a
   LLM slide-writer, template fallback) live. Carousel theme, engagement CTA AND hook
   type are all ASSIGNED in code (explore/exploit over winners.json) — never left to the
   LLM's habit (left free, GPT picked number_promise 14/14 and the A/B had one arm).
-- **Scraped video anatomy (2026-07-18):** 5s hook (was 3s) with the keyword title
-  BURNED on-screen (`generate_hook.burn_caption` — an original text layer over the
-  borrowed clip), 0.25s crossfade into a ROTATING CTA tail (`cta/cta1-3.mp4`; the arm
-  is logged as `cta_clip` and ranked in winners `cta_clips`). Scrape channel order is
+- **Scraped video anatomy (2026-07-18):** 5s hook (was 3s) with caption BEATS burned
+  on-screen (`generate_hook.burn_caption`): the keyword promise from second 0, then a
+  VALUE BEAT at ~55% — one real numbered tip from the post's list (never the brand
+  step; `_beat_tip` skips voice/ninnitales markers) — so the clip is
+  promise → value → signature, not clip + ad. 0.25s crossfade into a ROTATING CTA
+  tail (`cta/cta1-3.mp4`; the arm is logged as `cta_clip` and ranked in winners
+  `cta_clips`). Scrape channel order is
   a weighted shuffle over the hook-source standings (`scrape_hooks.channel_order`) —
   file order used to hand one channel 16 straight posts. When a platform's watchdog
   verdict is `suppressed`, orchestrate thins YouTube to 1 upload/day (recovery

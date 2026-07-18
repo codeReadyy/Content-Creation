@@ -347,8 +347,10 @@ def write_post(rng: random.Random | None = None,
             "#toddlersleep #bedtime #momlife #parentinghacks #toddlermom"
         description = run_pipeline._desc(title, steps, tags_str)
         print(f"  ✍️  ghostwriter: {title!r} (theme={theme})")
+        # steps ride along so the scraped path can burn a real tip on the clip
+        # (the value beat) without re-parsing the description.
         return {"title": title, "description": description, "theme": theme,
-                "tags": run_pipeline.TAGS}
+                "tags": run_pipeline.TAGS, "steps": steps}
 
     print("  ⚠️  ghostwriter produced nothing usable — falling back to template.")
     return None
