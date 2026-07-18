@@ -76,6 +76,25 @@ LIBRARY_REUSE_DAYS = 30
 ENGAGE_STATE = HERE / "analytics" / "engage_state.json"
 
 HOOK_TYPES = ("number_promise", "curiosity_gap", "mistake", "relatable_pain")
+# The hook type is ASSIGNED in code (like theme + CTA), never left to the LLM: left
+# free, GPT picked number_promise 14/14 times ("5 ways to ..."), which made every
+# headline near-identical AND left the carousel_hooks standings a one-armed bandit
+# with nothing to compare.
+HOOK_SPECS = {
+    "number_promise": ('a numbered promise of a concrete payoff — like "5 games that '
+                       'buy you 20 quiet minutes". The headline STARTS with the number.'),
+    "curiosity_gap": ('opens a gap only the swipe closes — like "What calm parents do '
+                      'differently at 7pm" or "The 20-second trick before every nap". '
+                      'NO number at the start.'),
+    "mistake": ('names a mistake the reader is probably making, direct "you" voice — '
+                'like "You\'re handling tantrums backwards" or "Stop saying calm '
+                'down". NO number at the start.'),
+    "relatable_pain": ('drops the reader into the exact hard moment, present tense — '
+                       'like "It\'s 9pm and they\'re still awake". NO number at the '
+                       'start.'),
+}
+HOOK_MIN_SAMPLE = 3           # measured posts per hook type before exploiting
+HOOK_EXPLORE_RATE = 0.25      # fraction of picks kept uniform even after coverage
 CAROUSEL_FORMATS = ("listicle", "do_instead", "myth_truth", "scripts")
 # (cta type, weight): save is the default parenting-niche winner; the others rotate
 # in so analyze.py can rank the mechanics (carousel_ctas standings).
@@ -415,6 +434,21 @@ def _pick_theme(niche: Niche, rng) -> tuple[str, str, str]:
     return key, age, phrase
 
 
+def _pick_hook_type(rng) -> str:
+    """Assign today's hook type: coverage first (every type measured HOOK_MIN_SAMPLE
+    times, using only DISTRIBUTED posts' standings), then explore/exploit on median
+    views. This is what actually fills the carousel_hooks standings with >1 arm."""
+    stand = _load_json(run_pipeline.WINNERS_PATH, {}).get("carousel_hooks") or {}
+    under = [h for h in HOOK_TYPES if (stand.get(h) or {}).get("n", 0) < HOOK_MIN_SAMPLE]
+    if under:
+        return rng.choice(under)
+    if rng.random() < HOOK_EXPLORE_RATE:
+        return rng.choice(list(HOOK_TYPES))
+    weights = [max(float((stand.get(h) or {}).get("median_views", 0)), 0.5)
+               for h in HOOK_TYPES]
+    return rng.choices(list(HOOK_TYPES), weights)[0]
+
+
 def _keyword_cta_allowed() -> bool:
     state = _load_json(ENGAGE_STATE, {})
     return bool(state.get("comments_scope_ok", True))
@@ -454,7 +488,8 @@ _ENGAGEMENT_RULES = {
 }
 
 
-def _flash_system(niche: Niche, include_brand: bool, engagement: str) -> str:
+def _flash_system(niche: Niche, include_brand: bool, engagement: str,
+                  hook_type: str) -> str:
     brand_line = niche.extra.get("brand_line") or niche.product
     brand_rule = (
         f'- The LAST slide carries the soft brand line "{brand_line}" (we render it — '
@@ -473,10 +508,9 @@ def _flash_system(niche: Niche, include_brand: bool, engagement: str) -> str:
         "Return ONLY JSON:\n"
         "{\n"
         ' "format": "listicle" | "do_instead" | "myth_truth" | "scripts",\n'
-        ' "hook_type": "number_promise" | "curiosity_gap" | "mistake" | "relatable_pain",\n'
-        ' "headline": "<cover hook, <= 9 words, earns the swipe: a number promise '
-        "('5 games that buy you 20 quiet minutes'), a curiosity gap, or a mistake "
-        "frame ('You're handling tantrums backwards')>\",\n"
+        f' "hook_type": "{hook_type}",\n'
+        f' "headline": "<cover hook, <= 9 words, earns the swipe — MUST be a '
+        f'{hook_type} hook: {HOOK_SPECS[hook_type]}>",\n'
         ' "cover_kicker": "<3-6 word audience eyebrow, e.g. FOR TIRED TODDLER PARENTS '
         'or FOR PARENTS OF 4-6 YEAR OLDS — match the assigned age band>",\n'
         ' "slides": [{"title": "<the point, <= 8 words>", "body": "<ONE concrete '
@@ -486,6 +520,10 @@ def _flash_system(niche: Niche, include_brand: bool, engagement: str) -> str:
         ' "hashtags": ["#..", 3-5 niche tags]\n'
         "}\n\n"
         "Rules:\n"
+        f"- HOOK TYPE IS ASSIGNED: the headline must be a {hook_type} hook "
+        f"({HOOK_SPECS[hook_type]}) — do not fall back to a numbered listicle "
+        "headline unless the assigned type is number_promise. The slide FORMAT may "
+        "still be a listicle; the headline is what must match the assigned hook.\n"
         "- Slides deliver EXACTLY what the headline promises. Real, specific, usable — "
         'never vague filler like "be patient" or "stay consistent".\n'
         "- NO brand/app names and NO emojis in headline, cover_kicker, slides or cta "
@@ -521,7 +559,8 @@ def _flash_user(niche: Niche, theme_key: str, age_band: str, phrase: str,
         "Theme weights so far (median views/post; WEAK signal below n=4 — favor "
         "leaders only slightly):\n"
         f"{json.dumps(weights, indent=2) if weights else '(no measured data yet)'}\n\n"
-        "Carousel hook-type standings so far (same caveat — keep varying hook types):\n"
+        "Carousel hook-type standings so far (context only — today's hook type is "
+        "assigned in the system prompt):\n"
         f"{json.dumps(hooks, indent=2) if hooks else '(none yet)'}\n\n"
         "How the last measured carousels performed:\n"
         f"{json.dumps(perf, indent=2) if perf else '(nothing measured yet)'}\n\n"
@@ -545,7 +584,23 @@ def _clean_caption(caption: str, engagement: str) -> str:
     return "\n".join(out).strip()
 
 
-def _validate_flash(data: dict, theme_key: str, engagement: str) -> dict | None:
+def _hook_complies(hook_type: str | None, headline: str) -> bool:
+    """number_promise headlines lead with a digit; the other three must not."""
+    if hook_type not in HOOK_TYPES or not headline:
+        return True
+    digit_lead = headline[:1].isdigit()
+    return digit_lead if hook_type == "number_promise" else not digit_lead
+
+
+def _actual_hook_type(hook_type: str | None, data: dict, headline: str) -> str:
+    if hook_type in HOOK_TYPES:
+        return hook_type if _hook_complies(hook_type, headline) else "number_promise"
+    reported = data.get("hook_type")
+    return reported if reported in HOOK_TYPES else "curiosity_gap"
+
+
+def _validate_flash(data: dict, theme_key: str, engagement: str,
+                    hook_type: str | None = None) -> dict | None:
     """Normalize/clamp the LLM JSON; None → template fallback."""
     headline = _strip_emoji(str(data.get("headline") or ""))
     raw_slides = data.get("slides") or []
@@ -575,8 +630,10 @@ def _validate_flash(data: dict, theme_key: str, engagement: str) -> dict | None:
         "theme": theme_key,                  # snap — the theme was assigned in code
         "format": (data.get("format") if data.get("format") in CAROUSEL_FORMATS
                    else "listicle"),
-        "hook_type": (data.get("hook_type") if data.get("hook_type") in HOOK_TYPES
-                      else "curiosity_gap"),
+        # snap to the ASSIGNED arm — but if the LLM ignored a non-numeric assignment
+        # and led with a digit anyway, the ledger records what actually shipped
+        # (number_promise), so the standings never credit the wrong arm.
+        "hook_type": _actual_hook_type(hook_type, data, headline),
         "headline": headline,
         "cover_kicker": _strip_emoji(str(data.get("cover_kicker") or "")),
         "slides": slides,
@@ -594,7 +651,7 @@ def _validate_flash(data: dict, theme_key: str, engagement: str) -> dict | None:
 
 
 def _llm_flashcard(niche: Niche, theme_key: str, age_band: str, phrase: str,
-                   include_brand: bool, engagement: str,
+                   include_brand: bool, engagement: str, hook_type: str,
                    avoid_titles: list[str]) -> dict | None:
     try:
         import ghostwriter
@@ -604,21 +661,36 @@ def _llm_flashcard(niche: Niche, theme_key: str, age_band: str, phrase: str,
     import os
     deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
                   or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
-    try:
-        resp = client.chat.completions.create(
-            model=deployment, temperature=1.0, response_format={"type": "json_object"},
-            messages=[
-                {"role": "system",
-                 "content": _flash_system(niche, include_brand, engagement)},
-                {"role": "user",
-                 "content": _flash_user(niche, theme_key, age_band, phrase,
-                                        avoid_titles)}])
-        choice = resp.choices[0]
-        if choice.finish_reason == "content_filter" or not choice.message.content:
+    messages = [
+        {"role": "system",
+         "content": _flash_system(niche, include_brand, engagement, hook_type)},
+        {"role": "user",
+         "content": _flash_user(niche, theme_key, age_band, phrase, avoid_titles)}]
+    # Up to 2 attempts: GPT's default habit is a numbered listicle headline, so a
+    # non-numeric hook assignment gets one corrective retry before we accept the
+    # result (and _actual_hook_type re-labels it if it still disobeyed).
+    for attempt in (1, 2):
+        try:
+            resp = client.chat.completions.create(
+                model=deployment, temperature=1.0,
+                response_format={"type": "json_object"}, messages=messages)
+            choice = resp.choices[0]
+            if choice.finish_reason == "content_filter" or not choice.message.content:
+                return None
+            data = json.loads(choice.message.content)
+        except Exception as e:
+            print(f"  ⚠️  carousel LLM failed ({e}) — using template.")
             return None
-        return _validate_flash(json.loads(choice.message.content), theme_key, engagement)
-    except Exception as e:
-        print(f"  ⚠️  carousel LLM failed ({e}) — using template.")
+        headline = _strip_emoji(str(data.get("headline") or ""))
+        if attempt == 1 and not _hook_complies(hook_type, headline):
+            print(f"  ↻ headline {headline!r} isn't a {hook_type} hook — one retry.")
+            messages.append({"role": "assistant", "content": choice.message.content})
+            messages.append({"role": "user", "content":
+                             f'The headline must be a {hook_type} hook: '
+                             f'{HOOK_SPECS[hook_type]} Rewrite the JSON with a '
+                             'compliant headline (keep the same theme).'})
+            continue
+        return _validate_flash(data, theme_key, engagement, hook_type)
     return None
 
 
@@ -901,8 +973,9 @@ class Carousel:
         theme_key, age_band, phrase = _pick_theme(niche, rng)
         include_brand = rng.random() >= (1 / 3)   # ~1-in-3 posts are 100% brand-free
         engagement = _pick_engagement_cta(rng)
+        hook_type = _pick_hook_type(rng)
         data = (_llm_flashcard(niche, theme_key, age_band, phrase, include_brand,
-                               engagement, ctx.avoid_titles)
+                               engagement, hook_type, ctx.avoid_titles)
                 or _template_flashcard(niche, rng, include_brand, ctx.avoid_titles))
         engagement = data.get("engagement_cta", "save")
         theme_key = data.get("theme") or theme_key   # templates carry their own theme

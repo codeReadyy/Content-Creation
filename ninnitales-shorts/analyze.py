@@ -24,7 +24,7 @@ import json
 import os
 import statistics
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -32,6 +32,7 @@ import notify_telegram
 import run_pipeline
 import upload_youtube
 from analytics import ledger
+from analytics import strategy
 
 try:
     from core import config as acct_config            # resolve account_id -> creds_env
@@ -42,6 +43,10 @@ DATA_API = "https://www.googleapis.com/youtube/v3/videos"
 ANALYTICS_API = "https://youtubeanalytics.googleapis.com/v2/reports"
 IG_GRAPH = "https://graph.instagram.com"
 WINNERS_PATH = ledger.LEDGER_PATH.parent / "winners.json"
+# Daily follower snapshots (the actual growth KPI — views alone hid that the IG
+# account sat at 2 followers for 44 posts) + the machine-readable strategy verdict.
+FOLLOWERS_PATH = ledger.LEDGER_PATH.parent / "followers.json"
+STRATEGY_PATH = ledger.LEDGER_PATH.parent / "strategy.json"
 
 
 def _stats(token: str, video_id: str) -> dict:
@@ -145,16 +150,38 @@ def _ig_stats(token: str, media_id: str) -> dict:
                   "re-Connect Instagram in the connect-helper to grant it.")
             break
         # 400 = metric not valid for this media → try the next name
-    # saves — the strongest distribution signal for carousels, and what the rotating
-    # engagement CTAs (carousel_ctas standings) are ultimately judged on.
+    # reach (did IG distribute this at all?) + saves/shares (the distribution signals
+    # carousels and the rotating engagement CTAs are judged on). Combined call first;
+    # if a media type rejects one metric (400), fall back to per-metric fetches.
     if "views" in out:
+        out.update(_ig_insights_bundle(
+            token, media_id,
+            {"reach": "reach", "saved": "saves", "shares": "shares"}))
+    return out
+
+
+def _ig_insights_bundle(token: str, media_id: str, wanted: dict) -> dict:
+    """{api_metric: out_key} → {out_key: int} for every metric that resolves."""
+    out: dict = {}
+
+    def take(rows):
+        for row in rows:
+            name = row.get("name")
+            v = _ig_insight_value(row)
+            if name in wanted and v is not None:
+                out[wanted[name]] = int(v)
+
+    r = requests.get(f"{IG_GRAPH}/{media_id}/insights",
+                     params={"metric": ",".join(wanted), "access_token": token},
+                     timeout=30)
+    if r.ok:
+        take(r.json().get("data", []))
+        return out
+    for metric, key in wanted.items():                 # tolerant per-metric fallback
         r = requests.get(f"{IG_GRAPH}/{media_id}/insights",
-                         params={"metric": "saved", "access_token": token}, timeout=30)
+                         params={"metric": metric, "access_token": token}, timeout=30)
         if r.ok:
-            data = r.json().get("data", [])
-            v = _ig_insight_value(data[0]) if data else None
-            if v is not None:
-                out["saves"] = int(v)
+            take(r.json().get("data", []))
     return out
 
 
@@ -171,8 +198,16 @@ def _measure_instagram(min_age_hours: float) -> int:
         if "views" not in st:                       # no insights yet → retry next run
             print(f"  ⏳ IG {mid}: views unavailable (grant insights scope / too new) — will retry")
             continue
+        # Did this post ever leave the followers-only bubble? Non-distributed posts
+        # carry no information about content quality — compute_winners skips them in
+        # the theme/hook/CTA standings so the loop stops learning from noise.
+        st["distributed"] = (st.get("reach", st["views"])
+                             >= strategy.IG_DISTRIBUTED_MIN_REACH)
         ledger.update(mid, platform="instagram", finalized=True, **st)
-        print(f"  ✓ IG {mid} [{row.get('theme')}] {st['views']} views — {row['title']!r}")
+        reach = f", reach {st['reach']}" if "reach" in st else ""
+        flag = "" if st["distributed"] else "  🚫 not distributed"
+        print(f"  ✓ IG {mid} [{row.get('theme')}] {st['views']} views{reach}"
+              f" — {row['title']!r}{flag}")
         done += 1
     return done
 
@@ -289,6 +324,99 @@ def _measure_pinterest(min_age_hours: float) -> int:
     return done
 
 
+# ── Follower snapshots + the strategy verdict (the loop's missing KPI + watchdog) ─
+def _load_followers() -> list[dict]:
+    try:
+        return json.loads(FOLLOWERS_PATH.read_text())
+    except (OSError, ValueError):
+        return []
+
+
+def snapshot_ig_followers() -> list[dict]:
+    """Record today's follower count per enabled IG account (idempotent per day).
+
+    Views were measured for weeks while the account sat at 2 followers — the goal
+    metric has to be in the loop, or 'growth' optimizes the wrong thing."""
+    rows = _load_followers()
+    if acct_config is None:
+        return rows
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    for a in acct_config.load_accounts():
+        if a.platform != "instagram":
+            continue
+        token = _ig_token(a.creds_env)
+        igid = (os.environ.get(f"INSTAGRAM_BUSINESS_ACCOUNT_ID_{a.creds_env}")
+                or os.environ.get("INSTAGRAM_BUSINESS_ACCOUNT_ID"))
+        if not (token and igid):
+            print(f"  ⚠️  followers: no IG creds for {a.id} — skipping snapshot")
+            continue
+        try:
+            r = requests.get(f"{IG_GRAPH}/{igid}", params={
+                "fields": "followers_count,media_count", "access_token": token},
+                timeout=30)
+        except requests.RequestException:
+            continue
+        if not r.ok:
+            print(f"  ⚠️  followers: {a.id} fetch failed ({r.status_code})")
+            continue
+        j = r.json()
+        rows = [x for x in rows
+                if not (x.get("date") == today and x.get("account_id") == a.id)]
+        rows.append({"date": today, "account_id": a.id,
+                     "followers": int(j.get("followers_count", 0) or 0),
+                     "media_count": int(j.get("media_count", 0) or 0)})
+        print(f"  👥 {a.id}: {j.get('followers_count')} followers")
+    rows.sort(key=lambda x: (x.get("date", ""), x.get("account_id", "")))
+    FOLLOWERS_PATH.write_text(json.dumps(rows, indent=2))
+    return rows
+
+
+def _follower_line(rows: list[dict]) -> str | None:
+    """'👥 Followers: 2 (+0 today · +1 in 7d)' per IG account, from followers.json."""
+    by_acct: dict[str, list] = defaultdict(list)
+    for r in rows:
+        if r.get("date") and r.get("followers") is not None:
+            by_acct[r.get("account_id", "?")].append(r)
+    parts = []
+    for acct, hist in by_acct.items():
+        hist.sort(key=lambda x: x["date"])
+        cur = hist[-1]
+
+        def baseline(days: int):
+            cutoff = (datetime.strptime(cur["date"], "%Y-%m-%d")
+                      - timedelta(days=days)).strftime("%Y-%m-%d")
+            older = [h for h in hist if h["date"] <= cutoff]
+            return older[-1]["followers"] if older else None
+
+        seg = f"<b>{cur['followers']}</b>"
+        d1, d7 = baseline(1), baseline(7)
+        deltas = [f"{cur['followers'] - d:+d} {label}"
+                  for d, label in ((d1, "today"), (d7, "in 7d")) if d is not None]
+        if deltas:
+            seg += f" ({' · '.join(deltas)})"
+        parts.append(seg if len(by_acct) == 1 else f"{acct}: {seg}")
+    return f"👥 Followers: {' | '.join(parts)}" if parts else None
+
+
+def write_strategy(winners: dict) -> dict:
+    """strategy.json = the watchdog verdict + the learned format mix per multi-format
+    account — the machine-readable 'what the agent decided and why' record."""
+    out: dict = {
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "instagram": strategy.ig_verdict(ledger.load()),
+    }
+    if acct_config is not None:
+        try:
+            mixes = {a.id: strategy.format_mix(winners, a.platform, list(a.formats))
+                     for a in acct_config.load_accounts() if len(a.formats) > 1}
+            if mixes:
+                out["format_mix"] = mixes
+        except Exception as e:                          # config trouble never blocks
+            print(f"  ⚠️  strategy: mix computation failed ({e})")
+    STRATEGY_PATH.write_text(json.dumps(out, indent=2))
+    return out
+
+
 def measure(min_age_hours: float) -> int:
     """Fill in stats for due posts (YouTube + Instagram). Returns how many were finalized."""
     run_pipeline._load_env()
@@ -356,10 +484,17 @@ def _account_of(row: dict) -> str:
 
 
 def compute_winners() -> dict:
-    """Aggregate finalized rows by theme into weights run_pipeline can use."""
+    """Aggregate finalized rows by theme into weights run_pipeline can use.
+
+    CONTENT standings (themes, hook types, engagement CTAs, hook sources) only count
+    posts the platform actually distributed (strategy.ig_distributed): a carousel 2
+    people saw says nothing about its theme. DISTRIBUTION standings (sources,
+    surfaces, accounts) keep every row — "this format doesn't get shown" is exactly
+    their signal."""
     by_theme = defaultdict(list)
     for r in ledger.load():
-        if r.get("finalized") and r.get("views") is not None:
+        if (r.get("finalized") and r.get("views") is not None
+                and strategy.ig_distributed(r)):
             by_theme[r["theme"]].append(r)
 
     themes = {}
@@ -388,7 +523,8 @@ def compute_winners() -> dict:
     # and as a legacy fallback for stale winners.json readers.
     by_plat_theme = defaultdict(lambda: defaultdict(list))
     for r in ledger.load():
-        if r.get("finalized") and r.get("views") is not None:
+        if (r.get("finalized") and r.get("views") is not None
+                and strategy.ig_distributed(r)):
             by_plat_theme[_platform_of(r)][r["theme"]].append(r)
     themes_by_platform = {}
     for plat, tmap in by_plat_theme.items():
@@ -467,7 +603,7 @@ def compute_winners() -> dict:
     by_hook = defaultdict(list)
     for r in ledger.load():
         if (r.get("finalized") and r.get("views") is not None
-                and r.get("hook_channel")):
+                and r.get("hook_channel") and strategy.ig_distributed(r)):
             by_hook[r["hook_channel"]].append(r)
     hooks = {}
     for ch, rows in by_hook.items():
@@ -487,7 +623,8 @@ def compute_winners() -> dict:
     def _dim_standings(key: str) -> dict:
         by = defaultdict(list)
         for r in ledger.load():
-            if r.get("finalized") and r.get("views") is not None and r.get(key):
+            if (r.get("finalized") and r.get("views") is not None and r.get(key)
+                    and strategy.ig_distributed(r)):
                 by[r[key]].append(r)
         out = {}
         for k, rows in by.items():
@@ -675,6 +812,32 @@ def telegram_digest(winners: dict) -> None:
         if by_plat.get(plat):
             lines.append(_platform_block(label, by_plat[plat]))
 
+    # Instagram growth reality-check: the follower KPI, the distribution verdict, and
+    # the format mix the orchestrator will act on — the digest must say when the
+    # numbers are noise (suppressed) instead of ranking noise as "winners".
+    fl = _follower_line(_load_followers())
+    if fl:
+        lines.append(f"\n{fl}")
+    v = strategy.ig_verdict(rows)
+    if v.get("status") == "suppressed":
+        lines.append(
+            f"🧭 <b>IG distribution: SUPPRESSED</b> — median reach "
+            f"{v['median_reach_recent']}/post over the last {v['n']} posts "
+            f"(followers-only; the feed isn't recommending these). Theme/CTA "
+            f"standings exclude these posts.")
+    elif v.get("status") == "healthy":
+        lines.append(f"🧭 IG distribution: healthy — median reach "
+                     f"{v['median_reach_recent']}/post (last {v['n']} posts).")
+    if acct_config is not None:
+        try:
+            for a in acct_config.load_accounts():
+                if a.platform == "instagram" and len(a.formats) > 1:
+                    mix = strategy.format_mix(winners, "instagram", list(a.formats))
+                    lines.append(f"🎛 Learned slot mix ({a.id}): "
+                                 f"{strategy.describe_mix(mix)}")
+        except Exception:
+            pass
+
     # Feed-test diagnosis: "skipped by the feed" and "shown but failed" need opposite
     # fixes (dedupe/frequency vs content) — say which is happening.
     yt = by_plat.get("youtube", [])
@@ -738,7 +901,9 @@ def main() -> None:
     if not args.report:
         n = measure(args.min_age)
         print(f"\nMeasured {n} video(s).")
+        snapshot_ig_followers()
     winners = compute_winners()
+    write_strategy(winners)
     report(winners)
     if not args.no_telegram:
         telegram_digest(winners)

@@ -1,14 +1,15 @@
 # The routing table — the single source of truth for WHO posts WHAT, WHEN.
 # One block per (platform, account). The orchestrator iterates these.
 #
-# CONVENTION: ONE FORMAT PER ACCOUNT. A single feed should have one consistent
-# content type (scraped footage OR anime OR carousel) — mixing formats in one
-# channel confuses the audience and the algorithm. To compare formats, run the SAME
-# niche on TWO accounts (each its own channel + creds_env), one format each, and let
-# analyze.py rank them head-to-head ("ACCOUNT STANDINGS"). The orchestrator fills all
-# of an account's slots with its single declared format; with one format there is no
-# cross-format fallback, so a build failure skips the slot rather than posting an
-# off-format clip.
+# CONVENTION: ONE FORMAT PER ACCOUNT — with a deliberate exception for accounts in
+# the cold-start phase. A mature feed should have one consistent content type; to
+# compare formats, run the SAME niche on TWO accounts and let analyze.py rank them
+# ("ACCOUNT STANDINGS"). But an account with no audience can't afford a format the
+# platform won't distribute (IG carousels at 0 followers = reach 1-2): a multi-format
+# account gets its per-slot format SAMPLED from the learned surface mix
+# (analytics/strategy.format_mix over winners.json), so the engine itself shifts
+# toward whatever that platform actually distributes. Single-format accounts behave
+# exactly as before (all slots that format, no cross-format fallback).
 #
 # Fields:
 #   id          unique account id (used in the ledger + account standings)
@@ -47,11 +48,16 @@ accounts:
     gate: false
     enabled: false
 
-  # IG = value-first flashcard CAROUSELS (the save-magnet format for the parenting
-  # niche): flat typographic value cards, photo-library covers, rotating engagement
-  # CTAs, brand only on the last slide (~2 of 3 posts). Reels return later on a SECOND
-  # IG account (pain-point hooks), ranked head-to-head by analyze.py account standings.
-  # Two slots: 09:00 ET (proven US-midday) + 19:00 ET (US-evening; the 7:30 AM IST test
+  # IG = LEARNED format mix (this account intentionally breaks the one-format-per-
+  # account convention). The carousels-only phase (Jul 4-17) measured reach 1-2/post
+  # — on a ~0-follower account Instagram simply does not recommend carousels, while
+  # the SAME account's reels got 94-205-view feed tests. The orchestrator now samples
+  # each slot from analyze.py's surface standings (winners.json): dead surfaces keep a
+  # ~20% probe share, healthy ones split by median views — so today that's reels-heavy
+  # automatically, and the mix rebalances itself as soon as carousels earn reach
+  # (no YAML edit needed). Revisit a two-account reels-vs-carousel split once this
+  # account actually has an audience to distribute carousels to.
+  # Slots: 09:00 ET (proven US-midday) + 19:00 ET (US-evening; the 7:30 AM IST test
   # slot measured 0-5 views and was dropped). On IG the cron time IS the post time
   # (--now 1) — the crons in ninnitales-instagram.yml actually drive timing; schedule_et
   # just mirrors them for the record.
@@ -60,7 +66,7 @@ accounts:
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES
-    formats: [carousel]
+    formats: [scraped_cta, carousel]   # learned per-slot mix via winners.json surfaces
     schedule_et: ["09:00", "19:00"]   # 19:00 EDT == 23:00 UTC
     gate: false
     enabled: true

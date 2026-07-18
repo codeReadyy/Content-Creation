@@ -1,6 +1,10 @@
-# NinniTales — Instagram (value-first CAROUSELS). Instagram has NO native scheduling, so
-# we run at the desired POST time and publish immediately: `orchestrate.py --platform
-# instagram --now 1` builds + posts ONE carousel per run for each enabled IG account.
+# NinniTales — Instagram (LEARNED format mix: reels + carousels). Instagram has NO
+# native scheduling, so we run at the desired POST time and publish immediately:
+# `orchestrate.py --platform instagram --now 1` builds + posts ONE item per run, its
+# format sampled from analyze.py's surface standings (winners.json) — as of Jul 2026
+# that's reels-heavy: carousels measured reach 1-2/post on a ~0-follower account
+# (never recommended), while reels got 94-205-view feed tests. The mix rebalances
+# itself as the medians move.
 #
 # Two crons = two carousels/day:
 #   13:00 UTC = 9:00 AM ET — the proven US-midday slot (audit: 94-205 views vs 1-5 in
@@ -89,11 +93,24 @@ jobs:
       - name: Persist ledger + scrape dedupe state
         if: always()
         run: |
-          git add analytics/ledger.json state.json 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): log Instagram Reel + scrape state [skip ci]"
-            git pull --rebase --autostash origin main || true
-            git push
-          fi
+          FILES="analytics/ledger.json state.json assets/library/.usage.json"
+          MSG="chore(ninnitales): log Instagram post + scrape state [skip ci]"
+          for f in $FILES; do git add "$f" 2>/dev/null || true; done
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          # Concurrent crons commit these same files. A push race used to go through
+          # `git pull --rebase || true` — a same-line JSON conflict silently LOST the
+          # ledger row of a published post (Jul 13 + 17). Now: domain-merge the JSON
+          # against origin and re-commit on top, retrying a few times.
+          for i in 1 2 3; do
+            git push && exit 0
+            git fetch origin main
+            python analytics/git_merge_json.py $FILES
+            git reset --soft FETCH_HEAD
+            for f in $FILES; do git add "$f" 2>/dev/null || true; done
+            git commit -m "$MSG"
+          done
+          echo "::error::persist step lost the push race 3x — ledger row NOT committed"
+          exit 1

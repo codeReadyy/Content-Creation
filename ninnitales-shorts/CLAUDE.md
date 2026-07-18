@@ -50,16 +50,23 @@ posting — no API publish/creds; used for Pinterest while the app is on Trial a
   A failure SKIPS the slot + raises a Telegram alert — it never posts junk.
 - `token_doctor.py` diagnoses the YouTube token; the orchestrator pings Telegram every run.
 
-## Current state (2026-06-24)
-- **Formats:** `scraped_cta`, `anime_cta` (video) live; `carousel` (images) built with a
-  gradient renderer + LLM slide-writer (template fallback).
-- **Publishers:** `youtube` live; `instagram` (Reels + carousel, media hosted via
-  `hosting.py` GitHub-release assets) is code-complete but its account is `enabled: false`
-  until IG creds (`INSTAGRAM_*_<suffix>`) are added; `tiktok` is an inert seam (needs
-  non-India infra + Content Posting API).
-- **Analytics:** `analyze.py` aggregates winners by theme, source, `{platform}/{format}`
-  surface, AND **account** — written to `analytics/winners.json`. Each account runs ONE
-  format (see `config/accounts.yml`), so the per-account standings are the real head-to-head:
-  to compare formats, run the same niche on two channels (one format each) and rank them.
+## Current state (2026-07-18)
+- **Formats:** `scraped_cta`, `anime_cta` (video) live; `carousel` (flashcard renderer +
+  LLM slide-writer, template fallback) live. Carousel theme, engagement CTA AND hook
+  type are all ASSIGNED in code (explore/exploit over winners.json) — never left to the
+  LLM's habit (left free, GPT picked number_promise 14/14 and the A/B had one arm).
+- **Publishers:** `youtube` + `instagram` (Reels + carousel via `hosting.py`
+  GitHub-release assets) + `pinterest` (RSS auto-publish) live; `tiktok` inert seam.
+- **Analytics → strategy (the loop):** `analyze.py` measures posts (~24h) and writes
+  `analytics/winners.json`; `analytics/strategy.py` turns surface standings into a
+  per-slot FORMAT MIX that `orchestrate.py` samples for multi-format accounts (dead
+  surface → 20% probe; that's how IG went reels-heavy when carousels measured reach
+  1-2). IG posts that never left the follower bubble (`distributed: false`, reach < 25)
+  are EXCLUDED from theme/hook/CTA standings — the loop must not learn from noise.
+  `analytics/followers.json` snapshots the real KPI daily; `analytics/strategy.json` +
+  the Telegram digest record the verdict (suppressed/healthy) and the current mix.
+- **Persist races:** concurrent crons commit the same JSON state; workflow persist
+  steps must use `analytics/git_merge_json.py` (fetch → domain-merge → re-commit),
+  NEVER `git pull --rebase || true` (it silently lost published posts' ledger rows).
 - **Legacy:** `daily.py` is retained only for the Telegram veto-regen path; `orchestrate.py`
   is the live entry (see `.github/workflows/ninnitales-daily.yml`).

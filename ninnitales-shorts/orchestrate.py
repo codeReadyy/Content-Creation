@@ -25,11 +25,14 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import json
+
 import notify_telegram
 import outbox as outbox_writer
 import run_pipeline
 import token_doctor
 from analytics import ledger
+from analytics import strategy
 from copywriter import compose
 from core import config, guardrails
 from core.models import VIDEO, Account, BuildContext, Niche
@@ -72,9 +75,27 @@ def _compatible_formats(account: Account, publisher) -> list[str]:
     return compat
 
 
-def _plan_formats(compat: list[str], n: int) -> list[str]:
-    """Round-robin the compatible formats across n slots (e.g. scraped,anime,scraped)."""
-    return [compat[i % len(compat)] for i in range(n)] if compat else []
+def _plan_formats(compat: list[str], n: int, platform: str,
+                  rng: random.Random) -> list[str]:
+    """Pick a format per slot from the LEARNED surface mix (winners.json surfaces).
+
+    This is the consumer of analyze.py's per-surface standings — the loop that was
+    open while IG ran carousels-only into median reach 1-2. A single-format account
+    behaves exactly as before; multi-format accounts sample each slot from
+    strategy.format_mix (dead surfaces drop to probe share, unmeasured ones explore,
+    healthy ones split by median views). No data yet → uniform (≈ round-robin).
+    """
+    if not compat:
+        return []
+    if len(compat) == 1:
+        return [compat[0]] * n
+    try:
+        winners = json.loads(run_pipeline.WINNERS_PATH.read_text())
+    except (OSError, ValueError):
+        winners = {}
+    mix = strategy.format_mix(winners, platform, compat)
+    print(f"  🎛  learned format mix ({platform}): {strategy.describe_mix(mix)}")
+    return rng.choices(compat, weights=[mix[f] for f in compat], k=n)
 
 
 def _yt_health_line(h: dict) -> str:
@@ -173,7 +194,7 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
 
     slots = [None] * now if now else next_slots(account.schedule_et)
     result["slots"] = len(slots)
-    chosen = _plan_formats(compat, len(slots))
+    chosen = _plan_formats(compat, len(slots), account.platform, rng)
     ctas = sorted((HERE / niche.cta_dir).glob("cta*.mp4"))
     cookies = str(HERE / "cookies.txt") if (HERE / "cookies.txt").exists() else None
     avoid = run_pipeline.recent_titles(niche.dedup_window_days)

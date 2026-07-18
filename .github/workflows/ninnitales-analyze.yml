@@ -46,6 +46,8 @@ jobs:
           YOUTUBE_CLIENT_SECRET_NINNITALES: ${{ secrets.YOUTUBE_CLIENT_SECRET_NINNITALES }}
           YOUTUBE_REFRESH_TOKEN_NINNITALES: ${{ secrets.YOUTUBE_REFRESH_TOKEN_NINNITALES }}
           INSTAGRAM_ACCESS_TOKEN_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_NINNITALES }}
+          # follower snapshots (analytics/followers.json) need the IG user id too
+          INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES }}
           PINTEREST_APP_ID_NINNITALES: ${{ secrets.PINTEREST_APP_ID_NINNITALES }}
           PINTEREST_APP_SECRET_NINNITALES: ${{ secrets.PINTEREST_APP_SECRET_NINNITALES }}
           PINTEREST_REFRESH_TOKEN_NINNITALES: ${{ secrets.PINTEREST_REFRESH_TOKEN_NINNITALES }}
@@ -53,16 +55,26 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python analyze.py --min-age "${{ github.event.inputs.min_age || '24' }}"
 
-      - name: Persist ledger + winners
+      - name: Persist ledger + winners + followers + strategy
         if: always()
         run: |
-          git add analytics/ledger.json analytics/winners.json 2>/dev/null || true
+          FILES="analytics/ledger.json analytics/winners.json analytics/followers.json analytics/strategy.json"
+          MSG="chore(ninnitales): update analytics ledger + winners [skip ci]"
+          for f in $FILES; do git add "$f" 2>/dev/null || true; done
           # --cached catches first-run untracked files too (plain git diff misses them).
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): update analytics ledger + winners [skip ci]"
-            # Rebase onto any commit the daily post cron pushed, then push.
-            git pull --rebase --autostash origin main || true
-            git push
-          fi
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          # Domain-merge JSON on a push race instead of textual rebase (which lost
+          # ledger rows when two crons appended concurrently), then retry.
+          for i in 1 2 3; do
+            git push && exit 0
+            git fetch origin main
+            python analytics/git_merge_json.py $FILES
+            git reset --soft FETCH_HEAD
+            for f in $FILES; do git add "$f" 2>/dev/null || true; done
+            git commit -m "$MSG"
+          done
+          echo "::error::persist step lost the push race 3x — measurements NOT committed"
+          exit 1
