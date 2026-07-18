@@ -3054,5 +3054,23 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18109030081957754",
+    "platform": "instagram",
+    "title": "5 ways to help your toddler calm down before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18109030081957754/",
+    "status": "posted",
+    "posted_at": "2026-07-18T23:55:10Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "BPymn0K0EZY",
+    "cta_clip": "cta2"
   }
 ]
