@@ -2991,5 +2991,23 @@
     "hook_channel": "@Kyoot",
     "hook_id": "C7ZPp4a5tpc",
     "cta_clip": "cta3"
+  },
+  {
+    "video_id": "17988482892008915",
+    "platform": "instagram",
+    "title": "4 simple ways to calm your toddler before bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/17988482892008915/",
+    "status": "posted",
+    "posted_at": "2026-07-18T14:23:26Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "eIknvDRL5jk",
+    "cta_clip": "cta1"
   }
 ]
