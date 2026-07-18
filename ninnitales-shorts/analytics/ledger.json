@@ -2973,5 +2973,23 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "wW8bdv2oOTU",
+    "platform": "youtube",
+    "title": "4 easy strategies for a smoother toddler bedtime routine",
+    "theme": "bedtime_routine",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/wW8bdv2oOTU",
+    "status": "scheduled",
+    "posted_at": "2026-07-18T12:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "C7ZPp4a5tpc",
+    "cta_clip": "cta3"
   }
 ]
