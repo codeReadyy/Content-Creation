@@ -2691,13 +2691,21 @@
     "url": "https://youtube.com/shorts/rqX5Ca56TtU",
     "status": "scheduled",
     "posted_at": "2026-07-16T12:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_channel": "@Kyoot",
-    "hook_id": "BexK6xnwDGI"
+    "hook_id": "BexK6xnwDGI",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 1,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-18T06:06:53Z"
   },
   {
     "video_id": "mY37b-wkeAs",
@@ -2708,13 +2716,21 @@
     "url": "https://youtube.com/shorts/mY37b-wkeAs",
     "status": "scheduled",
     "posted_at": "2026-07-16T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "scraped_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_channel": "@Kyoot",
-    "hook_id": "4PxJJQcYzGE"
+    "hook_id": "4PxJJQcYzGE",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 0,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-18T06:06:53Z"
   },
   {
     "video_id": "pin-1784214065-calm_before_bed",
@@ -2725,11 +2741,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-07-16T15:01:08Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-18T06:06:56Z"
   },
   {
     "video_id": "pin-1784214195-calm_before_bed",
@@ -2740,11 +2758,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-07-16T15:03:18Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-18T06:06:56Z"
   },
   {
     "video_id": "pin-1784214315-calm_before_bed",
@@ -2755,11 +2775,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-07-16T15:05:17Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-18T06:06:56Z"
   },
   {
     "video_id": "17976548757059229",
@@ -2770,13 +2792,21 @@
     "url": "https://www.instagram.com/p/17976548757059229/",
     "status": "posted",
     "posted_at": "2026-07-16T15:09:15Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
-    "engagement_cta": "share"
+    "engagement_cta": "share",
+    "likes": 0,
+    "comments": 0,
+    "views": 3,
+    "reach": 2,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-07-18T06:06:55Z"
   },
   {
     "video_id": "18602151925014902",
@@ -2787,13 +2817,21 @@
     "url": "https://www.instagram.com/p/18602151925014902/",
     "status": "posted",
     "posted_at": "2026-07-17T00:00:28Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
-    "engagement_cta": "caption_bonus"
+    "engagement_cta": "caption_bonus",
+    "likes": 0,
+    "comments": 0,
+    "views": 2,
+    "reach": 2,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-07-18T06:06:56Z"
   },
   {
     "video_id": "YinLS27kWG4",
