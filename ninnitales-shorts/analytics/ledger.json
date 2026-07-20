@@ -3266,24 +3266,6 @@
     "cta_clip": "cta1"
   },
   {
-    "video_id": "bCKNXLGMPQo",
-    "platform": "youtube",
-    "title": "5 ways to calm your overtired toddler before bedtime",
-    "theme": "calm_before_bed",
-    "source": "scraped",
-    "url": "https://youtube.com/shorts/bCKNXLGMPQo",
-    "status": "scheduled",
-    "posted_at": "2026-07-20T23:00:00Z",
-    "finalized": false,
-    "format": "scraped_cta",
-    "account_id": "ninnitales_yt_main",
-    "product": "ninnitales",
-    "niche": "toddler_sleep",
-    "hook_channel": "@Kyoot",
-    "hook_id": "UM_7iKsWdS0",
-    "cta_clip": "cta2"
-  },
-  {
     "video_id": "pin-1784560300-calm_before_bed",
     "platform": "pinterest",
     "title": "Calm Your Toddler Before Bedtime with These Simple Tips",
@@ -3327,5 +3309,41 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18092731889059119",
+    "platform": "instagram",
+    "title": "5 tips to help your overtired toddler calm down before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18092731889059119/",
+    "status": "posted",
+    "posted_at": "2026-07-20T15:16:37Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "ledws_hfVrA",
+    "cta_clip": "cta3"
+  },
+  {
+    "video_id": "bCKNXLGMPQo",
+    "platform": "youtube",
+    "title": "5 ways to calm your overtired toddler before bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/bCKNXLGMPQo",
+    "status": "scheduled",
+    "posted_at": "2026-07-20T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "UM_7iKsWdS0",
+    "cta_clip": "cta2"
   }
 ]
