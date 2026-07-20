@@ -3282,5 +3282,50 @@
     "hook_channel": "@Kyoot",
     "hook_id": "UM_7iKsWdS0",
     "cta_clip": "cta2"
+  },
+  {
+    "video_id": "pin-1784560300-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Calm Your Toddler Before Bedtime with These Simple Tips",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-07-20T15:11:44Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784560417-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Calm Your Overtired Toddler Before Bedtime with Ease",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-07-20T15:13:40Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1784560527-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Tips to Calm Your Overtired Toddler for Better Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-07-20T15:15:31Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
