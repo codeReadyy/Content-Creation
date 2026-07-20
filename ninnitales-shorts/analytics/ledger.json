@@ -3264,5 +3264,23 @@
     "hook_channel": "@Kyoot",
     "hook_id": "S6oM0Ir_5Es",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "bCKNXLGMPQo",
+    "platform": "youtube",
+    "title": "5 ways to calm your overtired toddler before bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/bCKNXLGMPQo",
+    "status": "scheduled",
+    "posted_at": "2026-07-20T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "UM_7iKsWdS0",
+    "cta_clip": "cta2"
   }
 ]
