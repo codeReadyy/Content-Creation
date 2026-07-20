@@ -3390,5 +3390,23 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18078875774303744",
+    "platform": "instagram",
+    "title": "4 effective ways to calm your toddler for sleep",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18078875774303744/",
+    "status": "posted",
+    "posted_at": "2026-07-20T23:58:43Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "2olL5UzrGxc",
+    "cta_clip": "cta1"
   }
 ]
