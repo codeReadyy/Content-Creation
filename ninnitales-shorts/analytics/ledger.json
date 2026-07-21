@@ -3436,5 +3436,23 @@
     "hook_channel": "@Kyoot",
     "hook_id": "2olL5UzrGxc",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "V7L1Yx-r88c",
+    "platform": "youtube",
+    "title": "5 simple ways to help your toddler calm down before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/V7L1Yx-r88c",
+    "status": "scheduled",
+    "posted_at": "2026-07-21T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "VyAnR0flEZw",
+    "cta_clip": "cta2"
   }
 ]
