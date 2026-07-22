@@ -3537,6 +3537,21 @@
     "cta_clip": "cta3"
   },
   {
+    "video_id": "pin-1784674757-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Easy Ways to Calm Your Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-07-21T22:59:19Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "V7L1Yx-r88c",
     "platform": "youtube",
     "title": "5 simple ways to help your toddler calm down before bed",
@@ -3553,21 +3568,6 @@
     "hook_channel": "@Kyoot",
     "hook_id": "VyAnR0flEZw",
     "cta_clip": "cta2"
-  },
-  {
-    "video_id": "pin-1784674757-calm_before_bed",
-    "platform": "pinterest",
-    "title": "Easy Ways to Calm Your Toddler Before Bedtime",
-    "theme": "calm_before_bed",
-    "source": "pin",
-    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
-    "status": "posted",
-    "posted_at": "2026-07-21T22:59:19Z",
-    "finalized": false,
-    "format": "pin",
-    "account_id": "pinterest_ninnitales",
-    "product": "ninnitales",
-    "niche": "toddler_sleep"
   },
   {
     "video_id": "pin-1784674867-calm_before_bed",
@@ -3617,24 +3617,6 @@
     "engagement_cta": "caption_bonus"
   },
   {
-    "video_id": "kBr2Sv-1Y-s",
-    "platform": "youtube",
-    "title": "4 steps to calm your toddler before bedtime",
-    "theme": "calm_before_bed",
-    "source": "scraped",
-    "url": "https://youtube.com/shorts/kBr2Sv-1Y-s",
-    "status": "scheduled",
-    "posted_at": "2026-07-22T23:00:00Z",
-    "finalized": false,
-    "format": "scraped_cta",
-    "account_id": "ninnitales_yt_main",
-    "product": "ninnitales",
-    "niche": "toddler_sleep",
-    "hook_channel": "@Kyoot",
-    "hook_id": "NkFaQUNpu40",
-    "cta_clip": "cta2"
-  },
-  {
     "video_id": "pin-1784732670-calm_before_bed",
     "platform": "pinterest",
     "title": "Effective Strategies to Help Your Toddler Relax Before Bed",
@@ -3678,5 +3660,41 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18609294214002909",
+    "platform": "instagram",
+    "title": "4 simple ways to help your toddler relax before bed",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://www.instagram.com/reel/18609294214002909/",
+    "status": "posted",
+    "posted_at": "2026-07-22T15:10:24Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "SCBFOWCyw0E",
+    "cta_clip": "cta3"
+  },
+  {
+    "video_id": "kBr2Sv-1Y-s",
+    "platform": "youtube",
+    "title": "4 steps to calm your toddler before bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/kBr2Sv-1Y-s",
+    "status": "scheduled",
+    "posted_at": "2026-07-22T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "NkFaQUNpu40",
+    "cta_clip": "cta2"
   }
 ]
