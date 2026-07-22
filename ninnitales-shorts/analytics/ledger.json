@@ -3615,5 +3615,23 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "kBr2Sv-1Y-s",
+    "platform": "youtube",
+    "title": "4 steps to calm your toddler before bedtime",
+    "theme": "calm_before_bed",
+    "source": "scraped",
+    "url": "https://youtube.com/shorts/kBr2Sv-1Y-s",
+    "status": "scheduled",
+    "posted_at": "2026-07-22T23:00:00Z",
+    "finalized": false,
+    "format": "scraped_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_channel": "@Kyoot",
+    "hook_id": "NkFaQUNpu40",
+    "cta_clip": "cta2"
   }
 ]
