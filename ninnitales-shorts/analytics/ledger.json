@@ -3741,5 +3741,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18100375181461606",
+    "platform": "instagram",
+    "title": "What joyful chores boost your child's confidence?",
+    "theme": "chores_independence",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18100375181461606/",
+    "status": "posted",
+    "posted_at": "2026-07-23T00:01:18Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "share"
   }
 ]
