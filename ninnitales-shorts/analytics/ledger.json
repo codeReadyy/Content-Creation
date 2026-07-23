@@ -3794,5 +3794,22 @@
     "niche": "toddler_sleep",
     "hook_type": "curiosity_gap",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "DNXJ52TxTLo",
+    "platform": "youtube",
+    "title": "The common bedtime mistake keeping your toddler awake",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/DNXJ52TxTLo",
+    "status": "scheduled",
+    "posted_at": "2026-07-23T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2",
+    "title_shape": "mistake"
   }
 ]
