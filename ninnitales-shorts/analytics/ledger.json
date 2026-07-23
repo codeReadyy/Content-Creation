@@ -3856,5 +3856,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18123027535691046",
+    "platform": "instagram",
+    "title": "What successful bedtime routines include",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18123027535691046/",
+    "status": "posted",
+    "posted_at": "2026-07-23T15:25:01Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "comment_keyword",
+    "keyword": "BEDTIME",
+    "bonus_content": "1. A consistent bedtime helps your child feel secure. 2. A calming pre-bed ritual like reading or soft music aids relaxation. 3. Clear expectations about the bedtime process eliminate surprises. 4. Avoid screen time at least an hour before bed. 5. Allow your toddler to have a comfort item, like a special toy or blanket."
   }
 ]
