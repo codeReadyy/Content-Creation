@@ -27,9 +27,13 @@ class AnimeCTA:
         post = (ghostwriter.write_post(ctx.rng, avoid_titles=ctx.avoid_titles)
                 or run_pipeline.choose_post(ctx.rng, avoid_titles=ctx.avoid_titles))
         title, description, theme = post["title"], post["description"], post["theme"]
+        # The numbered list drives the on-clip VALUE BEAT (promise → value → signature),
+        # the same anatomy the scraped path uses.
+        tips = (post.get("steps")
+                or run_pipeline.steps_from_description(post.get("description")))
 
         hook = run_pipeline.get_hook("generated", run_pipeline.WORK_DIR, None,
-                                     ctx.slot_index, caption_override=title)
+                                     ctx.slot_index, caption_override=title, tips=tips)
         if not hook:
             print("  ⚠️  anime hook generation failed — skipping.")
             return None
@@ -44,6 +48,9 @@ class AnimeCTA:
         return Asset(kind=VIDEO, paths=[out], theme=theme, source="generated",
                      meta={"title": title, "description": description,
                            "tags": niche.tags, "hook_text": hook.get("title"),
+                           # Which title shape this Short led with — assigned in code
+                           # and logged so title_shapes becomes a real A/B.
+                           "title_shape": post.get("title_shape"),
                            "cta_clip": ctx.cta_path.stem if ctx.cta_path else None})
 
 

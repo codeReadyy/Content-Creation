@@ -79,11 +79,22 @@ jobs:
       - name: Persist offset + ledger
         if: always()
         run: |
-          git add analytics/tg_offset.json analytics/ledger.json 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): telegram poll offset + vetoes [skip ci]"
-            git pull --rebase --autostash origin main || true
-            git push
-          fi
+          # Writes veto status onto ledger rows — a lost commit re-publishes a post the
+          # user cancelled. Domain-merge instead of `pull --rebase || true`.
+          FILES="analytics/tg_offset.json analytics/ledger.json"
+          MSG="chore(ninnitales): telegram poll offset + vetoes [skip ci]"
+          for f in $FILES; do git add "$f" 2>/dev/null || true; done
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          for i in 1 2 3; do
+            git push && exit 0
+            git fetch origin main
+            python analytics/git_merge_json.py $FILES
+            git reset --soft FETCH_HEAD
+            for f in $FILES; do git add "$f" 2>/dev/null || true; done
+            git commit -m "$MSG"
+          done
+          echo "::error::persist step lost the push race 3x — vetoes NOT recorded"
+          exit 1

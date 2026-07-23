@@ -26,12 +26,27 @@ accounts:
   # 2 slots, not 3: the Jul-2026 audit showed 3 near-identical Shorts/day from a small
   # channel meant ~2 of 3 got ZERO feed impressions (repetition sampling). Fewer,
   # distinct uploads → each one actually gets its feed test.
+  #
+  # FORMAT SWITCHED TO anime_cta 2026-07-22 (was scraped_cta, justified here as a
+  # "proven ~50x winner"). That claim was an AVERAGE — 92.5 vs 9.6 — carried entirely
+  # by five breakouts in one week of June. On the outlier-robust MEDIAN the original
+  # format was already ahead: youtube/anime_cta 7.0 (n=11) vs youtube/scraped_cta 3.0
+  # (n=52). And the channel has published ~35 scraped Shorts since Jun 30 without one
+  # clearing 20 views, while the SAME scraped_cta build on Instagram ran a median of
+  # ~115 over the same window. Identical asset, identical code, 38x apart: the problem
+  # is not the content, it's that YouTube stopped distributing THIS CHANNEL — which is
+  # what its reused-content policy does to a channel whose every upload is 5s of
+  # someone else's Short. Posting less of it (the recovery cadence below) can't clear
+  # that verdict; only publishing original video can. anime_cta is 100% generated —
+  # no third-party footage — and its riskiest dependency (generate_hook.generate_image)
+  # runs in production daily via the Pinterest pin path.
+  # Instagram keeps scraped_cta, where it demonstrably works.
   - id: ninnitales_yt_main
     platform: youtube
     product: ninnitales
     niche: toddler_sleep
     creds_env: NINNITALES            # -> YOUTUBE_*_NINNITALES
-    formats: [scraped_cta]           # proven ~50x winner; flip to [anime_cta] to switch
+    formats: [anime_cta]             # original video; scraped_cta stays live on IG
     schedule_et: ["08:00", "19:00"]
     gate: false
     enabled: true

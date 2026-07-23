@@ -42,32 +42,112 @@ THEMES = {
     "bedtime_stories": "bedtime stories to put kids to sleep",
 }
 
-SYSTEM = """You are the ghostwriter for NinniTales — an app where a parent records
+# The title SHAPE is ASSIGNED in code (like the carousel's hook_type), never left to
+# the LLM. Told a listicle "works best", GPT opened 82% of 72 Shorts with a digit and
+# the last 30 straight were all "<N> <synonym> to <verb> your toddler ..." — one
+# sameness fingerprint, and a title_shapes standing with a single arm to compare.
+# Both of the channel's brand-title breakouts (1,121 and 913 views) were NOT listicles.
+TITLE_SHAPES = ("listicle", "question", "mistake", "moment", "outcome")
+TITLE_SHAPE_SPECS = {
+    "listicle": ('a numbered promise of a concrete payoff — like "5 ways to calm an '
+                 'overtired toddler". The title STARTS with the digit.'),
+    "question": ('the question the parent would actually type at 9pm — like "Why does '
+                 'my toddler fight sleep every single night?". Ends with a question '
+                 'mark. NO number at the start.'),
+    "mistake": ('names the thing they are probably doing wrong, direct "you" voice — '
+                'like "The bedtime habit keeping your toddler awake" or "Stop rocking '
+                'them to sleep". NO number at the start.'),
+    "moment": ('drops the reader into the exact hard moment, present tense — like '
+               '"It\'s 9pm and they\'re still asking for water". NO number at the start.'),
+    "outcome": ('states the after-state they want, plainly — like "Asleep in 20 '
+                'minutes, without the fight". NO number at the start.'),
+}
+SHAPE_MIN_SAMPLE = 3       # measured Shorts per shape before exploiting it
+SHAPE_EXPLORE_RATE = 0.25  # share of picks kept uniform even after coverage
+
+
+def _system(shape: str) -> str:
+    return f"""You are the ghostwriter for NinniTales — an app where a parent records
 ~90 seconds of their voice ONCE, and the app then narrates bedtime stories in the
 parent's OWN voice so their young child falls asleep to it, anywhere (even when the
 parent is away). The buyer is the exhausted PARENT.
 
-Your job: write the YouTube Short's metadata so it (1) gets FOUND in search and
-(2) actually helps, so parents save and rewatch it.
+Your job: write the YouTube Short's metadata so it (1) stops the scroll in the Shorts
+feed and (2) actually helps, so parents save and rewatch it.
 
 Hard rules:
-- TITLE leads with the exact phrase a parent would TYPE into YouTube search, in the
-  first ~40 characters (mobile truncates). A listicle shape ("5 ways to ...",
-  "4 things ...") works best. <= 70 characters. NO emojis in the title.
+- TITLE SHAPE IS ASSIGNED — today's title must be a {shape} title:
+  {TITLE_SHAPE_SPECS[shape]}
+  Do not fall back to a numbered listicle unless the assigned shape IS listicle.
+- The title must still read like something a parent would say or search, front-loaded
+  in the first ~40 characters (mobile truncates). <= 70 characters. NO emojis.
 - Give REAL, usable bedtime advice in 4-6 short list items.
 - ONE item (the 2nd or 3rd) is the NinniTales method in plain human words — e.g.
   "play a bedtime story in your own recorded voice" — woven in, NEVER a sales pitch.
 - Pick a "theme" from the allowed list that matches the title's intent.
 - Be genuinely DIFFERENT from the recently-used titles you are given — different
-  angle, number, and wording. Do not paraphrase them.
+  angle, subject and wording. Do not paraphrase them.
 
 Return ONLY JSON:
-{
+{{
   "theme": "<one of the allowed theme keys>",
-  "title": "<search-first listicle title>",
+  "title": "<a {shape} title>",
   "steps": ["item 1", "item 2 (the NinniTales one)", "item 3", "..."],
   "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"]
-}"""
+}}"""
+
+
+def _shape_standings() -> dict:
+    if not run_pipeline.WINNERS_PATH.exists():
+        return {}
+    try:
+        return json.loads(run_pipeline.WINNERS_PATH.read_text()).get("title_shapes") or {}
+    except (json.JSONDecodeError, ValueError, AttributeError):
+        return {}
+
+
+def pick_title_shape(rng: random.Random | None = None) -> str:
+    """Assign today's title shape: cover every arm SHAPE_MIN_SAMPLE times, then
+    explore/exploit on measured median score (percentile while suppressed)."""
+    rng = rng or random
+    stand = _shape_standings()
+    under = [s for s in TITLE_SHAPES if (stand.get(s) or {}).get("n", 0) < SHAPE_MIN_SAMPLE]
+    if under:
+        return rng.choice(under)
+    if rng.random() < SHAPE_EXPLORE_RATE:
+        return rng.choice(list(TITLE_SHAPES))
+    weights = [max(float((stand.get(s) or {}).get("median_score",
+                                                  (stand.get(s) or {}).get("median_views", 0)) or 0), 0.5)
+               for s in TITLE_SHAPES]
+    return rng.choices(list(TITLE_SHAPES), weights)[0]
+
+
+def _shape_complies(shape: str, title: str) -> bool:
+    """Cheap structural check — the LLM obeys the spec or gets one corrective retry."""
+    if shape not in TITLE_SHAPES or not title:
+        return True
+    digit_lead = title.strip()[:1].isdigit()
+    if shape == "listicle":
+        return digit_lead
+    if shape == "question":
+        return not digit_lead and title.strip().endswith("?")
+    return not digit_lead
+
+
+def _actual_shape(shape: str, title: str) -> str:
+    """The shape that actually SHIPPED — the arm the standings must be told about.
+
+    Only two shapes are structurally verifiable (a leading digit, a trailing '?'), so
+    a disobedient title is relabelled by those; the three statement shapes are
+    indistinguishable structurally, and the assignment is the best label we have.
+    """
+    if _shape_complies(shape, title):
+        return shape
+    if title.strip()[:1].isdigit():
+        return "listicle"
+    if title.strip().endswith("?"):
+        return "question"
+    return "outcome" if shape == "question" else shape
 
 
 def _client() -> AzureOpenAI:
@@ -123,23 +203,36 @@ def _theme_weights(platform: str = "youtube") -> dict:
     return weights
 
 
+# The avoid list is built from a 3650-day dedup window, so it grows ~6 titles/day
+# forever — 183 of them (~10KB) were being pasted into every call, burying the theme
+# weights and recent-performance blocks that actually steer the writer. The most
+# recent ones are the only ones a reader would notice repeating anyway.
+AVOID_IN_PROMPT = 25
+
+
 def _user_prompt(avoid_titles: list[str]) -> str:
     perf = _recent_performance()
     weights = _theme_weights()
-    themes_block = "\n".join(f'- {k}: parents search "{v}"' for k, v in THEMES.items())
+    themes_block = "\n".join(f'- {k}: e.g. "{v}"' for k, v in THEMES.items())
     weights_block = (json.dumps(weights, indent=2) if weights
                      else "(no measured data yet — explore freely)")
     perf_block = (json.dumps(perf, indent=2) if perf
                   else "(nothing measured yet)")
-    avoid_block = ("\n".join(f"- {t}" for t in avoid_titles)
+    avoid_block = ("\n".join(f"- {t}" for t in avoid_titles[-AVOID_IN_PROMPT:])
                    if avoid_titles else "(none yet)")
-    note = ("\nNote: search_views are null/0 — the Analytics scope isn't live yet, so "
-            "treat the weights as WEAK signal (tiny samples). Favor a proven theme only "
-            "slightly; keep exploring other themes.")
+    # The Jul-2026 audit measured search at ~3% of traffic and the Analytics scope has
+    # never returned a single search-attributed view, so `search_views` silently falls
+    # back to TOTAL views. Shorts wins come from feed retention — say so, rather than
+    # telling the writer to optimize for a search signal nobody has ever observed.
+    note = ("\nNote: these are TOTAL views, not search-attributed — YouTube's search "
+            "scope has never reported for this channel, and search was ~3% of traffic "
+            "when it was measurable. Shorts wins come from stopping the scroll, not "
+            "from keyword matching. Samples are tiny, so favor a proven theme only "
+            "slightly and keep exploring.")
     return (
-        "Allowed themes (key: what parents type):\n"
+        "Allowed themes (key: the kind of thing a parent says or searches):\n"
         f"{themes_block}\n\n"
-        "Theme weights so far (median search-driven views per theme, YouTube only):\n"
+        "Theme weights so far (median views per theme, YouTube only):\n"
         f"{weights_block}\n\n"
         "How the last 1-2 Shorts actually performed:\n"
         f"{perf_block}{note}\n\n"
@@ -295,13 +388,19 @@ def rng_choice(items: list, rng: random.Random | None):
 
 def write_post(rng: random.Random | None = None,
                avoid_titles: list[str] | None = None,
-               attempts: int = 4) -> dict | None:
-    """Write a fresh {title, description, theme, tags} for a generated Short.
+               attempts: int = 4,
+               shape: str | None = None) -> dict | None:
+    """Write a fresh {title, description, theme, tags, title_shape} for a Short.
+
+    `shape` is ASSIGNED (defaults to pick_title_shape) and enforced — the writer gets
+    one corrective retry if it ignores the shape, and the shape that actually shipped
+    is returned so the ledger records the arm that ran, not the one we asked for.
 
     Returns None on any failure so the caller can fall back to choose_post().
     """
     avoid = list(avoid_titles or [])
     avoid_norm = {_norm(t) for t in avoid}
+    shape = shape if shape in TITLE_SHAPES else pick_title_shape(rng)
     try:
         client = _client()
     except RuntimeError as e:
@@ -309,13 +408,14 @@ def write_post(rng: random.Random | None = None,
         return None
     deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
                   or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    nudge: list[dict] = []
 
     for i in range(attempts):
         try:
             resp = client.chat.completions.create(
                 model=deployment,
-                messages=[{"role": "system", "content": SYSTEM},
-                          {"role": "user", "content": _user_prompt(avoid)}],
+                messages=([{"role": "system", "content": _system(shape)},
+                           {"role": "user", "content": _user_prompt(avoid)}] + nudge),
                 temperature=1.0,
                 response_format={"type": "json_object"},
             )
@@ -342,15 +442,32 @@ def write_post(rng: random.Random | None = None,
             avoid.append(title)  # tell the next attempt this one's taken too
             avoid_norm.add(_norm(title))
             continue
+        # Exact-match dedup passed near-identical paraphrases on consecutive days.
+        twin = run_pipeline.too_similar(title, avoid)
+        if twin:
+            print(f"  ↩️  ghostwriter paraphrased {twin!r} — retrying for a fresh angle.")
+            avoid.append(title)
+            avoid_norm.add(_norm(title))
+            continue
+        if not _shape_complies(shape, title) and not nudge:
+            print(f"  ↻ {title!r} isn't a {shape} title — one corrective retry.")
+            nudge = [{"role": "assistant", "content": choice.message.content},
+                     {"role": "user",
+                      "content": (f"That title is not a {shape} title. It must be: "
+                                  f"{TITLE_SHAPE_SPECS[shape]} Rewrite the JSON.")}]
+            continue
 
         tags_str = " ".join(hashtags) if hashtags else \
             "#toddlersleep #bedtime #momlife #parentinghacks #toddlermom"
         description = run_pipeline._desc(title, steps, tags_str)
-        print(f"  ✍️  ghostwriter: {title!r} (theme={theme})")
+        # Record the shape that SHIPPED. If the retry still disobeyed, the arm being
+        # measured is whatever actually went out, or the standings learn a fiction.
+        actual = _actual_shape(shape, title)
+        print(f"  ✍️  ghostwriter: {title!r} (theme={theme}, shape={actual})")
         # steps ride along so the scraped path can burn a real tip on the clip
         # (the value beat) without re-parsing the description.
         return {"title": title, "description": description, "theme": theme,
-                "tags": run_pipeline.TAGS, "steps": steps}
+                "tags": run_pipeline.TAGS, "steps": steps, "title_shape": actual}
 
     print("  ⚠️  ghostwriter produced nothing usable — falling back to template.")
     return None

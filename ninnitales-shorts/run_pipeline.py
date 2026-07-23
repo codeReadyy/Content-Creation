@@ -274,6 +274,43 @@ def _norm_title(title: str) -> str:
     return " ".join((title or "").lower().split()).rstrip(".!?")
 
 
+# Words that carry no topic signal — two titles sharing only these are unrelated.
+_STOPWORDS = frozenset("""a an the to for of and or in on at with your you my their them
+they it is are was be do does did when how why what that this these those i we us can
+will get got make made help helps if so as but from into out up down over under before
+after all any more most some such no not only own same than too very just now""".split())
+# Two titles are NEAR-duplicates when this share of the shorter one's content words
+# also appear in the other. Exact-string dedup let "5 ways to calm your overtired
+# toddler before bedtime" and "5 simple ways to help your toddler calm down before bed"
+# both publish on consecutive days — different strings, same title.
+SIMILAR_THRESHOLD = 0.6
+SIMILAR_MIN_WORDS = 4      # below this a title is too short to judge by overlap
+
+
+def content_words(title: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z]+", (title or "").lower())
+            if w not in _STOPWORDS}
+
+
+def too_similar(title: str, others, threshold: float = SIMILAR_THRESHOLD) -> str | None:
+    """The first title in `others` that is a near-duplicate of `title`, else None.
+
+    Overlap coefficient (shared / smaller set) rather than Jaccard: a paraphrase that
+    pads with extra words — "5 SIMPLE ways to HELP your toddler CALM DOWN" — dilutes
+    Jaccard below any useful threshold while still being the same title to a viewer.
+    """
+    a = content_words(title)
+    if len(a) < SIMILAR_MIN_WORDS:
+        return None
+    for other in others:
+        b = content_words(other)
+        if len(b) < SIMILAR_MIN_WORDS:
+            continue
+        if len(a & b) / min(len(a), len(b)) >= threshold:
+            return other
+    return None
+
+
 def choose_post(rng: random.Random, avoid_titles: list[str] | None = None) -> dict:
     """Pick a template post, biased toward PROVEN themes, skipping recent titles.
 
@@ -334,13 +371,16 @@ def cta_cycle():
 
 
 def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int,
-             caption_override: str | None = None) -> dict | None:
+             caption_override: str | None = None,
+             tips: list[str] | None = None) -> dict | None:
     """
     Return a hook for one video: {"path", "slug", "title"}.
 
     source: "generated" | "scraped" | "mix" (mix alternates, starting generated).
     caption_override: the keyword title to burn on-screen (generated hooks only),
     so the on-screen text matches the YouTube title + description keyword.
+    tips: the post's numbered list, so the generated hook can show a real VALUE BEAT
+    partway through instead of holding the title for its whole length.
     """
     if source == "mix":
         source = "generated" if idx % 2 == 0 else "scraped"
@@ -351,7 +391,8 @@ def get_hook(source: str, work_dir: Path, cookies: str | None, idx: int,
         out = work_dir / f"genhook_{stamp}.mp4"
         try:
             res = generate_hook.generate_hook(out, work_dir=work_dir,
-                                              caption_override=caption_override)
+                                              caption_override=caption_override,
+                                              tips=tips)
         except Exception as e:
             print(f"  ⚠️  hook generation failed: {e}")
             return None

@@ -67,6 +67,7 @@ class ScrapedCTA:
                      meta={"title": title, "description": description,
                            "tags": niche.tags, "hook_channel": hook.get("channel"),
                            "hook_id": hook["slug"],
+                           "title_shape": post.get("title_shape"),
                            "cta_clip": ctx.cta_path.stem if ctx.cta_path else None})
 
 

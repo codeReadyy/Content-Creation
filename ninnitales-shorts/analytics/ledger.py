@@ -55,7 +55,7 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
                hook_channel: str | None = None, hook_id: str | None = None,
                hook_type: str | None = None, engagement_cta: str | None = None,
                keyword: str | None = None, bonus_content: str | None = None,
-               cta_clip: str | None = None) -> None:
+               cta_clip: str | None = None, title_shape: str | None = None) -> None:
     """Append a freshly published post. Idempotent on (platform, video_id).
 
     status: "posted" (live now) or "scheduled" (private, publishAt set — awaiting
@@ -89,11 +89,14 @@ def log_upload(video_id: str, title: str, theme: str, url: str,
     # hook_type/engagement_cta attribute a CAROUSEL to its hook style + engagement
     # mechanic (analyze.py carousel_hooks / carousel_ctas standings); keyword +
     # bonus_content are what engage.py replies with on comment-keyword posts.
+    # title_shape is the Shorts equivalent of hook_type: which title style this post
+    # led with (listicle/question/mistake/moment/outcome), assigned in code.
     for k, v in {"format": fmt, "account_id": account_id, "product": product,
                  "niche": niche, "hook_channel": hook_channel,
                  "hook_id": hook_id, "hook_type": hook_type,
                  "engagement_cta": engagement_cta, "keyword": keyword,
-                 "bonus_content": bonus_content, "cta_clip": cta_clip}.items():
+                 "bonus_content": bonus_content, "cta_clip": cta_clip,
+                 "title_shape": title_shape}.items():
         if v is not None:
             row[k] = v
     rows.append(row)

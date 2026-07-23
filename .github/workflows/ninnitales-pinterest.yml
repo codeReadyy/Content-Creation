@@ -69,11 +69,23 @@ jobs:
       - name: Persist ledger
         if: always()
         run: |
-          git add analytics/ledger.json 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): log Pinterest pins [skip ci]"
-            git pull --rebase --autostash origin main || true
-            git push
-          fi
+          # 5 pin slots/day append ledger rows here while the YouTube and IG crons do
+          # the same — the highest-collision persist step in the repo. Domain-merge on
+          # a race; `pull --rebase || true` swallowed the conflict and dropped rows.
+          FILES="analytics/ledger.json"
+          MSG="chore(ninnitales): log Pinterest pins [skip ci]"
+          for f in $FILES; do git add "$f" 2>/dev/null || true; done
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          for i in 1 2 3; do
+            git push && exit 0
+            git fetch origin main
+            python analytics/git_merge_json.py $FILES
+            git reset --soft FETCH_HEAD
+            for f in $FILES; do git add "$f" 2>/dev/null || true; done
+            git commit -m "$MSG"
+          done
+          echo "::error::persist step lost the push race 3x — pins NOT logged"
+          exit 1

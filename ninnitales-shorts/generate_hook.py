@@ -44,7 +44,11 @@ BADGE_FONT_PATH = HERE / "assets" / "fonts" / "Poppins-SemiBold.ttf"
 HOOK_FORMATS_FILE = HERE / "hooks" / "hook_formats.csv"
 
 W, H = 1080, 1920
-HOOK_SECONDS = 3.5
+# 5.0s, matching the scraped path (scrape_hooks.HOOK_SECONDS). At 3.5s the fixed ~5.1s
+# CTA tail was 59% of every generated Short — a bigger repetition fingerprint than the
+# 62% that the 3s→5s scraped change was made to fix — AND it sat under
+# MIN_BEAT_CLIP_SECONDS, so the value beat could never fire on this path.
+HOOK_SECONDS = 5.0
 FPS = 30
 
 # The brand look. One line to change the whole visual identity.
@@ -380,6 +384,26 @@ def _beat_tip(tips: list[str] | None) -> str | None:
     return None
 
 
+def plan_beats(text: str, dur: float,
+               tips: list[str] | None) -> list[tuple[str, float, float]]:
+    """Timed caption beats for a `dur`-second clip: the title's keyword promise, then
+    — when there's room and a usable tip — one REAL numbered tip from the list.
+
+    Shared by the scraped path (burn_caption) and the generated path (generate_hook)
+    so both formats have the same promise → value → signature anatomy. Previously only
+    scraped clips got beats; a generated Short was a single static title for its whole
+    length, which is the teaser shape the beats were introduced to kill.
+    """
+    beats = [(clean_caption(text), 0.0, dur + 1.0)]
+    tip = _beat_tip(tips)
+    if tip and dur >= MIN_BEAT_CLIP_SECONDS:
+        t1 = round(dur * TITLE_BEAT_SHARE, 2)
+        beats = [(clean_caption(text), 0.0, t1),
+                 (clean_caption(tip), t1, dur + 1.0)]
+        print(f"  📝 value beat @{t1}s: {tip!r}")
+    return beats
+
+
 def burn_caption(video: Path, text: str, out_path: Path,
                  tips: list[str] | None = None) -> Path:
     """Burn Poppins bottom-scrim caption BEATS onto an arbitrary clip → 1080x1920 mp4.
@@ -399,13 +423,7 @@ def burn_caption(video: Path, text: str, out_path: Path,
         capture_output=True, text=True, check=True)
     dur = float(probe.stdout.strip())
 
-    beats = [(clean_caption(text), 0.0, dur + 1.0)]
-    tip = _beat_tip(tips)
-    if tip and dur >= MIN_BEAT_CLIP_SECONDS:
-        t1 = round(dur * TITLE_BEAT_SHARE, 2)
-        beats = [(clean_caption(text), 0.0, t1),
-                 (clean_caption(tip), t1, dur + 1.0)]
-        print(f"  📝 value beat @{t1}s: {tip!r}")
+    beats = plan_beats(text, dur, tips)
 
     pngs: list[Path] = []
     try:
@@ -459,19 +477,27 @@ def _badge_overlay() -> Image.Image:
     return ov
 
 
-def _ken_burns(base_png: Path, text_png: Path, out_path: Path) -> Path:
-    """Gentle zoom on the image behind the static text overlay → silent hook mp4."""
+def _ken_burns(base_png: Path, text_pngs: list[tuple[Path, float, float]],
+               out_path: Path) -> Path:
+    """Gentle zoom on the image behind TIMED text overlays → silent hook mp4.
+
+    `text_pngs` is [(png, start, end)] — one entry is the old static-caption behaviour;
+    two gives the generated Short the same promise → value beats the scraped path has.
+    """
     frames = int(HOOK_SECONDS * FPS)
-    filt = (
-        f"[0:v]scale={W*2}:{H*2},"
-        f"zoompan=z='min(zoom+0.0009,1.12)':d={frames}"
-        f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS}[bg];"
-        f"[bg][1:v]overlay=0:0,format=yuv420p[v]"
-    )
+    inputs = ["-loop", "1", "-i", str(base_png)]
+    filt = (f"[0:v]scale={W*2}:{H*2},"
+            f"zoompan=z='min(zoom+0.0009,1.12)':d={frames}"
+            f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS}[bg]")
+    last = "bg"
+    for i, (png, start, end) in enumerate(text_pngs):
+        inputs += ["-loop", "1", "-i", str(png)]
+        filt += (f";[{last}][{i + 1}:v]overlay=0:0:"
+                 f"enable='between(t,{start:.2f},{end:.2f})'[v{i}]")
+        last = f"v{i}"
+    filt += f";[{last}]format=yuv420p[v]"
     cmd = [
-        "ffmpeg", "-y",
-        "-loop", "1", "-i", str(base_png),
-        "-loop", "1", "-i", str(text_png),
+        "ffmpeg", "-y", *inputs,
         "-filter_complex", filt,
         "-map", "[v]", "-t", f"{HOOK_SECONDS}", "-r", str(FPS),
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
@@ -482,7 +508,8 @@ def _ken_burns(base_png: Path, text_png: Path, out_path: Path) -> Path:
 
 
 def generate_hook(out_path: Path, work_dir: Path | None = None,
-                  caption_override: str | None = None) -> dict:
+                  caption_override: str | None = None,
+                  tips: list[str] | None = None) -> dict:
     """
     Full hook generation. Returns {"path", "hook_text", "image_prompt"}.
 
@@ -493,6 +520,9 @@ def generate_hook(out_path: Path, work_dir: Path | None = None,
     on-screen caption instead of GPT's emotional hook line — so the text burned
     into the video matches the YouTube title + description keyword. GPT is still
     used for the background image prompt.
+
+    tips: the post's numbered list. When present, the caption switches to a real
+    VALUE BEAT partway through (see plan_beats) instead of holding one static title.
     """
     out_path = Path(out_path)
     work_dir = Path(work_dir or out_path.parent)
@@ -509,18 +539,26 @@ def generate_hook(out_path: Path, work_dir: Path | None = None,
     base_png = work_dir / f"{out_path.stem}_base.png"
     base.save(base_png)
 
-    text_png = work_dir / f"{out_path.stem}_text.png"
-    overlay = _text_overlay(caption)
-    overlay.alpha_composite(_badge_overlay())  # "Full list in description ⌄"
-    overlay.save(text_png)
+    # The badge ("Full list in description ⌄") rides the FIRST beat only — once the
+    # value beat is on screen the clip is delivering the list, not pointing at it.
+    beats = plan_beats(caption, HOOK_SECONDS, tips)
+    text_pngs: list[tuple[Path, float, float]] = []
+    for i, (beat_text, start, end) in enumerate(beats):
+        png = work_dir / f"{out_path.stem}_text{i}.png"
+        overlay = _text_overlay(beat_text)
+        if i == 0:
+            overlay.alpha_composite(_badge_overlay())
+        overlay.save(png)
+        text_pngs.append((png, start, end))
 
-    _ken_burns(base_png, text_png, out_path)
+    _ken_burns(base_png, text_pngs, out_path)
 
     meta = {"hook_text": caption, "image_prompt": copy["image_prompt"]}
     out_path.with_suffix(".json").write_text(json.dumps(meta, indent=2))
     # Clean intermediate frames.
     base_png.unlink(missing_ok=True)
-    text_png.unlink(missing_ok=True)
+    for png, _, _ in text_pngs:
+        png.unlink(missing_ok=True)
     return {"path": out_path, **meta}
 
 

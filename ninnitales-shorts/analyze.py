@@ -40,6 +40,7 @@ except Exception:                                      # pragma: no cover
     acct_config = None
 
 DATA_API = "https://www.googleapis.com/youtube/v3/videos"
+CHANNELS_API = "https://www.googleapis.com/youtube/v3/channels"
 ANALYTICS_API = "https://youtubeanalytics.googleapis.com/v2/reports"
 IG_GRAPH = "https://graph.instagram.com"
 WINNERS_PATH = ledger.LEDGER_PATH.parent / "winners.json"
@@ -371,6 +372,43 @@ def snapshot_ig_followers() -> list[dict]:
     return rows
 
 
+def snapshot_yt_subscribers(rows: list[dict] | None = None) -> list[dict]:
+    """Record today's subscriber count per enabled YouTube account (idempotent/day).
+
+    Same hole the IG snapshot closed, still open on YouTube: views were tracked for a
+    month with no idea whether any of it converted to a subscriber — and subscribers
+    are what tell a suppressed channel apart from a recovering one.
+    """
+    rows = _load_followers() if rows is None else rows
+    if acct_config is None:
+        return rows
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    for a in acct_config.load_accounts():
+        if a.platform != "youtube":
+            continue
+        try:
+            token = upload_youtube._access_token(upload_youtube._credentials())
+            r = requests.get(CHANNELS_API, params={"part": "statistics", "mine": "true"},
+                             headers={"Authorization": f"Bearer {token}"}, timeout=30)
+        except Exception as e:
+            print(f"  ⚠️  subscribers: {a.id} fetch failed ({e})")
+            continue
+        items = r.json().get("items", []) if r.ok else []
+        if not items:
+            print(f"  ⚠️  subscribers: {a.id} returned no channel — skipping snapshot")
+            continue
+        s = items[0].get("statistics", {})
+        rows = [x for x in rows
+                if not (x.get("date") == today and x.get("account_id") == a.id)]
+        rows.append({"date": today, "account_id": a.id,
+                     "followers": int(s.get("subscriberCount", 0) or 0),
+                     "media_count": int(s.get("videoCount", 0) or 0)})
+        print(f"  👥 {a.id}: {s.get('subscriberCount')} subscribers")
+    rows.sort(key=lambda x: (x.get("date", ""), x.get("account_id", "")))
+    FOLLOWERS_PATH.write_text(json.dumps(rows, indent=2))
+    return rows
+
+
 def _follower_line(rows: list[dict]) -> str | None:
     """'👥 Followers: 2 (+0 today · +1 in 7d)' per IG account, from followers.json."""
     by_acct: dict[str, list] = defaultdict(list)
@@ -524,19 +562,45 @@ def compute_winners() -> dict:
     # numbers inflate a theme for the YouTube picker. Each picker reads its own
     # platform's entry; the global `themes`/`theme_weights` above stay for the report
     # and as a legacy fallback for stale winners.json readers.
+    #
+    # WHICH rows may teach content standings is decided once, per platform, by
+    # strategy.content_rows: a healthy platform contributes only its distributed posts
+    # (scored on views); a SUPPRESSED one contributes its recent window scored on
+    # PERCENTILE rank instead. Without that second branch the standings freeze the
+    # moment a platform is throttled — YouTube's held June's five breakouts for three
+    # weeks while 35 posts published to nobody, and the picker kept exploiting them.
+    # Percentiles are also gentler weights than raw views: a 0-view theme keeps a
+    # nonzero share instead of being permanently excluded from rng.choices.
+    all_rows = ledger.load()
+    platforms = sorted({_platform_of(r) for r in all_rows
+                        if r.get("finalized") and r.get("views") is not None})
+    learning_basis: dict[str, str] = {}
+    teach: dict[str, float] = {}          # video_id -> the score it teaches with
+    for plat in platforms:
+        rows_p, rel, basis = strategy.content_rows(all_rows, plat)
+        learning_basis[plat] = basis
+        if basis == "frozen":
+            print(f"  🧊 {plat}: suppressed and its window is too flat to rank — "
+                  "content standings held back (the picker explores uniformly)")
+        elif basis == "relative":
+            print(f"  📐 {plat}: suppressed → content standings ranked RELATIVELY "
+                  f"inside the last {len(rows_p)} posts (percentile, not views)")
+        for r in rows_p:
+            teach[r["video_id"]] = rel[r["video_id"]] if rel else float(_score(r))
+
     by_plat_theme = defaultdict(lambda: defaultdict(list))
-    for r in ledger.load():
-        if (r.get("finalized") and r.get("views") is not None
-                and strategy.distributed(r)):
+    for r in all_rows:
+        if r.get("video_id") in teach:
             by_plat_theme[_platform_of(r)][r["theme"]].append(r)
     themes_by_platform = {}
-    for plat, tmap in by_plat_theme.items():
+    for plat in platforms:
         themes_by_platform[plat] = {}
-        for theme, rows in tmap.items():
-            scores = [_score(r) for r in rows]
+        for theme, rows in by_plat_theme.get(plat, {}).items():
+            scores = [teach[r["video_id"]] for r in rows]
             themes_by_platform[plat][theme] = {
                 "n": len(rows),
                 "median_search_views": round(statistics.median(scores), 1),
+                "basis": learning_basis.get(plat, "absolute"),
             }
 
     # Scraped (real footage) vs generated (AI anime) — the head-to-head test.
@@ -626,17 +690,22 @@ def compute_winners() -> dict:
     # MECHANIC, not just the topic. NOTE: carousel themes share the global theme_weights
     # namespace with Shorts/pins — harmless, since each consumer validates against its
     # own theme set. Rows predating the attribution are skipped.
+    # Eligibility comes from `teach` (above), so these arms keep being ranked while a
+    # platform is suppressed instead of emptying out — carousel_hooks/carousel_ctas
+    # were both {} for exactly that reason. `median_score` is what pickers should
+    # rank on (percentile while suppressed); median_views stays the human-readable one.
     def _dim_standings(key: str) -> dict:
         by = defaultdict(list)
-        for r in ledger.load():
-            if (r.get("finalized") and r.get("views") is not None and r.get(key)
-                    and strategy.distributed(r)):
+        for r in all_rows:
+            if r.get(key) and r.get("video_id") in teach:
                 by[r[key]].append(r)
         out = {}
         for k, rows in by.items():
             views = [r.get("views", 0) for r in rows]
+            scores = [teach[r["video_id"]] for r in rows]
             out[k] = {"n": len(rows),
                       "median_views": round(statistics.median(views), 1),
+                      "median_score": round(statistics.median(scores), 1),
                       "avg_views": round(sum(views) / len(views), 1),
                       "total_views": sum(views),
                       "comments": sum(r.get("comments", 0) for r in rows),
@@ -648,9 +717,21 @@ def compute_winners() -> dict:
     # Which CTA tail (cta1/cta2/...) each video carried — the rotation is only an
     # experiment if the arm is logged and ranked.
     cta_clips = _dim_standings("cta_clip")
+    # Which TITLE SHAPE each Short led with. Assigned in code (ghostwriter.TITLE_SHAPES)
+    # for the same reason carousel hook types are: left free, the LLM wrote a numbered
+    # listicle 82% of the time and the standings had one arm to compare.
+    title_shapes = _dim_standings("title_shape")
 
     out = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # Is YouTube's search attribution actually reporting? _score() falls back to
+        # TOTAL views when it isn't, which silently made every `*_search_views` field
+        # below a copy of the plain view count — the "search-first" thesis has never
+        # once been measured. Readers must check this before believing those keys.
+        "search_analytics_live": any(r.get("search_pct") is not None for r in all_rows),
+        # How each platform's content standings were computed this round
+        # ('absolute' | 'relative' | 'frozen' — see strategy.content_rows).
+        "learning_basis": learning_basis,
         "themes": themes,
         "sources": sources,
         "surfaces": surfaces,
@@ -659,6 +740,7 @@ def compute_winners() -> dict:
         "carousel_hooks": carousel_hooks,
         "carousel_ctas": carousel_ctas,
         "cta_clips": cta_clips,
+        "title_shapes": title_shapes,
         # LEGACY global weights (mixed units across platforms) — kept only so a reader
         # built before the per-platform split still finds something. Pickers should
         # read theme_weights_by_platform instead.
@@ -925,7 +1007,8 @@ def main() -> None:
     if not args.report:
         n = measure(args.min_age)
         print(f"\nMeasured {n} video(s).")
-        snapshot_ig_followers()
+        # Both KPIs land in followers.json; chain them so one write wins the file.
+        snapshot_yt_subscribers(snapshot_ig_followers())
     winners = compute_winners()
     write_strategy(winners)
     report(winners)

@@ -144,3 +144,65 @@ def ig_verdict(rows: list[dict]) -> dict:
 
 def yt_verdict(rows: list[dict]) -> dict:
     return platform_verdict(rows, "youtube")
+
+
+# ── Learning while suppressed ───────────────────────────────────────────────────
+# The floors above are the right guard for a HEALTHY platform: a post two people saw
+# says nothing about its theme. But when the WHOLE platform is suppressed nothing
+# clears the floor, so the content standings freeze at whatever was measured before
+# the throttle — YouTube's sat on five June breakouts for three weeks while 35 posts
+# published into the void, and the picker kept exploiting weights computed from data
+# that predates the problem. That's a deadlock, not a guard: suppressed → nothing
+# distributed → nothing learned → same content → still suppressed.
+#
+# So while a platform is suppressed we rank RELATIVELY inside its recent window: a
+# row's score becomes its percentile rank there. Percentiles are scale-free, so a
+# 4-view post still outranks a 0-view post without anyone claiming 4 views is good.
+# Two guards keep this from being astrology — the window needs RELATIVE_MIN_N rows
+# AND RELATIVE_MIN_SPREAD between best and worst. A window of all-1s has no ordering
+# to learn, so it returns nothing and the picker explores uniformly (the honest
+# answer). Everything reverts to the absolute floor the moment feed tests return.
+RELATIVE_WINDOW = 40
+RELATIVE_MIN_N = 10
+RELATIVE_MIN_SPREAD = 4
+
+
+def _platform_rows(rows: list[dict], platform: str) -> list[dict]:
+    """This platform's finalized, measured rows, oldest first."""
+    return sorted((r for r in rows if r.get("platform", "youtube") == platform
+                   and r.get("finalized") and r.get("views") is not None),
+                  key=lambda r: r.get("posted_at") or "")
+
+
+def relative_scores(rows: list[dict], platform: str) -> dict[str, float]:
+    """{video_id: percentile 0-100} within the platform's recent window.
+
+    Empty when the window is too small or too flat to carry ordering information —
+    callers must treat that as "learn nothing", never as "everything scores 0".
+    """
+    window = _platform_rows(rows, platform)[-RELATIVE_WINDOW:]
+    if len(window) < RELATIVE_MIN_N:
+        return {}
+    views = sorted(int(r.get("views") or 0) for r in window)
+    if views[-1] - views[0] < RELATIVE_MIN_SPREAD:
+        return {}
+    n = len(views)
+    return {r["video_id"]: round(100.0 * sum(1 for v in views
+                                             if v <= int(r.get("views") or 0)) / n, 1)
+            for r in window if r.get("video_id")}
+
+
+def content_rows(rows: list[dict], platform: str) -> tuple[list[dict], dict, str]:
+    """(rows allowed to teach content standings, {video_id: score}, basis).
+
+    basis is 'absolute' (healthy — only distributed posts teach, scored on views),
+    'relative' (suppressed — the recent window teaches, scored on percentile), or
+    'frozen' (suppressed with no usable spread — nothing teaches this round).
+    """
+    plat_rows = _platform_rows(rows, platform)
+    if platform_verdict(rows, platform).get("status") != "suppressed":
+        return [r for r in plat_rows if distributed(r)], {}, "absolute"
+    scores = relative_scores(rows, platform)
+    if not scores:
+        return [], {}, "frozen"
+    return [r for r in plat_rows if r.get("video_id") in scores], scores, "relative"

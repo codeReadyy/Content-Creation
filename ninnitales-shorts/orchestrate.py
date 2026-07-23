@@ -220,7 +220,12 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
     ctas = sorted((HERE / niche.cta_dir).glob("cta*.mp4"))
     cookies = str(HERE / "cookies.txt") if (HERE / "cookies.txt").exists() else None
     avoid = run_pipeline.recent_titles(niche.dedup_window_days)
-    base = len(ledger.load())
+    # CTA tail rotation index. This counted ALL ledger rows, so IG + Pinterest (~6
+    # posts/day between them) advanced YouTube's cta arm while YouTube consumed one
+    # index/day — the "rotation" landed cta3,cta3,cta2,cta2 and the A/B never saw
+    # balanced arms. Count only THIS account's posts, so each account round-robins
+    # its own tails.
+    base = sum(1 for r in ledger.load() if r.get("account_id") == account.id)
 
     print(f"\n=== {account.id} ({account.platform}, niche={account.niche}, "
           f"gate={account.gate}) ===")
@@ -277,7 +282,8 @@ def run_account(account: Account, mode: str, rng: random.Random, tg: bool,
                           engagement_cta=asset.meta.get("engagement_cta"),
                           keyword=asset.meta.get("keyword"),
                           bonus_content=asset.meta.get("bonus_content"),
-                          cta_clip=asset.meta.get("cta_clip"))
+                          cta_clip=asset.meta.get("cta_clip"),
+                          title_shape=asset.meta.get("title_shape"))
         result["scheduled"] += 1
         print(f"    ✅ {'scheduled' if slot else 'posted'}: {res['url']}")
         # gate=true → send a veto preview so it can still be cancelled before going live.

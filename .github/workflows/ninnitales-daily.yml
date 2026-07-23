@@ -90,11 +90,25 @@ jobs:
         if: always()
         run: |
           # Commit the ledger AND state.json (scraped used_ids) so the next run dedupes.
-          git add analytics/ledger.json state.json 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(ninnitales): log scheduled Shorts + scrape state [skip ci]"
-            git pull --rebase --autostash origin main || true
-            git push
-          fi
+          FILES="analytics/ledger.json state.json"
+          MSG="chore(ninnitales): log scheduled Shorts + scrape state [skip ci]"
+          for f in $FILES; do git add "$f" 2>/dev/null || true; done
+          # --cached catches first-run untracked files too (plain git diff misses them).
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "$MSG"
+          # Domain-merge JSON on a push race instead of `pull --rebase || true`, which
+          # swallowed the conflict and silently dropped the ledger row for a PUBLISHED
+          # post (Jul 13 + 17). The analyze workflow was migrated to this; this one —
+          # the job that logs the uploads in the first place — was not.
+          for i in 1 2 3; do
+            git push && exit 0
+            git fetch origin main
+            python analytics/git_merge_json.py $FILES
+            git reset --soft FETCH_HEAD
+            for f in $FILES; do git add "$f" 2>/dev/null || true; done
+            git commit -m "$MSG"
+          done
+          echo "::error::persist step lost the push race 3x — published posts NOT logged"
+          exit 1
