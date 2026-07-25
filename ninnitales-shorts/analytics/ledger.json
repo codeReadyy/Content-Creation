@@ -4150,5 +4150,22 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "rpjnrbFwt_Y",
+    "platform": "youtube",
+    "title": "How do I get my toddler to relax before bedtime?",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/rpjnrbFwt_Y",
+    "status": "scheduled",
+    "posted_at": "2026-07-25T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1",
+    "title_shape": "question"
   }
 ]
