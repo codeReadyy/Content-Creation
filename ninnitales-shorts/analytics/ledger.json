@@ -4167,5 +4167,22 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
     "title_shape": "question"
+  },
+  {
+    "video_id": "17968654934934907",
+    "platform": "instagram",
+    "title": "5 tricks to get kids to listen",
+    "theme": "listening",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17968654934934907/",
+    "status": "posted",
+    "posted_at": "2026-07-25T14:41:19Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
