@@ -4329,5 +4329,21 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Acknowledge their fears by listening and validating their feelings. 2. Create a bedtime ritual that includes discussing fears in a safe space. 3. Offer comfort objects like a nightlight or stuffed animal to ease anxiety. 4. Use storytelling to make fears seem less daunting. 5. Practice deep breathing together to help your child manage anxiety."
+  },
+  {
+    "video_id": "muSOqKMKP40",
+    "platform": "youtube",
+    "title": "4 things to try when your toddler won't sleep",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/muSOqKMKP40",
+    "status": "scheduled",
+    "posted_at": "2026-07-26T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2"
   }
 ]
