@@ -4513,5 +4513,22 @@
     "niche": "toddler_sleep",
     "hook_type": "curiosity_gap",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "GOAuoMUnn0s",
+    "platform": "youtube",
+    "title": "Stop reading them the same bedtime story every night",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/GOAuoMUnn0s",
+    "status": "scheduled",
+    "posted_at": "2026-07-27T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3",
+    "title_shape": "mistake"
   }
 ]
