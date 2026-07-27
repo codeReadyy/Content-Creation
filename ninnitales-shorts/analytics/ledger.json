@@ -4592,5 +4592,50 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "pin-1785193440-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Techniques to Help Your Overtired Toddler Sleep Soundly",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-07-27T23:04:02Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785193548-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Create a Relaxing Environment for Toddler Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-07-27T23:05:52Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785193661-calm_before_bed",
+    "platform": "pinterest",
+    "title": "7 Relaxation Techniques for Toddlers at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-27T23:07:44Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
