@@ -4699,5 +4699,50 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
     "title_shape": "outcome"
+  },
+  {
+    "video_id": "pin-1785252035-bedtime_stories",
+    "platform": "pinterest",
+    "title": "Engaging Bedtime Stories That Help Your Toddler Sleep Soundly",
+    "theme": "bedtime_stories",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-07-28T15:20:38Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785252151-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Tips for Calming Your Overtired Toddler Before Bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-07-28T15:22:34Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785252263-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Calming Strategies to Help Your Toddler Sleep Faster",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-07-28T15:24:26Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
