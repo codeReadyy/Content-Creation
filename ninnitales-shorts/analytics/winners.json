@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T12:11:43Z",
+  "generated_at": "2026-07-28T11:09:04Z",
   "search_analytics_live": false,
   "learning_basis": {
     "instagram": "relative",
@@ -93,10 +93,10 @@
       "total_views": 8607
     },
     "carousel": {
-      "n": 34,
-      "avg_views": 4.9,
+      "n": 36,
+      "avg_views": 5.1,
       "median_views": 4.0,
-      "total_views": 168
+      "total_views": 184
     }
   },
   "surfaces": {
@@ -133,12 +133,12 @@
       "total_views": 2325
     },
     "instagram/carousel": {
-      "n": 34,
-      "avg_views": 4.9,
+      "n": 36,
+      "avg_views": 5.1,
       "median_views": 4.0,
-      "avg_search_views": 4.9,
+      "avg_search_views": 5.1,
       "median_search_views": 4.0,
-      "total_views": 168
+      "total_views": 184
     }
   },
   "accounts": {
@@ -154,15 +154,15 @@
       "total_views": 6482
     },
     "instagram_ninnitales": {
-      "n": 54,
+      "n": 56,
       "platform": "instagram",
       "format": "scraped_cta",
       "niche": "toddler_sleep",
-      "avg_views": 46.2,
+      "avg_views": 44.8,
       "median_views": 6.0,
-      "avg_search_views": 46.2,
+      "avg_search_views": 44.8,
       "median_search_views": 6.0,
-      "total_views": 2493
+      "total_views": 2509
     }
   },
   "hooks": {
@@ -190,11 +190,11 @@
   },
   "carousel_hooks": {
     "number_promise": {
-      "n": 17,
-      "median_views": 3,
+      "n": 18,
+      "median_views": 3.0,
       "median_score": 35.0,
-      "avg_views": 3.9,
-      "total_views": 67,
+      "avg_views": 4.2,
+      "total_views": 75,
       "comments": 3,
       "saves": 0
     },
@@ -208,11 +208,11 @@
       "saves": 0
     },
     "curiosity_gap": {
-      "n": 2,
-      "median_views": 6.5,
+      "n": 3,
+      "median_views": 7,
       "median_score": 62.5,
-      "avg_views": 6.5,
-      "total_views": 13,
+      "avg_views": 7.0,
+      "total_views": 21,
       "comments": 0,
       "saves": 0
     },
@@ -228,18 +228,18 @@
   },
   "carousel_ctas": {
     "save": {
-      "n": 9,
-      "median_views": 4,
-      "median_score": 50.0,
-      "avg_views": 4.8,
-      "total_views": 43,
+      "n": 10,
+      "median_views": 4.0,
+      "median_score": 47.5,
+      "avg_views": 5.1,
+      "total_views": 51,
       "comments": 3,
       "saves": 0
     },
     "share": {
       "n": 6,
       "median_views": 4.5,
-      "median_score": 46.2,
+      "median_score": 43.8,
       "avg_views": 5.2,
       "total_views": 31,
       "comments": 0,
@@ -248,18 +248,18 @@
     "comment_keyword": {
       "n": 3,
       "median_views": 7,
-      "median_score": 67.5,
+      "median_score": 62.5,
       "avg_views": 5.7,
       "total_views": 17,
       "comments": 0,
       "saves": 0
     },
     "caption_bonus": {
-      "n": 5,
-      "median_views": 2,
-      "median_score": 17.5,
-      "avg_views": 4.0,
-      "total_views": 20,
+      "n": 6,
+      "median_views": 3.0,
+      "median_score": 32.5,
+      "avg_views": 4.7,
+      "total_views": 28,
       "comments": 0,
       "saves": 0
     }
@@ -325,23 +325,23 @@
   },
   "themes_by_platform": {
     "instagram": {
-      "bedtime_routine": {
-        "n": 8,
-        "median_search_views": 53.8,
-        "basis": "relative"
-      },
       "bedtime_stories": {
         "n": 7,
-        "median_search_views": 50.0,
+        "median_search_views": 47.5,
+        "basis": "relative"
+      },
+      "bedtime_routine": {
+        "n": 6,
+        "median_search_views": 55.0,
         "basis": "relative"
       },
       "big_feelings": {
         "n": 2,
-        "median_search_views": 51.2,
+        "median_search_views": 48.8,
         "basis": "relative"
       },
       "sleep_fast": {
-        "n": 4,
+        "n": 5,
         "median_search_views": 35.0,
         "basis": "relative"
       },
@@ -357,7 +357,7 @@
       },
       "reading_habit": {
         "n": 1,
-        "median_search_views": 50.0,
+        "median_search_views": 47.5,
         "basis": "relative"
       },
       "confidence": {
@@ -367,12 +367,12 @@
       },
       "screen_time": {
         "n": 2,
-        "median_search_views": 67.5,
+        "median_search_views": 65.0,
         "basis": "relative"
       },
       "bedtime_fears": {
         "n": 3,
-        "median_search_views": 50.0,
+        "median_search_views": 47.5,
         "basis": "relative"
       },
       "calm_before_bed": {
@@ -382,12 +382,17 @@
       },
       "chores_independence": {
         "n": 1,
-        "median_search_views": 57.5,
+        "median_search_views": 52.5,
         "basis": "relative"
       },
       "listening": {
         "n": 1,
-        "median_search_views": 50.0,
+        "median_search_views": 47.5,
+        "basis": "relative"
+      },
+      "learning_games": {
+        "n": 1,
+        "median_search_views": 70.0,
         "basis": "relative"
       }
     },
@@ -426,19 +431,20 @@
   },
   "theme_weights_by_platform": {
     "instagram": {
-      "bedtime_routine": 53.8,
-      "bedtime_stories": 50.0,
-      "big_feelings": 51.2,
+      "bedtime_stories": 47.5,
+      "bedtime_routine": 55.0,
+      "big_feelings": 48.8,
       "sleep_fast": 35.0,
       "parent_sanity": 11.2,
       "routines": 35.0,
-      "reading_habit": 50.0,
+      "reading_habit": 47.5,
       "confidence": 35.0,
-      "screen_time": 67.5,
-      "bedtime_fears": 50.0,
+      "screen_time": 65.0,
+      "bedtime_fears": 47.5,
       "calm_before_bed": 92.5,
-      "chores_independence": 57.5,
-      "listening": 50.0
+      "chores_independence": 52.5,
+      "listening": 47.5,
+      "learning_games": 70.0
     },
     "youtube": {
       "through_night": 86.2,
