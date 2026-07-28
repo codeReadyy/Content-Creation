@@ -4682,5 +4682,22 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "vUITl9HnXjU",
+    "platform": "youtube",
+    "title": "Finally asleep without a bedtime battle",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/vUITl9HnXjU",
+    "status": "scheduled",
+    "posted_at": "2026-07-28T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1",
+    "title_shape": "outcome"
   }
 ]
