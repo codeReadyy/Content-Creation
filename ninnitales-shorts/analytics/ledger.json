@@ -4859,5 +4859,22 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "jMTG5I4L-JU",
+    "platform": "youtube",
+    "title": "Why is my toddler so restless at bedtime?",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/jMTG5I4L-JU",
+    "status": "scheduled",
+    "posted_at": "2026-07-29T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2",
+    "title_shape": "question"
   }
 ]
