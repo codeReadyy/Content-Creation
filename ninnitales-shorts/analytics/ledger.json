@@ -4551,13 +4551,21 @@
     "url": "https://youtube.com/shorts/GOAuoMUnn0s",
     "status": "scheduled",
     "posted_at": "2026-07-27T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "anime_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta3",
-    "title_shape": "mistake"
+    "title_shape": "mistake",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 2,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-07-29T11:13:47Z"
   },
   {
     "video_id": "pin-1785166971-calm_before_bed",
@@ -4568,11 +4576,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-07-27T15:42:55Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "pin-1785167093-calm_before_bed",
@@ -4583,11 +4593,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-07-27T15:44:55Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "pin-1785167201-calm_before_bed",
@@ -4598,11 +4610,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-07-27T15:46:44Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "18084216581655472",
@@ -4613,13 +4627,21 @@
     "url": "https://www.instagram.com/p/18084216581655472/",
     "status": "posted",
     "posted_at": "2026-07-27T15:50:04Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "mistake",
-    "engagement_cta": "save"
+    "engagement_cta": "save",
+    "likes": 0,
+    "comments": 0,
+    "views": 13,
+    "reach": 4,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-07-29T11:13:48Z"
   },
   {
     "video_id": "pin-1785193440-calm_before_bed",
@@ -4630,11 +4652,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-07-27T23:04:02Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "pin-1785193548-calm_before_bed",
@@ -4645,11 +4669,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
     "status": "posted",
     "posted_at": "2026-07-27T23:05:52Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "pin-1785193661-calm_before_bed",
@@ -4660,11 +4686,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-07-27T23:07:44Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "18034612577819096",
@@ -4675,13 +4703,21 @@
     "url": "https://www.instagram.com/p/18034612577819096/",
     "status": "posted",
     "posted_at": "2026-07-28T00:03:34Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "mistake",
-    "engagement_cta": "share"
+    "engagement_cta": "share",
+    "likes": 0,
+    "comments": 0,
+    "views": 9,
+    "reach": 3,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-07-29T11:13:49Z"
   },
   {
     "video_id": "vUITl9HnXjU",
