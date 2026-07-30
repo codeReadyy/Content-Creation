@@ -5019,5 +5019,22 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "b2ZG6GkUqVY",
+    "platform": "youtube",
+    "title": "The bedtime struggle making your toddler restless",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/b2ZG6GkUqVY",
+    "status": "scheduled",
+    "posted_at": "2026-07-30T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3",
+    "title_shape": "mistake"
   }
 ]
