@@ -4966,5 +4966,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17998005713793424",
+    "platform": "instagram",
+    "title": "It's 8pm and bedtime feels impossible",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17998005713793424/",
+    "status": "posted",
+    "posted_at": "2026-07-30T00:00:50Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "caption_bonus"
   }
 ]
