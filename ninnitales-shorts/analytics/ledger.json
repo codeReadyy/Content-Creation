@@ -5364,5 +5364,22 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "jc6uBV-H3Kk",
+    "platform": "youtube",
+    "title": "It's 8:30pm and they keep asking for another hug",
+    "theme": "make_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/jc6uBV-H3Kk",
+    "status": "scheduled",
+    "posted_at": "2026-08-01T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2",
+    "title_shape": "moment"
   }
 ]
