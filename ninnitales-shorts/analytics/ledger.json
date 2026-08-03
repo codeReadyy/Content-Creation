@@ -5725,5 +5725,21 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "fTzvV045_zc",
+    "platform": "youtube",
+    "title": "4 ways to calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/fTzvV045_zc",
+    "status": "scheduled",
+    "posted_at": "2026-08-03T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1"
   }
 ]
