@@ -5803,5 +5803,50 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "pin-1785798185-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Techniques to Help Your Toddler Calm Down for Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-03T23:03:07Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785798298-wont_sleep",
+    "platform": "pinterest",
+    "title": "How to Help Your Toddler Sleep Better at Night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-03T23:05:00Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785798408-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Tips to Calm Your Overtired Toddler Before Bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-03T23:06:50Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
