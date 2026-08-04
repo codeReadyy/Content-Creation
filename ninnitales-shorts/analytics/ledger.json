@@ -5911,5 +5911,50 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta2"
+  },
+  {
+    "video_id": "pin-1785857102-wont_sleep",
+    "platform": "pinterest",
+    "title": "Proven Strategies When Your Toddler Won't Sleep at Night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-04T15:25:05Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785857221-wont_sleep",
+    "platform": "pinterest",
+    "title": "How to Comfort a Toddler That Won't Sleep at Night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-04T15:27:04Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1785857332-wont_sleep",
+    "platform": "pinterest",
+    "title": "Gentle Approaches When Your Toddler Won't Sleep at Night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-04T15:28:55Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
