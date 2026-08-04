@@ -5848,5 +5848,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18192920215383021",
+    "platform": "instagram",
+    "title": "It's bedtime and they won't sleep",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18192920215383021/",
+    "status": "posted",
+    "posted_at": "2026-08-04T00:10:07Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Dim the lights and create a quiet atmosphere.\n2. Establish a soothing wind-down routine with calm activities.\n3. Limit screen time at least an hour before bed.\n4. Stick to a consistent bedtime each night.\n5. Introduce a comfort item like a favorite stuffed toy."
   }
 ]
