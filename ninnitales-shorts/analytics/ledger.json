@@ -5897,22 +5897,6 @@
     "bonus_content": "1. Dim the lights and create a quiet atmosphere.\n2. Establish a soothing wind-down routine with calm activities.\n3. Limit screen time at least an hour before bed.\n4. Stick to a consistent bedtime each night.\n5. Introduce a comfort item like a favorite stuffed toy."
   },
   {
-    "video_id": "WhtGGtZHJ1Y",
-    "platform": "youtube",
-    "title": "4 things to try when your toddler won't sleep",
-    "theme": "wont_sleep",
-    "source": "generated",
-    "url": "https://youtube.com/shorts/WhtGGtZHJ1Y",
-    "status": "scheduled",
-    "posted_at": "2026-08-04T23:00:00Z",
-    "finalized": false,
-    "format": "anime_cta",
-    "account_id": "ninnitales_yt_main",
-    "product": "ninnitales",
-    "niche": "toddler_sleep",
-    "cta_clip": "cta2"
-  },
-  {
     "video_id": "pin-1785857102-wont_sleep",
     "platform": "pinterest",
     "title": "Proven Strategies When Your Toddler Won't Sleep at Night",
@@ -5956,5 +5940,38 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18106819946586548",
+    "platform": "instagram",
+    "title": "It's way past bedtime and they're wide awake",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18106819946586548/",
+    "status": "posted",
+    "posted_at": "2026-08-04T15:28:57Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "share"
+  },
+  {
+    "video_id": "WhtGGtZHJ1Y",
+    "platform": "youtube",
+    "title": "4 things to try when your toddler won't sleep",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/WhtGGtZHJ1Y",
+    "status": "scheduled",
+    "posted_at": "2026-08-04T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2"
   }
 ]
