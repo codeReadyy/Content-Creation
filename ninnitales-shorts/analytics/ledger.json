@@ -6071,5 +6071,22 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "qnnV5aXvXpI",
+    "platform": "youtube",
+    "title": "Settle Down Fast for Hassle-Free Bedtime",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/qnnV5aXvXpI",
+    "status": "scheduled",
+    "posted_at": "2026-08-05T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3",
+    "title_shape": "outcome"
   }
 ]
