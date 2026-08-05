@@ -6197,5 +6197,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17897496537557060",
+    "platform": "instagram",
+    "title": "It's bedtime and your toddler is wired",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17897496537557060/",
+    "status": "posted",
+    "posted_at": "2026-08-05T23:24:41Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Create a calming environment: Dim the lights and lower noise levels to signal bedtime. 2. Establish a consistent routine: Use the same sequence of activities every night to build familiarity. 3. Incorporate storytime: End the day with a gentle story to calm their mind and body. 4. Use a visual schedule: Show them a chart of bedtime steps for better understanding. 5. Be patient and calm: Stay relaxed; your demeanor will help your child feel secure."
   }
 ]
