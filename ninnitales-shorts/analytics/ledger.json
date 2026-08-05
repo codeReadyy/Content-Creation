@@ -6133,5 +6133,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18614172220020655",
+    "platform": "instagram",
+    "title": "You're skipping pretend play opportunities",
+    "theme": "learning_games",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18614172220020655/",
+    "status": "posted",
+    "posted_at": "2026-08-05T15:27:35Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "comment_keyword",
+    "keyword": "PLAY",
+    "bonus_content": "1. Encourage pretend play with everyday items like boxes or kitchen utensils. 2. Create characters and encourage storytelling to spark imagination. 3. Set up themed play areas, like a mini grocery store, to promote real-life scenarios. 4. Facilitate playdates to let kids interact and learn from each other through play. 5. Ask open-ended questions during play to enhance critical thinking."
   }
 ]
