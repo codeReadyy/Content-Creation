@@ -6109,23 +6109,6 @@
     "measured_at": "2026-08-06T09:53:23Z"
   },
   {
-    "video_id": "qnnV5aXvXpI",
-    "platform": "youtube",
-    "title": "Settle Down Fast for Hassle-Free Bedtime",
-    "theme": "bedtime_routine",
-    "source": "generated",
-    "url": "https://youtube.com/shorts/qnnV5aXvXpI",
-    "status": "scheduled",
-    "posted_at": "2026-08-05T23:00:00Z",
-    "finalized": false,
-    "format": "anime_cta",
-    "account_id": "ninnitales_yt_main",
-    "product": "ninnitales",
-    "niche": "toddler_sleep",
-    "cta_clip": "cta3",
-    "title_shape": "outcome"
-  },
-  {
     "video_id": "pin-1785942811-calm_before_bed",
     "platform": "pinterest",
     "title": "Calm an Overtired Toddler and Help Them Sleep Fast",
@@ -6235,6 +6218,23 @@
     "niche": "toddler_sleep"
   },
   {
+    "video_id": "qnnV5aXvXpI",
+    "platform": "youtube",
+    "title": "Settle Down Fast for Hassle-Free Bedtime",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/qnnV5aXvXpI",
+    "status": "scheduled",
+    "posted_at": "2026-08-05T23:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3",
+    "title_shape": "outcome"
+  },
+  {
     "video_id": "17897496537557060",
     "platform": "instagram",
     "title": "It's bedtime and your toddler is wired",
@@ -6271,6 +6271,36 @@
     "title_shape": "moment"
   },
   {
+    "video_id": "pin-1786023400-sleep_fast",
+    "platform": "pinterest",
+    "title": "Easy Ways to Help Your Toddler Sleep Faster at Night",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-06T13:36:43Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786023514-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Tips to Calm Your Child Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-06T13:38:36Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18100175189071651",
     "platform": "instagram",
     "title": "It's 8pm and they're still running around",
@@ -6286,5 +6316,20 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "pin-1786023633-sleep_fast",
+    "platform": "pinterest",
+    "title": "How to Help Your Toddler Sleep Faster at Bedtime",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-06T13:40:36Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
