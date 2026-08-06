@@ -6269,5 +6269,22 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
     "title_shape": "moment"
+  },
+  {
+    "video_id": "18100175189071651",
+    "platform": "instagram",
+    "title": "It's 8pm and they're still running around",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18100175189071651/",
+    "status": "posted",
+    "posted_at": "2026-08-06T13:38:38Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "caption_bonus"
   }
 ]
