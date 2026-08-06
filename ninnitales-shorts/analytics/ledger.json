@@ -6252,5 +6252,22 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Create a calming environment: Dim the lights and lower noise levels to signal bedtime. 2. Establish a consistent routine: Use the same sequence of activities every night to build familiarity. 3. Incorporate storytime: End the day with a gentle story to calm their mind and body. 4. Use a visual schedule: Show them a chart of bedtime steps for better understanding. 5. Be patient and calm: Stay relaxed; your demeanor will help your child feel secure."
+  },
+  {
+    "video_id": "-EX4VtGLwas",
+    "platform": "youtube",
+    "title": "It's way past bedtime and they still need a story",
+    "theme": "calm_before_bed",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/-EX4VtGLwas",
+    "status": "scheduled",
+    "posted_at": "2026-08-06T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1",
+    "title_shape": "moment"
   }
 ]
