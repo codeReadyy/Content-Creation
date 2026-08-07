@@ -6535,5 +6535,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17970193985933854",
+    "platform": "instagram",
+    "title": "5 ways to build your child's confidence",
+    "theme": "confidence",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17970193985933854/",
+    "status": "posted",
+    "posted_at": "2026-08-07T23:14:19Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
