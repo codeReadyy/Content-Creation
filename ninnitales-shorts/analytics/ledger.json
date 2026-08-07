@@ -6117,11 +6117,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-08-05T15:13:35Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:55Z"
   },
   {
     "video_id": "pin-1785942927-calm_before_bed",
@@ -6132,11 +6134,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-08-05T15:15:30Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:56Z"
   },
   {
     "video_id": "pin-1785943045-calm_before_bed",
@@ -6147,11 +6151,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-08-05T15:17:28Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:56Z"
   },
   {
     "video_id": "18614172220020655",
@@ -6162,7 +6168,7 @@
     "url": "https://www.instagram.com/p/18614172220020655/",
     "status": "posted",
     "posted_at": "2026-08-05T15:27:35Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
@@ -6170,7 +6176,15 @@
     "hook_type": "mistake",
     "engagement_cta": "comment_keyword",
     "keyword": "PLAY",
-    "bonus_content": "1. Encourage pretend play with everyday items like boxes or kitchen utensils. 2. Create characters and encourage storytelling to spark imagination. 3. Set up themed play areas, like a mini grocery store, to promote real-life scenarios. 4. Facilitate playdates to let kids interact and learn from each other through play. 5. Ask open-ended questions during play to enhance critical thinking."
+    "bonus_content": "1. Encourage pretend play with everyday items like boxes or kitchen utensils. 2. Create characters and encourage storytelling to spark imagination. 3. Set up themed play areas, like a mini grocery store, to promote real-life scenarios. 4. Facilitate playdates to let kids interact and learn from each other through play. 5. Ask open-ended questions during play to enhance critical thinking.",
+    "likes": 0,
+    "comments": 0,
+    "views": 6,
+    "reach": 4,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-08-07T09:19:54Z"
   },
   {
     "video_id": "pin-1785968841-calm_before_bed",
@@ -6181,11 +6195,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-08-05T22:27:23Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:56Z"
   },
   {
     "video_id": "pin-1785968950-calm_before_bed",
@@ -6196,11 +6212,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
     "status": "posted",
     "posted_at": "2026-08-05T22:29:12Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:56Z"
   },
   {
     "video_id": "pin-1785969043-calm_before_bed",
@@ -6211,11 +6229,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-08-05T22:30:44Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-07T09:19:56Z"
   },
   {
     "video_id": "qnnV5aXvXpI",
@@ -6226,13 +6246,21 @@
     "url": "https://youtube.com/shorts/qnnV5aXvXpI",
     "status": "scheduled",
     "posted_at": "2026-08-05T23:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "anime_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta3",
-    "title_shape": "outcome"
+    "title_shape": "outcome",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 0,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-08-07T09:19:53Z"
   },
   {
     "video_id": "17897496537557060",
@@ -6243,7 +6271,7 @@
     "url": "https://www.instagram.com/p/17897496537557060/",
     "status": "posted",
     "posted_at": "2026-08-05T23:24:41Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
@@ -6251,7 +6279,15 @@
     "hook_type": "relatable_pain",
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
-    "bonus_content": "1. Create a calming environment: Dim the lights and lower noise levels to signal bedtime. 2. Establish a consistent routine: Use the same sequence of activities every night to build familiarity. 3. Incorporate storytime: End the day with a gentle story to calm their mind and body. 4. Use a visual schedule: Show them a chart of bedtime steps for better understanding. 5. Be patient and calm: Stay relaxed; your demeanor will help your child feel secure."
+    "bonus_content": "1. Create a calming environment: Dim the lights and lower noise levels to signal bedtime. 2. Establish a consistent routine: Use the same sequence of activities every night to build familiarity. 3. Incorporate storytime: End the day with a gentle story to calm their mind and body. 4. Use a visual schedule: Show them a chart of bedtime steps for better understanding. 5. Be patient and calm: Stay relaxed; your demeanor will help your child feel secure.",
+    "likes": 0,
+    "comments": 0,
+    "views": 11,
+    "reach": 3,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-08-07T09:19:55Z"
   },
   {
     "video_id": "-EX4VtGLwas",

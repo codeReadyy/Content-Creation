@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T09:53:24Z",
+  "generated_at": "2026-08-07T09:19:56Z",
   "instagram": {
     "status": "suppressed",
     "median_reach_recent": 4.0,
@@ -8,8 +8,8 @@
   },
   "youtube": {
     "status": "suppressed",
-    "median_reach_recent": 2.5,
-    "distributed_posts": 1,
+    "median_reach_recent": 1.5,
+    "distributed_posts": 0,
     "n": 14
   },
   "format_mix": {
