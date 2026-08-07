@@ -6490,5 +6490,50 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786140909-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Gentle Techniques to Calm Your Toddler Before Bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-07T22:15:12Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786141016-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Tips to Soothe Your Toddler to Sleep Easily",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-07T22:17:00Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786141121-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Calm Your Toddler Naturally for a Peaceful Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-07T22:18:44Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
