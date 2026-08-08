@@ -6712,5 +6712,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18123369919696612",
+    "platform": "instagram",
+    "title": "You're rushing bedtime and making it harder",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18123369919696612/",
+    "status": "posted",
+    "posted_at": "2026-08-08T23:10:15Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Establish a consistent wind-down time 2. Create a calming bedtime routine 3. Be aware of their tiredness signs 4. Limit screens and activity before bedtime 5. Choose a soothing bedtime story."
   }
 ]
