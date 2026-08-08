@@ -6607,6 +6607,21 @@
     "title_shape": "outcome"
   },
   {
+    "video_id": "pin-1786195323-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Simple Ways to Calm an Overtired Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-08T13:22:05Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "17870061423582233",
     "platform": "instagram",
     "title": "Why your routine might be failing you",
@@ -6622,5 +6637,35 @@
     "niche": "toddler_sleep",
     "hook_type": "curiosity_gap",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "pin-1786195434-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Help Your Toddler Wind Down for Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-08T13:23:57Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786195543-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Essential Tips to Calm Your Toddler for Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-08T13:25:46Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
