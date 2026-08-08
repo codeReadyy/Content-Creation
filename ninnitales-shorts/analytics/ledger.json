@@ -6605,5 +6605,22 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta3",
     "title_shape": "outcome"
+  },
+  {
+    "video_id": "17870061423582233",
+    "platform": "instagram",
+    "title": "Why your routine might be failing you",
+    "theme": "routines",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17870061423582233/",
+    "status": "posted",
+    "posted_at": "2026-08-08T13:23:43Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "save"
   }
 ]
