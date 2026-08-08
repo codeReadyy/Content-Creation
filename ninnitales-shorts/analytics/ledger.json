@@ -6588,5 +6588,22 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "kO67wRXl_Ic",
+    "platform": "youtube",
+    "title": "Asleep in 30 minutes, no more bedtime battles",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/kO67wRXl_Ic",
+    "status": "scheduled",
+    "posted_at": "2026-08-08T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3",
+    "title_shape": "outcome"
   }
 ]
