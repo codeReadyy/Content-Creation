@@ -6776,5 +6776,24 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
     "title_shape": "outcome"
+  },
+  {
+    "video_id": "18091369928390616",
+    "platform": "instagram",
+    "title": "What peaceful bedtimes look like",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18091369928390616/",
+    "status": "posted",
+    "posted_at": "2026-08-09T13:25:21Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Start with a warning: Ten minutes before bedtime, announce it's nearly time for sleep to prepare your child.\n2. Create a calming environment: Dim the lights and reduce noise to signal that it's time to wind down.\n3. Incorporate a washing ritual: A gentle wash-up or bath can be a relaxing transition to sleep.\n4. Read a book together: Choose a quiet story to create bonding time and signal bedtime is near.\n5. Follow through with cuddles: Allow time for hugs and cuddles to soothe and comfort your toddler."
   }
 ]
