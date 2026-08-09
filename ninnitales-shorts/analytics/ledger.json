@@ -6759,5 +6759,22 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Establish a consistent wind-down time 2. Create a calming bedtime routine 3. Be aware of their tiredness signs 4. Limit screens and activity before bedtime 5. Choose a soothing bedtime story."
+  },
+  {
+    "video_id": "xoDW7XPTUOc",
+    "platform": "youtube",
+    "title": "Easily asleep in under 20 minutes without the tantrums",
+    "theme": "sleep_fast",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/xoDW7XPTUOc",
+    "status": "scheduled",
+    "posted_at": "2026-08-09T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1",
+    "title_shape": "outcome"
   }
 ]
