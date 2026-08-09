@@ -6778,6 +6778,21 @@
     "title_shape": "outcome"
   },
   {
+    "video_id": "pin-1786281825-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Creative Ways to Calm Your Overtired Toddler Before Bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-09T13:23:48Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18091369928390616",
     "platform": "instagram",
     "title": "What peaceful bedtimes look like",
@@ -6795,5 +6810,35 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Start with a warning: Ten minutes before bedtime, announce it's nearly time for sleep to prepare your child.\n2. Create a calming environment: Dim the lights and reduce noise to signal that it's time to wind down.\n3. Incorporate a washing ritual: A gentle wash-up or bath can be a relaxing transition to sleep.\n4. Read a book together: Choose a quiet story to create bonding time and signal bedtime is near.\n5. Follow through with cuddles: Allow time for hugs and cuddles to soothe and comfort your toddler."
+  },
+  {
+    "video_id": "pin-1786281932-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Techniques to Calm Your Overstimulated Toddler at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-09T13:25:34Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786282038-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Calm an Overtired Toddler for Bedtime Success",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-09T13:27:21Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
