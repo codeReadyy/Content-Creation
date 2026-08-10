@@ -6954,5 +6954,24 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta2"
+  },
+  {
+    "video_id": "18134715412611908",
+    "platform": "instagram",
+    "title": "It's 8pm and they just won't settle",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18134715412611908/",
+    "status": "posted",
+    "posted_at": "2026-08-10T13:34:59Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "comment_keyword",
+    "keyword": "ROUTINE",
+    "bonus_content": "1. Dim lights and reduce noise. 2. Establish the same bedtime routine nightly. 3. Include reading or soft music. 4. Keep a consistent bedtime. 5. Limit screen time for at least 30 minutes."
   }
 ]
