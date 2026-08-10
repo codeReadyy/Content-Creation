@@ -6956,6 +6956,36 @@
     "cta_clip": "cta2"
   },
   {
+    "video_id": "pin-1786368771-calm_before_bed",
+    "platform": "pinterest",
+    "title": "5 Simple Ways to Help Your Toddler Wind Down at Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-10T13:32:53Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786368884-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Calm Your Toddler and Ensure a Restful Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-10T13:34:46Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18134715412611908",
     "platform": "instagram",
     "title": "It's 8pm and they just won't settle",
@@ -6973,5 +7003,20 @@
     "engagement_cta": "comment_keyword",
     "keyword": "ROUTINE",
     "bonus_content": "1. Dim lights and reduce noise. 2. Establish the same bedtime routine nightly. 3. Include reading or soft music. 4. Keep a consistent bedtime. 5. Limit screen time for at least 30 minutes."
+  },
+  {
+    "video_id": "pin-1786368993-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Effective Ways to Calm an Overtired Toddler Before Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-10T13:36:36Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
