@@ -6805,13 +6805,21 @@
     "url": "https://youtube.com/shorts/xoDW7XPTUOc",
     "status": "scheduled",
     "posted_at": "2026-08-09T12:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "anime_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
-    "title_shape": "outcome"
+    "title_shape": "outcome",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": false,
+    "views": 13,
+    "likes": 0,
+    "comments": 0,
+    "measured_at": "2026-08-11T09:19:10Z"
   },
   {
     "video_id": "pin-1786281825-calm_before_bed",
@@ -6822,11 +6830,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-08-09T13:23:48Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "18091369928390616",
@@ -6837,7 +6847,7 @@
     "url": "https://www.instagram.com/p/18091369928390616/",
     "status": "posted",
     "posted_at": "2026-08-09T13:25:21Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
@@ -6845,7 +6855,15 @@
     "hook_type": "curiosity_gap",
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
-    "bonus_content": "1. Start with a warning: Ten minutes before bedtime, announce it's nearly time for sleep to prepare your child.\n2. Create a calming environment: Dim the lights and reduce noise to signal that it's time to wind down.\n3. Incorporate a washing ritual: A gentle wash-up or bath can be a relaxing transition to sleep.\n4. Read a book together: Choose a quiet story to create bonding time and signal bedtime is near.\n5. Follow through with cuddles: Allow time for hugs and cuddles to soothe and comfort your toddler."
+    "bonus_content": "1. Start with a warning: Ten minutes before bedtime, announce it's nearly time for sleep to prepare your child.\n2. Create a calming environment: Dim the lights and reduce noise to signal that it's time to wind down.\n3. Incorporate a washing ritual: A gentle wash-up or bath can be a relaxing transition to sleep.\n4. Read a book together: Choose a quiet story to create bonding time and signal bedtime is near.\n5. Follow through with cuddles: Allow time for hugs and cuddles to soothe and comfort your toddler.",
+    "likes": 1,
+    "comments": 0,
+    "views": 7,
+    "reach": 3,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-08-11T09:19:11Z"
   },
   {
     "video_id": "pin-1786281932-calm_before_bed",
@@ -6856,11 +6874,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-08-09T13:25:34Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "pin-1786282038-calm_before_bed",
@@ -6871,11 +6891,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-08-09T13:27:21Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "pin-1786313436-calm_before_bed",
@@ -6886,11 +6908,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-08-09T22:10:39Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "pin-1786313548-calm_before_bed",
@@ -6901,11 +6925,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
     "status": "posted",
     "posted_at": "2026-08-09T22:12:30Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "pin-1786313647-calm_before_bed",
@@ -6916,11 +6942,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-08-09T22:14:09Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "17981671425109979",
@@ -6931,13 +6959,21 @@
     "url": "https://www.instagram.com/p/17981671425109979/",
     "status": "posted",
     "posted_at": "2026-08-09T23:10:44Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
-    "engagement_cta": "save"
+    "engagement_cta": "save",
+    "likes": 0,
+    "comments": 0,
+    "views": 11,
+    "reach": 4,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-08-11T09:19:13Z"
   },
   {
     "video_id": "8ot2EKulUFY",
