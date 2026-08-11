@@ -7134,6 +7134,36 @@
     "cta_clip": "cta3"
   },
   {
+    "video_id": "pin-1786455084-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Tips to Help Your Toddler Relax and Sleep Peacefully",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-11T13:31:27Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786455202-sleep_fast",
+    "platform": "pinterest",
+    "title": "Strategies to Help Your Toddler Fall Asleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-11T13:33:25Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18111392425810821",
     "platform": "instagram",
     "title": "Secrets to a Quicker Sleep for Toddlers",
@@ -7149,5 +7179,20 @@
     "niche": "toddler_sleep",
     "hook_type": "curiosity_gap",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "pin-1786455315-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Simple Methods to Calm Your Toddler and Encourage Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-11T13:35:19Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
