@@ -7293,6 +7293,36 @@
     "cta_clip": "cta1"
   },
   {
+    "video_id": "pin-1786541571-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Gentle Tips to Calm an Overtired Toddler for Bedtime",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-12T13:32:55Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786541687-calm_before_bed",
+    "platform": "pinterest",
+    "title": "How to Calm Your Toddler and Encourage Better Sleep",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-12T13:34:51Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "17863404171662463",
     "platform": "instagram",
     "title": "5 steps to ease toddler tantrums",
@@ -7308,5 +7338,20 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "pin-1786541815-sleep_fast",
+    "platform": "pinterest",
+    "title": "Quick Tips for Getting Your Toddler to Sleep Fast",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-12T13:36:58Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
