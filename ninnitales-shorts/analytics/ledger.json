@@ -7742,5 +7742,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18117790858718624",
+    "platform": "instagram",
+    "title": "You're skipping the calming routine",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18117790858718624/",
+    "status": "posted",
+    "posted_at": "2026-08-14T23:07:59Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "comment_keyword",
+    "keyword": "ROUTINE",
+    "bonus_content": "1. Start winding down at least 30 minutes before bedtime. 2. Choose a relaxing activity like a story or bath. 3. Limit screen time at least one hour before sleep. 4. Create a cozy sleep environment that's dark and quiet. 5. Use gentle transitions to signal bedtime is near."
   }
 ]
