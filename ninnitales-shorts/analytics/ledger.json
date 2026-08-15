@@ -7797,5 +7797,21 @@
     "engagement_cta": "comment_keyword",
     "keyword": "ROUTINE",
     "bonus_content": "1. Start winding down at least 30 minutes before bedtime. 2. Choose a relaxing activity like a story or bath. 3. Limit screen time at least one hour before sleep. 4. Create a cozy sleep environment that's dark and quiet. 5. Use gentle transitions to signal bedtime is near."
+  },
+  {
+    "video_id": "bfCL6eRMbTI",
+    "platform": "youtube",
+    "title": "4 things to try when your toddler won't sleep",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/bfCL6eRMbTI",
+    "status": "scheduled",
+    "posted_at": "2026-08-15T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1"
   }
 ]
