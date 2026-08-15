@@ -7877,5 +7877,50 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786831641-sleep_fast",
+    "platform": "pinterest",
+    "title": "Proven Techniques to Help Your Toddler Sleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T22:07:25Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786831751-sleep_fast",
+    "platform": "pinterest",
+    "title": "Essential Tips to Get Your Toddler to Sleep Faster Tonight",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T22:09:14Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786831867-sleep_fast",
+    "platform": "pinterest",
+    "title": "Effective Strategies to Help Toddler Sleep Faster Tonight",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T22:11:10Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
