@@ -7813,5 +7813,24 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "18123795499861477",
+    "platform": "instagram",
+    "title": "It's 9pm and they're still wide awake",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18123795499861477/",
+    "status": "posted",
+    "posted_at": "2026-08-15T13:16:18Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Create a calming bedtime environment: Dim the lights and reduce noise to signal it's time to wind down. 2. Limit screen time before bed: Screens can overstimulate; save them for the morning. 3. Implement a consistent bedtime routine: A predictable sequence helps your toddler understand it's time to sleep. 4. Use a cozy sleep space: Make their sleeping area inviting with soft blankets and favorite toys. 5. Introduce gentle calming activities: Read a story or sing lullabies to relax and prepare them for sleep."
   }
 ]
