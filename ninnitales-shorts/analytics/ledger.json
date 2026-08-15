@@ -7815,6 +7815,21 @@
     "cta_clip": "cta1"
   },
   {
+    "video_id": "pin-1786799672-sleep_fast",
+    "platform": "pinterest",
+    "title": "Effective Tips to Get Your Toddler to Sleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T13:14:35Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18123795499861477",
     "platform": "instagram",
     "title": "It's 9pm and they're still wide awake",
@@ -7832,5 +7847,35 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Create a calming bedtime environment: Dim the lights and reduce noise to signal it's time to wind down. 2. Limit screen time before bed: Screens can overstimulate; save them for the morning. 3. Implement a consistent bedtime routine: A predictable sequence helps your toddler understand it's time to sleep. 4. Use a cozy sleep space: Make their sleeping area inviting with soft blankets and favorite toys. 5. Introduce gentle calming activities: Read a story or sing lullabies to relax and prepare them for sleep."
+  },
+  {
+    "video_id": "pin-1786799781-sleep_fast",
+    "platform": "pinterest",
+    "title": "Strategies for Getting Your Toddler to Sleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T13:16:24Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786799887-sleep_fast",
+    "platform": "pinterest",
+    "title": "How to Help Your Toddler Sleep Fast and Soundly",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-15T13:18:09Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
