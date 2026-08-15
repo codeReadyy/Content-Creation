@@ -7922,5 +7922,24 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "17890977738418538",
+    "platform": "instagram",
+    "title": "It's 10pm and they're bouncing off the walls",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17890977738418538/",
+    "status": "posted",
+    "posted_at": "2026-08-15T23:07:14Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Calm the Environment: Dim the lights and reduce loud noises to create a restful atmosphere.\n2. Establish Nightly Rituals: Repeat soothing activities like bath time or storytime to signal bedtime.\n3. Use Comfort Items: Offer a favorite blanket or stuffed animal to provide security as they sleep.\n4. Play Soft Music: Gentle lullabies can help soothe your toddler and promote sleepiness.\n5. Limit Excitement Before Bed: Avoid energetic games or screens at least 30 minutes prior to bedtime."
   }
 ]
