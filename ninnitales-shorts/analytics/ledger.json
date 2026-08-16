@@ -7977,5 +7977,21 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Calm the Environment: Dim the lights and reduce loud noises to create a restful atmosphere.\n2. Establish Nightly Rituals: Repeat soothing activities like bath time or storytime to signal bedtime.\n3. Use Comfort Items: Offer a favorite blanket or stuffed animal to provide security as they sleep.\n4. Play Soft Music: Gentle lullabies can help soothe your toddler and promote sleepiness.\n5. Limit Excitement Before Bed: Avoid energetic games or screens at least 30 minutes prior to bedtime."
+  },
+  {
+    "video_id": "7Ayr3bRhYsc",
+    "platform": "youtube",
+    "title": "4 things to try when your toddler won't sleep",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/7Ayr3bRhYsc",
+    "status": "scheduled",
+    "posted_at": "2026-08-16T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2"
   }
 ]
