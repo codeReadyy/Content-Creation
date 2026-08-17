@@ -8152,5 +8152,22 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta3"
+  },
+  {
+    "video_id": "18117128587937166",
+    "platform": "instagram",
+    "title": "You're skipping the essential bedtime steps",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18117128587937166/",
+    "status": "posted",
+    "posted_at": "2026-08-17T13:22:16Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "save"
   }
 ]
