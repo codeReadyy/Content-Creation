@@ -8154,6 +8154,36 @@
     "cta_clip": "cta3"
   },
   {
+    "video_id": "pin-1786972788-sleep_fast",
+    "platform": "pinterest",
+    "title": "Quick Tips to Help Your Toddler Sleep Faster at Night",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-17T13:19:51Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1786972897-sleep_fast",
+    "platform": "pinterest",
+    "title": "Tips to Help Your Toddler Sleep Faster and Peacefully",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-17T13:21:41Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18117128587937166",
     "platform": "instagram",
     "title": "You're skipping the essential bedtime steps",
@@ -8169,5 +8199,20 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "pin-1786973012-sleep_fast",
+    "platform": "pinterest",
+    "title": "Simple Steps to Help Your Toddler Fall Asleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-17T13:23:34Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
