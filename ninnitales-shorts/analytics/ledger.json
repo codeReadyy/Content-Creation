@@ -8304,5 +8304,22 @@
     "niche": "toddler_sleep",
     "hook_type": "relatable_pain",
     "engagement_cta": "share"
+  },
+  {
+    "video_id": "yI7YyCF8fqw",
+    "platform": "youtube",
+    "title": "It's 10pm and they're asking for one more story",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/yI7YyCF8fqw",
+    "status": "scheduled",
+    "posted_at": "2026-08-18T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1",
+    "title_shape": "moment"
   }
 ]
