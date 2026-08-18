@@ -8321,5 +8321,22 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta1",
     "title_shape": "moment"
+  },
+  {
+    "video_id": "17987610390046860",
+    "platform": "instagram",
+    "title": "It's screen time and they refuse to stop",
+    "theme": "screen_time",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/17987610390046860/",
+    "status": "posted",
+    "posted_at": "2026-08-18T13:23:30Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "relatable_pain",
+    "engagement_cta": "save"
   }
 ]
