@@ -8543,5 +8543,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18141120925601963",
+    "platform": "instagram",
+    "title": "What every peaceful bedtime routine includes",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18141120925601963/",
+    "status": "posted",
+    "posted_at": "2026-08-19T13:31:00Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "share"
   }
 ]
