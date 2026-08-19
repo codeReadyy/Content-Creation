@@ -8481,5 +8481,22 @@
     "niche": "toddler_sleep",
     "hook_type": "mistake",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "WclI4eriU2c",
+    "platform": "youtube",
+    "title": "5 tricks to help your toddler settle down at night",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/WclI4eriU2c",
+    "status": "scheduled",
+    "posted_at": "2026-08-19T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta2",
+    "title_shape": "listicle"
   }
 ]
