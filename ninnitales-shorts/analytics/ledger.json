@@ -8498,5 +8498,50 @@
     "niche": "toddler_sleep",
     "cta_clip": "cta2",
     "title_shape": "listicle"
+  },
+  {
+    "video_id": "pin-1787145669-wont_sleep",
+    "platform": "pinterest",
+    "title": "How to Get Your Toddler to Sleep When They Just Won't",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-19T13:21:12Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1787145799-sleep_fast",
+    "platform": "pinterest",
+    "title": "Simple Hacks to Help Your Toddler Sleep Faster at Night",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-19T13:23:23Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1787145928-sleep_fast",
+    "platform": "pinterest",
+    "title": "Proven Techniques to Help Your Toddler Sleep Faster at Bedtime",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-19T13:25:32Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
