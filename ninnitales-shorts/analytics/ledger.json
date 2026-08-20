@@ -8674,5 +8674,24 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta3"
+  },
+  {
+    "video_id": "18184316722406687",
+    "platform": "instagram",
+    "title": "You're skipping the most important bedtime step",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18184316722406687/",
+    "status": "posted",
+    "posted_at": "2026-08-20T13:23:44Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "comment_keyword",
+    "keyword": "SLEEP",
+    "bonus_content": "1. Spend quality time on bedtime stories — don’t rush it! 2. Create a calming ritual, like a warm bath or gentle music. 3. Cuddle your toddler to build security and love. 4. Talk openly about bedtime fears to reassure them. 5. Avoid stimulating activities and screens before bed."
   }
 ]
