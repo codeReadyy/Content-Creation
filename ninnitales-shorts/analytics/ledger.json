@@ -8676,6 +8676,21 @@
     "cta_clip": "cta3"
   },
   {
+    "video_id": "pin-1787232114-sleep_fast",
+    "platform": "pinterest",
+    "title": "Mastering the Art of Getting Toddlers to Sleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-20T13:21:58Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "18184316722406687",
     "platform": "instagram",
     "title": "You're skipping the most important bedtime step",
@@ -8693,5 +8708,35 @@
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
     "bonus_content": "1. Spend quality time on bedtime stories — don’t rush it! 2. Create a calming ritual, like a warm bath or gentle music. 3. Cuddle your toddler to build security and love. 4. Talk openly about bedtime fears to reassure them. 5. Avoid stimulating activities and screens before bed."
+  },
+  {
+    "video_id": "pin-1787232234-sleep_fast",
+    "platform": "pinterest",
+    "title": "How to Help Your Toddler Sleep Faster and Stay Asleep",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-08-20T13:23:58Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1787232349-sleep_fast",
+    "platform": "pinterest",
+    "title": "Effective Ways to Help Your Toddler Sleep Faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-08-20T13:25:52Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
