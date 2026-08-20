@@ -8658,5 +8658,21 @@
     "niche": "toddler_sleep",
     "hook_type": "curiosity_gap",
     "engagement_cta": "save"
+  },
+  {
+    "video_id": "FlfzaWvtb6A",
+    "platform": "youtube",
+    "title": "4 things to try when your toddler won't sleep",
+    "theme": "wont_sleep",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/FlfzaWvtb6A",
+    "status": "scheduled",
+    "posted_at": "2026-08-20T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3"
   }
 ]
