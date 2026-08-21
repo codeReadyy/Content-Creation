@@ -8835,5 +8835,22 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "18009417518953079",
+    "platform": "instagram",
+    "title": "What calm parents do before bedtime",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18009417518953079/",
+    "status": "posted",
+    "posted_at": "2026-08-21T13:23:43Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "save"
   }
 ]
