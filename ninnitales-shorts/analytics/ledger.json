@@ -8819,5 +8819,21 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "ibL_SHDW2rU",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/ibL_SHDW2rU",
+    "status": "scheduled",
+    "posted_at": "2026-08-21T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta1"
   }
 ]
