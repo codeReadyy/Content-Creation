@@ -8704,12 +8704,20 @@
     "url": "https://youtube.com/shorts/FlfzaWvtb6A",
     "status": "scheduled",
     "posted_at": "2026-08-20T12:00:00Z",
-    "finalized": false,
+    "finalized": true,
     "format": "anime_cta",
     "account_id": "ninnitales_yt_main",
     "product": "ninnitales",
     "niche": "toddler_sleep",
-    "cta_clip": "cta3"
+    "cta_clip": "cta3",
+    "search_views": 0,
+    "search_pct": null,
+    "avg_view_pct": null,
+    "feed_tested": true,
+    "views": 105,
+    "likes": 1,
+    "comments": 0,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "pin-1787232114-sleep_fast",
@@ -8720,11 +8728,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
     "status": "posted",
     "posted_at": "2026-08-20T13:21:58Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "18184316722406687",
@@ -8735,7 +8745,7 @@
     "url": "https://www.instagram.com/p/18184316722406687/",
     "status": "posted",
     "posted_at": "2026-08-20T13:23:44Z",
-    "finalized": false,
+    "finalized": true,
     "format": "carousel",
     "account_id": "instagram_ninnitales",
     "product": "ninnitales",
@@ -8743,7 +8753,15 @@
     "hook_type": "mistake",
     "engagement_cta": "comment_keyword",
     "keyword": "SLEEP",
-    "bonus_content": "1. Spend quality time on bedtime stories — don’t rush it! 2. Create a calming ritual, like a warm bath or gentle music. 3. Cuddle your toddler to build security and love. 4. Talk openly about bedtime fears to reassure them. 5. Avoid stimulating activities and screens before bed."
+    "bonus_content": "1. Spend quality time on bedtime stories — don’t rush it! 2. Create a calming ritual, like a warm bath or gentle music. 3. Cuddle your toddler to build security and love. 4. Talk openly about bedtime fears to reassure them. 5. Avoid stimulating activities and screens before bed.",
+    "likes": 1,
+    "comments": 0,
+    "views": 4,
+    "reach": 2,
+    "saves": 0,
+    "shares": 0,
+    "distributed": false,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "pin-1787232234-sleep_fast",
@@ -8754,11 +8772,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
     "status": "posted",
     "posted_at": "2026-08-20T13:23:58Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "pin-1787232349-sleep_fast",
@@ -8769,11 +8789,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
     "status": "posted",
     "posted_at": "2026-08-20T13:25:52Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "pin-1787263754-sleep_fast",
@@ -8784,11 +8806,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
     "status": "posted",
     "posted_at": "2026-08-20T22:09:17Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:04Z"
   },
   {
     "video_id": "pin-1787263859-sleep_fast",
@@ -8799,11 +8823,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
     "status": "posted",
     "posted_at": "2026-08-20T22:11:02Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:05Z"
   },
   {
     "video_id": "pin-1787263959-sleep_fast",
@@ -8814,11 +8840,13 @@
     "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
     "status": "posted",
     "posted_at": "2026-08-20T22:12:42Z",
-    "finalized": false,
+    "finalized": true,
     "format": "pin",
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
-    "niche": "toddler_sleep"
+    "niche": "toddler_sleep",
+    "rss": true,
+    "measured_at": "2026-08-22T09:06:05Z"
   },
   {
     "video_id": "ibL_SHDW2rU",
