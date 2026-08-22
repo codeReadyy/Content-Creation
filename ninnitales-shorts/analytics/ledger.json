@@ -9003,5 +9003,22 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta2"
+  },
+  {
+    "video_id": "18103789076334431",
+    "platform": "instagram",
+    "title": "What every expert says about toddler bedtime",
+    "theme": "bedtime_routine",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18103789076334431/",
+    "status": "posted",
+    "posted_at": "2026-08-22T13:16:59Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "save"
   }
 ]
