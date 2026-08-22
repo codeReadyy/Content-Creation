@@ -9110,5 +9110,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18333308287258841",
+    "platform": "instagram",
+    "title": "5 games that boost learning at home",
+    "theme": "learning_games",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18333308287258841/",
+    "status": "posted",
+    "posted_at": "2026-08-22T23:07:02Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "caption_bonus"
   }
 ]
