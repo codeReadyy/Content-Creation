@@ -9163,5 +9163,21 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "836ga90POBQ",
+    "platform": "youtube",
+    "title": "5 steps to a bedtime routine that actually works",
+    "theme": "bedtime_routine",
+    "source": "generated",
+    "url": "https://youtube.com/shorts/836ga90POBQ",
+    "status": "scheduled",
+    "posted_at": "2026-08-23T12:00:00Z",
+    "finalized": false,
+    "format": "anime_cta",
+    "account_id": "ninnitales_yt_main",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "cta_clip": "cta3"
   }
 ]
