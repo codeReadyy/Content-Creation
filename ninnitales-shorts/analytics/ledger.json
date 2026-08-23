@@ -9181,6 +9181,21 @@
     "cta_clip": "cta3"
   },
   {
+    "video_id": "pin-1787490975-sleep_fast",
+    "platform": "pinterest",
+    "title": "Best Tips for Getting Your Toddler to Sleep Faster at Night",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-08-23T13:16:17Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
     "video_id": "17884881264613642",
     "platform": "instagram",
     "title": "5 tips to help your toddler sleep faster",
@@ -9196,5 +9211,35 @@
     "niche": "toddler_sleep",
     "hook_type": "number_promise",
     "engagement_cta": "caption_bonus"
+  },
+  {
+    "video_id": "pin-1787491089-wont_sleep",
+    "platform": "pinterest",
+    "title": "Effective Techniques for When Your Toddler Won't Sleep at Night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-08-23T13:18:11Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1787491192-make_sleep",
+    "platform": "pinterest",
+    "title": "Creative Tricks to Help Your Toddler Fall Asleep Fast",
+    "theme": "make_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-08-23T13:19:54Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
