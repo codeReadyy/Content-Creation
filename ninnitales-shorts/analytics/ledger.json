@@ -9462,5 +9462,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18131901490725368",
+    "platform": "instagram",
+    "title": "7 tips to get your toddler to sleep faster",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18131901490725368/",
+    "status": "posted",
+    "posted_at": "2026-08-24T23:09:24Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "number_promise",
+    "engagement_cta": "save"
   }
 ]
