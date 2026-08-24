@@ -9355,5 +9355,22 @@
     "product": "ninnitales",
     "niche": "toddler_sleep",
     "cta_clip": "cta1"
+  },
+  {
+    "video_id": "18193215742379583",
+    "platform": "instagram",
+    "title": "The secret to quicker toddler sleep",
+    "theme": "sleep_fast",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18193215742379583/",
+    "status": "posted",
+    "posted_at": "2026-08-24T13:25:09Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "curiosity_gap",
+    "engagement_cta": "save"
   }
 ]
