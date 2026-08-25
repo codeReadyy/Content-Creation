@@ -9622,5 +9622,22 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "18206383042367323",
+    "platform": "instagram",
+    "title": "You're handling tantrums backwards",
+    "theme": "tantrums",
+    "source": "carousel",
+    "url": "https://www.instagram.com/p/18206383042367323/",
+    "status": "posted",
+    "posted_at": "2026-08-25T23:10:29Z",
+    "finalized": false,
+    "format": "carousel",
+    "account_id": "instagram_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep",
+    "hook_type": "mistake",
+    "engagement_cta": "save"
   }
 ]
