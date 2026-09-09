@@ -14,6 +14,9 @@ the cheapest), which is still well under gpt-image pricing.
 
 Env (all optional — the defaults are a working Gemini setup):
   GEMINI_API_KEY     the key from aistudio.google.com/apikey   ← the only REQUIRED one
+                     NOTE: the free tier is 20 requests/day/model and image generation
+                     has no free tier at all — this pipeline needs BILLING enabled on
+                     the Google Cloud project behind the key (~$9/mo, images dominate).
   LLM_BASE_URL       OpenAI-compatible base URL (default: Gemini's)
   LLM_CHAT_MODEL     default "gemini-3.8-flash"        (free tier)
   LLM_IMAGE_MODEL    default "gemini-2.5-flash-image"  (cheapest image model)
@@ -61,6 +64,15 @@ def client():
     Gemini's compatibility layer accepts the same `chat.completions.create(...)` calls
     (including `response_format={"type": "json_object"}`) the Azure client took, so every
     existing prompt and call site works unchanged.
+
+    RETRIES ARE SET HERE, not at the call sites. The callers' own retry loops only
+    handle a content filter — a transient `503 high demand` or a `429` escaped them and
+    killed the whole run (seen live on gemini-3.8-flash the first day). Free-tier Gemini
+    serves those routinely, so the SDK's own backoff (it retries 408/409/429/5xx) is
+    raised above its default of 2 and every call site inherits it at once. Kept modest
+    on purpose: a FREE-TIER 429 is a daily-quota refusal (20 requests/day/model), not a
+    blip, so retrying it hard just stalls the slot — worst case here is bounded at about
+    4 x 90s per call rather than a cron hanging for a quarter of an hour.
     """
     from openai import OpenAI
     key = api_key()
@@ -69,7 +81,9 @@ def client():
             "no LLM key — set GEMINI_API_KEY (get one free at "
             "https://aistudio.google.com/apikey), or point LLM_BASE_URL + LLM_API_KEY "
             "at another OpenAI-compatible provider.")
-    return OpenAI(api_key=key, base_url=base_url())
+    return OpenAI(api_key=key, base_url=base_url(),
+                  max_retries=int(os.environ.get("LLM_MAX_RETRIES", "4")),
+                  timeout=float(os.environ.get("LLM_TIMEOUT", "90")))
 
 
 def image_creds() -> tuple[str, str]:
