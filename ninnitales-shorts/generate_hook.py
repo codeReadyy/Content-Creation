@@ -10,15 +10,9 @@ No scraping, no copyright risk, on-brand, fully automated. Pipeline:
                  → 3.5s 1080x1920 hook clip (silent; stitch_cta extends the CTA's
                    own music back over the hook so the whole Short has one track)
 
-Config (env vars; falls back to the AssuredReferral Azure deployment):
-  AZURE_OPENAI_API_KEY / _ENDPOINT / _API_VERSION   (required, shared)
-  NINNITALES_CHAT_DEPLOYMENT   (default: AZURE_OPENAI_CHAT_DEPLOYMENT)
-  NINNITALES_IMAGE_DEPLOYMENT  (default: AZURE_OPENAI_IMAGE_DEPLOYMENT)
-  NINNITALES_IMAGE_QUALITY     (default: high)   gpt-image-1: low|medium|high|auto
-  NINNITALES_IMAGE_SIZE        (default: 1024x1536)
-
-To get the "better image" model: create a full gpt-image-1 deployment in Azure
-and set NINNITALES_IMAGE_DEPLOYMENT=gpt-image-1 (the repo default is the mini).
+Config: the provider (key, base URL, chat + image model names) lives in llm.py — set
+GEMINI_API_KEY and nothing else to run the default Gemini setup. Local override here:
+  NINNITALES_IMAGE_SIZE        (default: 1024x1536 — a 2:3 vertical frame)
 """
 
 import base64
@@ -31,8 +25,9 @@ import re
 import subprocess
 from pathlib import Path
 
-from openai import AzureOpenAI
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+import llm
 
 HERE = Path(__file__).parent
 # Poppins (rounded geometric sans) to MATCH the CTA's caption font. Was Anton
@@ -103,37 +98,15 @@ Return STRICT JSON, no markdown:
 }"""
 
 
-def _client(api_version: str | None = None) -> AzureOpenAI:
-    """Shared Azure client (AssuredReferral resource) — used for the GPT hook copy."""
-    key = os.environ.get("AZURE_OPENAI_API_KEY")
-    endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
-    version = api_version or os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
-    if not key or not endpoint:
-        raise SystemExit("❌ AZURE_OPENAI_API_KEY / _ENDPOINT not set "
-                         "(source the AssuredReferral .env or export them).")
-    return AzureOpenAI(api_key=key, azure_endpoint=endpoint, api_version=version)
+def _client(api_version: str | None = None):
+    """The configured LLM client — see llm.py (Gemini by default). `api_version` is
+    accepted for call-site compatibility with the old Azure client and ignored."""
+    return llm.client()
 
 
 def _image_creds() -> tuple[str, str]:
-    """Resolve (v1_base_url, api_key) for the image model.
-
-    NinniTales' image model lives in its OWN Microsoft Foundry project — a modern
-    `*.services.ai.azure.com` resource that exposes only the OpenAI **v1** surface
-    (`/openai/v1/...`), NOT the classic `/openai/deployments/...` path. Prefer the
-    NINNITALES_IMAGE_* credentials; fall back to the shared Azure resource.
-    """
-    key = (os.environ.get("NINNITALES_IMAGE_API_KEY")
-           or os.environ.get("AZURE_OPENAI_API_KEY"))
-    endpoint = (os.environ.get("NINNITALES_IMAGE_ENDPOINT")
-                or os.environ.get("AZURE_OPENAI_ENDPOINT"))
-    if not key or not endpoint:
-        raise SystemExit("❌ NINNITALES_IMAGE_API_KEY / NINNITALES_IMAGE_ENDPOINT "
-                         "(or the shared AZURE_OPENAI_* fallback) not set.")
-    # Foundry's overview page gives a project URL like
-    # https://<res>.services.ai.azure.com/api/projects/<name>. Keep only the host.
-    m = re.match(r"(https://[^/]+)", endpoint.strip())
-    host = m.group(1) if m else endpoint.rstrip("/")
-    return f"{host}/openai/v1", key
+    """(base_url, api_key) for the image model — see llm.py for provider config."""
+    return llm.image_creds()
 
 
 def _load_hook_formats() -> list[tuple[str, str]]:
@@ -185,8 +158,7 @@ def write_hook_copy(attempts: int = 5) -> dict:
     (finish_reason=content_filter); output varies with temperature, so we retry.
     """
     client = _client()
-    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    deployment = llm.chat_model()
     formats = _load_hook_formats()
     for i in range(attempts):
         resp = client.chat.completions.create(
@@ -210,11 +182,11 @@ def write_hook_copy(attempts: int = 5) -> dict:
 
 
 def generate_image(image_prompt: str, attempts: int = 2) -> bytes:
-    """Render a cozy-anime vertical scene with gpt-image-2. Returns PNG bytes.
+    """Render a cozy-anime vertical scene with the configured image model. PNG bytes.
 
-    Calls the Foundry resource's OpenAI v1 images endpoint directly via the `api-key`
-    header (the only surface this resource exposes). Image models can refuse a prompt
-    outright (safety); we retry once, then raise so the run skips this hook.
+    Posts to the provider's OpenAI-shaped `/images/generations` (llm.py picks which
+    provider). Image models can refuse a prompt outright (safety); we retry once, then
+    raise so the run skips this hook rather than shipping a broken frame.
     """
     import ssl
     import urllib.error
@@ -224,37 +196,41 @@ def generate_image(image_prompt: str, attempts: int = 2) -> bytes:
 
     ctx = ssl.create_default_context(cafile=certifi.where())
     base_url, key = _image_creds()
-    deployment = (os.environ.get("NINNITALES_IMAGE_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_IMAGE_DEPLOYMENT"))
-    quality = os.environ.get("NINNITALES_IMAGE_QUALITY", "high")
+    model = llm.image_model()
     size = os.environ.get("NINNITALES_IMAGE_SIZE", "1024x1536")
-    print(f"  image: deployment={deployment} quality={quality} size={size}")
+    print(f"  image: model={model} size={size}")
 
     url = f"{base_url}/images/generations"
-    payload = json.dumps({
-        "model": deployment,
+    body = {
+        "model": model,
         "prompt": f"{ART_STYLE}. Scene: {image_prompt}",
         "size": size,
-        "quality": quality,
         "n": 1,
-    }).encode()
+        "response_format": "b64_json",
+    }
 
     last_err = None
     for i in range(attempts):
         req = urllib.request.Request(
-            url, data=payload, method="POST",
-            headers={"Content-Type": "application/json", "api-key": key},
+            url, data=json.dumps(body).encode(), method="POST",
+            headers={"Content-Type": "application/json",
+                     "Authorization": f"Bearer {key}"},
         )
         try:
             with urllib.request.urlopen(req, timeout=180, context=ctx) as resp:
                 data = json.loads(resp.read())
             return base64.b64decode(data["data"][0]["b64_json"])
         except urllib.error.HTTPError as e:
-            body = e.read().decode(errors="replace")
-            last_err = f"HTTP {e.code}: {body[:200]}"
+            body_text = e.read().decode(errors="replace")
+            last_err = f"HTTP {e.code}: {body_text[:200]}"
             print(f"  ⚠️  image call failed (attempt {i + 1}/{attempts}): {last_err}")
             if e.code in (401, 403, 404):  # auth/path errors won't fix on retry
                 break
+            # Providers disagree on which `size` values they accept; a rejected size
+            # must not cost us the image. Drop it and let the model pick its default.
+            if e.code == 400 and "size" in body:
+                del body["size"]
+                print("     ↩️  retrying without an explicit size")
     raise RuntimeError(f"image generation failed: {last_err}")
 
 

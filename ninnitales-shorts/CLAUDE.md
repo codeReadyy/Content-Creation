@@ -38,6 +38,9 @@ posting — no API publish/creds; used for Pinterest while the app is on Trial a
   (`name`, `produces`, `build`) that calls `register(...)`; add the module to
   `formats/base.py::_MODULES`. Reuse `stitch_cta`, `music_bed`, `generate_hook`,
   `scrape_hooks` as needed.
+- **A new LLM / image provider** → set `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_CHAT_MODEL`,
+  `LLM_IMAGE_MODEL` (see `llm.py`). No code change — every module resolves the client
+  through that one seam.
 - **A new platform** → add `publishers/<platform>.py` implementing `Publisher`
   (`platform`, `accepts`, `publish`) + `register(...)`; add to `publishers/base.py::_MODULES`.
   Resolve creds by `account.creds_env` suffix (see `publishers/youtube.py`).
@@ -119,5 +122,13 @@ posting — no API publish/creds; used for Pinterest while the app is on Trial a
   `instagram` had been migrated; `daily` (the job that logs the uploads), `pinterest`
   (5 ledger appends/day), `engage` and `telegram-poll` (writes vetoes) were still on
   the banned one, all four appending to the same `ledger.json`.
+- **Provider seam (`llm.py`, Sep 4 2026).** Azure access was lost and the whole engine
+  stopped at once — chat AND images, so YouTube produced nothing and Pinterest fell back
+  to gradients. Creds had been resolved inline in four modules, each with its own
+  `AZURE_OPENAI_*` fallback chain. Now `llm.py` is the single source: default provider is
+  Gemini through its OpenAI-compatibility layer, so the existing `chat.completions` /
+  `images/generations` call sites were unchanged — only where they point. Gemini Flash
+  text is free tier; image generation is NOT free on any Gemini model (~$0.039/image on
+  `gemini-2.5-flash-image`, the cheapest). Switching providers is env-only from here.
 - **Legacy:** `daily.py` is retained only for the Telegram veto-regen path; `orchestrate.py`
   is the live entry (see `.github/workflows/ninnitales-daily.yml`).

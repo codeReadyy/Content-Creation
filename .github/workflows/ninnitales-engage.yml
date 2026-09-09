@@ -35,7 +35,7 @@ jobs:
 
       - name: Reply to keyword comments
         env:
-          INSTAGRAM_ACCESS_TOKEN_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_NINNITALES }}
+          INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python engage.py

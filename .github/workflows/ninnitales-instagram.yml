@@ -14,7 +14,7 @@
 #               feed distribution).
 #
 # Required repo secrets:
-#   INSTAGRAM_ACCESS_TOKEN_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES
+#   INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES + INSTAGRAM_BUSINESS_ACCOUNT_ID_INSTAGRAM_NINNITALES
 #     (minted by connect-helper; long-lived IG token + IG user id)
 #   MEDIA_REPO        — "owner/public-media-repo" (a PUBLIC repo that holds the built clips
 #                       so Instagram can fetch them by URL; this repo stays private)
@@ -22,7 +22,7 @@
 #   SCRAPE_PROXY      — US residential proxy (scraped_cta pulls a hook clip)
 #   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID — run health + summary
 # Optional (only if an IG account uses the anime_cta format):
-#   AZURE_OPENAI_* + NINNITALES_IMAGE_*
+#   GEMINI_API_KEY
 #   YOUTUBE_COOKIES   — cookies.txt fallback for scraping
 
 name: NinniTales Instagram
@@ -73,19 +73,13 @@ jobs:
 
       - name: Publish one Instagram Reel (immediate)
         env:
-          INSTAGRAM_ACCESS_TOKEN_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_NINNITALES }}
-          INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_NINNITALES }}
+          INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES }}
+          INSTAGRAM_BUSINESS_ACCOUNT_ID_INSTAGRAM_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_INSTAGRAM_NINNITALES }}
           MEDIA_REPO: ${{ secrets.MEDIA_REPO }}
           MEDIA_REPO_TOKEN: ${{ secrets.MEDIA_REPO_TOKEN }}
           MEDIA_PREFIX: ninnitales   # per-project release bucket inside the shared media repo
           SCRAPE_PROXY: ${{ secrets.SCRAPE_PROXY }}
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
-          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
-          NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
-          NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
-          NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python orchestrate.py --platform instagram --now 1

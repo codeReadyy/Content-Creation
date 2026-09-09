@@ -1,0 +1,71 @@
+# NinniTales — keep the Instagram long-lived token alive.
+#
+# Instagram-login tokens last ~60 days and die SILENTLY: the daily IG run's pre-flight
+# just starts aborting with "a required platform token is dead". That is what happened on
+# 2026-08-26 — the then-current token was minted Jun 27, nothing ever
+# re-extended it, and every IG run since failed until it was re-connected by hand.
+#
+# Meta lets a LIVE token be re-extended any time after it's 24h old, resetting it to a
+# fresh ~60 days. Running that weekly means the token is never more than 7 days into its
+# life, so the 60-day wall is unreachable.
+#
+# Required repo secrets:
+#   INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES  — the token kept alive (rewritten here)
+#   GH_SECRETS_TOKEN                      — a PAT that may WRITE this repo's Actions
+#                                           secrets (fine-grained: Secrets = read+write;
+#                                           classic: `repo`). Falls back to
+#                                           MEDIA_REPO_TOKEN if that PAT covers this repo.
+#   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID — the report
+#
+# NOTE: a refresh cannot revive an ALREADY-expired token — that needs a browser login via
+# connect-helper. This job exists so that never happens again.
+
+name: NinniTales IG Token Refresh
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"    # Mondays 06:00 UTC — 7-day cadence on a 60-day token
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ninnitales-shorts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install python deps
+        run: python -m pip install --upgrade pip -r requirements.txt
+
+      - name: Refresh the long-lived token
+        env:
+          INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES: ${{ secrets.INSTAGRAM_ACCESS_TOKEN_INSTAGRAM_NINNITALES }}
+          INSTAGRAM_BUSINESS_ACCOUNT_ID_INSTAGRAM_NINNITALES: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID_INSTAGRAM_NINNITALES }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python refresh_ig_token.py --out "$RUNNER_TEMP/ig_tokens.json"
+
+      - name: Store the refreshed token back into repo secrets
+        env:
+          GH_TOKEN: ${{ secrets.GH_SECRETS_TOKEN || secrets.MEDIA_REPO_TOKEN }}
+        run: |
+          FILE="$RUNNER_TEMP/ig_tokens.json"
+          [ -s "$FILE" ] || { echo "no refreshed token to store"; exit 0; }
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::no GH_SECRETS_TOKEN — the refreshed token was NOT persisted." \
+                 "Add a PAT with Actions-secrets write access, or the token still expires."
+            exit 1
+          fi
+          # The values are live credentials: mask each one before it can reach a log line.
+          for KEY in $(jq -r 'keys[]' "$FILE"); do
+            VALUE=$(jq -r --arg k "$KEY" '.[$k]' "$FILE")
+            echo "::add-mask::$VALUE"
+            gh secret set "$KEY" --repo "$GITHUB_REPOSITORY" --body "$VALUE"
+            echo "stored $KEY"
+          done

@@ -17,15 +17,14 @@ None and the caller falls back to the template chooser (which now dedups too).
 
 Scraped Shorts keep using the templates — by design, they're fine for now.
 
-Env: AZURE_OPENAI_API_KEY / _ENDPOINT / _API_VERSION + NINNITALES_CHAT_DEPLOYMENT
-(falls back to AZURE_OPENAI_CHAT_DEPLOYMENT) — same creds generate_hook.py uses.
+Env: GEMINI_API_KEY — the provider and model names live in llm.py, same as
+generate_hook.py. No per-module credential chain.
 """
 
 import json
 import os
 import random
 
-from openai import AzureOpenAI
 
 import run_pipeline
 
@@ -150,13 +149,9 @@ def _actual_shape(shape: str, title: str) -> str:
     return "outcome" if shape == "question" else shape
 
 
-def _client() -> AzureOpenAI:
-    key = os.environ.get("AZURE_OPENAI_API_KEY")
-    endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
-    version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
-    if not key or not endpoint:
-        raise RuntimeError("AZURE_OPENAI_API_KEY / _ENDPOINT not set")
-    return AzureOpenAI(api_key=key, azure_endpoint=endpoint, api_version=version)
+def _client():
+    """The configured LLM client — provider lives in llm.py (Gemini by default)."""
+    return llm.client()
 
 
 def _recent_performance(limit: int = 2, platform: str = "youtube") -> list[dict]:
@@ -332,8 +327,7 @@ def write_pin(rng: random.Random | None = None,
     except RuntimeError as e:
         print(f"  ⚠️  pin ghostwriter: {e} — falling back to template.")
         return None
-    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    deployment = llm.chat_model()
 
     for i in range(attempts):
         try:
@@ -406,8 +400,7 @@ def write_post(rng: random.Random | None = None,
     except RuntimeError as e:
         print(f"  ⚠️  ghostwriter: {e} — falling back to template.")
         return None
-    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    deployment = llm.chat_model()
     nudge: list[dict] = []
 
     for i in range(attempts):

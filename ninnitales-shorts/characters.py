@@ -15,11 +15,11 @@ from __future__ import annotations
 
 import base64
 import os
-import re
 from io import BytesIO
 from pathlib import Path
 
 import requests
+import llm
 from PIL import Image
 
 HERE = Path(__file__).parent
@@ -47,12 +47,8 @@ def available() -> bool:
 
 
 def _creds() -> tuple[str, str]:
-    key = os.environ.get("NINNITALES_IMAGE_API_KEY") or os.environ.get("AZURE_OPENAI_API_KEY")
-    ep = os.environ.get("NINNITALES_IMAGE_ENDPOINT") or os.environ.get("AZURE_OPENAI_ENDPOINT")
-    if not key or not ep:
-        raise RuntimeError("NINNITALES_IMAGE_* / AZURE_OPENAI_* not set")
-    host = re.match(r"(https://[^/]+)", ep.strip()).group(1)
-    return f"{host}/openai/v1", key
+    """(base_url, key) for the image model — provider config lives in llm.py."""
+    return llm.image_creds()
 
 
 def scene(character: str, scene_prompt: str, w: int, h: int,
@@ -70,9 +66,10 @@ def scene(character: str, scene_prompt: str, w: int, h: int,
                   f"reference image, {scene_prompt}. NO child visible in the frame. "
                   "Vertical composition.")
         with open(ref, "rb") as f:
-            r = requests.post(f"{base}/images/edits", headers={"api-key": key},
-                              data={"model": "gpt-image-2", "prompt": prompt,
-                                    "size": "1024x1536", "quality": quality},
+            r = requests.post(f"{base}/images/edits",
+                              headers={"Authorization": f"Bearer {key}"},
+                              data={"model": llm.image_model(), "prompt": prompt,
+                                    "size": "1024x1536"},
                               files={"image": (ref.name, f, "image/png")}, timeout=timeout)
         r.raise_for_status()
         raw = base64.b64decode(r.json()["data"][0]["b64_json"])

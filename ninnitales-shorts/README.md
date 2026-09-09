@@ -27,14 +27,14 @@ state.json        → tracks used scraped ids (committed, so the cron dedupes)
 
 1. **System deps**: `brew install ffmpeg yt-dlp` (macOS) — already done on this Mac.
 2. **Python deps**: `pip install -r requirements.txt`
-3. **Azure image deployment (for generated hooks)**: in Azure AI Studio, deploy an
-   image model (`gpt-image-1` for best quality, or `gpt-image-1-mini` to save cost).
-   Then set its deployment name:
-   - locally: add `NINNITALES_IMAGE_DEPLOYMENT=<your-deployment-name>` to a `.env`
-     in this folder (or the AssuredReferral `.env`).
-   - the chat copy reuses your existing `AZURE_OPENAI_CHAT_DEPLOYMENT`.
-   - `gpt-image-1` needs api-version ≥ `2025-04-01-preview`; the generator defaults to
-     that for image calls (override with `NINNITALES_IMAGE_API_VERSION`).
+3. **LLM key (copy + generated-hook images)**: grab a free key at
+   [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and add
+   `GEMINI_API_KEY=<key>` to a `.env` in this folder. That one key covers both chat and
+   images. Gemini's Flash text models are free tier; image generation is billed
+   (~$0.039/image on `gemini-2.5-flash-image`), so enable billing on the Google Cloud
+   project behind the key or the image calls will 429/403 and fall back to gradients.
+   - To use a different provider, set `LLM_BASE_URL` + `LLM_API_KEY` + `LLM_CHAT_MODEL`
+     + `LLM_IMAGE_MODEL` instead — see `llm.py`. Any OpenAI-compatible API works.
 4. **Mint the NinniTales refresh token** (OAuth app already "In production"):
    ```
    cd ../assured-referral-autoposter
@@ -44,7 +44,7 @@ state.json        → tracks used scraped ids (committed, so the cron dedupes)
    Pick the NinniTales channel; copy the four `YOUTUBE_*_NINNITALES` values.
 5. **GitHub secrets** (for the cron): `YOUTUBE_CLIENT_ID_NINNITALES`,
    `YOUTUBE_CLIENT_SECRET_NINNITALES`, `YOUTUBE_REFRESH_TOKEN_NINNITALES`,
-   plus `AZURE_OPENAI_*` and `NINNITALES_IMAGE_DEPLOYMENT`. Optional `YOUTUBE_COOKIES`
+   plus `GEMINI_API_KEY`. Optional `YOUTUBE_COOKIES`
    for scraped mode if Actions gets IP-blocked.
 
 ## Run it

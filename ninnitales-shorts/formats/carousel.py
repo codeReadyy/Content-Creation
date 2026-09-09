@@ -38,6 +38,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 import run_pipeline
+import llm
 from core.models import CAROUSEL, Asset, BuildContext, Niche
 from formats.base import register
 
@@ -659,8 +660,7 @@ def _llm_flashcard(niche: Niche, theme_key: str, age_band: str, phrase: str,
     except Exception:
         return None
     import os
-    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    deployment = llm.chat_model()
     messages = [
         {"role": "system",
          "content": _flash_system(niche, include_brand, engagement, hook_type)},
@@ -780,8 +780,7 @@ def _llm_carousel(niche: Niche, avoid_titles: list[str]) -> dict | None:
     except Exception:
         return None
     import os
-    deployment = (os.environ.get("NINNITALES_CHAT_DEPLOYMENT")
-                  or os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"))
+    deployment = llm.chat_model()
     themes = ", ".join(niche.themes)
     avoid = "; ".join(avoid_titles[-12:]) or "(none)"
     system = (f"{niche.brand_context}\n\nYou write Instagram CAROUSEL copy for parents. "

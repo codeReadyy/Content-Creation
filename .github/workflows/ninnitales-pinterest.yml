@@ -15,7 +15,7 @@
 # Required repo secrets:
 #   MEDIA_REPO + MEDIA_REPO_TOKEN             (public media repo — hosts feeds + images;
 #                                              same secrets the Instagram workflow uses)
-#   AZURE_OPENAI_* + NINNITALES_IMAGE_*       (for the gpt-image-1 pin background)
+#   GEMINI_API_KEY                            (for the pin background image)
 #   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID     (run health + summary)
 # No PINTEREST_* secrets needed in RSS mode.
 
@@ -55,13 +55,7 @@ jobs:
           MEDIA_REPO: ${{ secrets.MEDIA_REPO }}
           MEDIA_REPO_TOKEN: ${{ secrets.MEDIA_REPO_TOKEN }}
           MEDIA_PREFIX: ninnitales
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
-          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
-          NINNITALES_IMAGE_DEPLOYMENT: ${{ secrets.NINNITALES_IMAGE_DEPLOYMENT }}
-          NINNITALES_IMAGE_ENDPOINT: ${{ secrets.NINNITALES_IMAGE_ENDPOINT }}
-          NINNITALES_IMAGE_API_KEY: ${{ secrets.NINNITALES_IMAGE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python orchestrate.py --platform pinterest --now "${{ github.event.inputs.count || '3' }}"
