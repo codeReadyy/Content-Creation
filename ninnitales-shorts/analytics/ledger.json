@@ -9942,5 +9942,50 @@
     "niche": "toddler_sleep",
     "rss": true,
     "measured_at": "2026-08-30T09:03:39Z"
+  },
+  {
+    "video_id": "pin-1788991978-bedtime_routine",
+    "platform": "pinterest",
+    "title": "Toddler bedtime routine that works",
+    "theme": "bedtime_routine",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-09-09T22:13:00Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1788991989-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/screen-free-bedtime.xml",
+    "status": "posted",
+    "posted_at": "2026-09-09T22:13:12Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1788992001-sleep_fast",
+    "platform": "pinterest",
+    "title": "How to get toddler to sleep faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-09-09T22:13:24Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
