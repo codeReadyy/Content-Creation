@@ -290,9 +290,25 @@ def _render(headline: str, scene: str, out: Path, eyebrow: str = "",
     return out
 
 
-def _template_pin(niche: Niche, rng) -> dict:
-    """Deterministic fallback so the format always produces an on-brand pin."""
-    theme = rng.choice(list(niche.themes)) if niche.themes else "bedtime_routine"
+def _template_pin(niche: Niche, rng, avoid: list[str] | None = None,
+                  rotate: int = 0) -> dict:
+    """Deterministic fallback so the format always produces an on-brand pin.
+
+    Themes ROTATE by `rotate` (ledger length + slot index) rather than rng.choice —
+    the same trick build() already uses for boards. This path used to pick at random,
+    which was fine while it was a rare last resort, but the free-tier chat quota (20
+    requests/day/model) makes it the COMMON path, and a dry run built three pins with
+    the identical title in one run. Duplicate pins are the signal Pinterest reads as
+    spam, and pins are evergreen, so the copies stay live competing with each other.
+
+    Deduping against `avoid` cannot solve it: that list is seeded with every title in
+    the dedup window (511 on a 3650-day window), and this template pool is a fixed 7
+    titles that have all published before — so every candidate always looks "recently
+    used" and the filter degrades to a coin flip. Rotation gives what actually matters:
+    distinct themes within a run (5-6 slots against 7 themes), advancing across runs.
+    """
+    themes = sorted(niche.themes) if niche.themes else ["bedtime_routine"]
+    theme = themes[rotate % len(themes)]
     query = niche.themes.get(theme, "toddler bedtime routine") if niche.themes else \
         "toddler bedtime routine"
     title = query[:1].upper() + query[1:]
@@ -314,13 +330,16 @@ class Pin:
     def build(self, niche: Niche, ctx: BuildContext) -> Asset | None:
         boards = list(niche.extra.get("pinterest_boards") or [])
         link = niche.extra.get("pinterest_link") or niche.waitlist_url
-        data = ghostwriter.write_pin(ctx.rng, ctx.avoid_titles, niche.themes, boards) \
-            or _template_pin(niche, ctx.rng)
-
-        # Rotate boards across RUNS, not just slots: slot_index resets each run, so
-        # offsetting by the ledger length (which grows with every post) keeps the
-        # rotation advancing — otherwise a 3-pin run would hit boards 0-2 forever.
+        # Rotate across RUNS, not just slots: slot_index resets each run, so offsetting
+        # by the ledger length (which grows with every post) keeps the rotation
+        # advancing — otherwise a 3-pin run would hit boards 0-2 forever. Read before
+        # the copy call: the template fallback rotates its theme on the same counter.
         base = len(run_pipeline.ledger.load())
+
+        data = ghostwriter.write_pin(ctx.rng, ctx.avoid_titles, niche.themes, boards) \
+            or _template_pin(niche, ctx.rng, ctx.avoid_titles,
+                             rotate=base + ctx.slot_index)
+
         board = (boards[(base + ctx.slot_index) % len(boards)] if boards
                  else (data.get("board") or "Toddler Bedtime"))
 
