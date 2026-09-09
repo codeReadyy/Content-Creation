@@ -72,30 +72,30 @@ def _gradient(w: int = W, h: int = H) -> Image.Image:
 
 
 def _background_kind(scene: str, w: int = W, h: int = H) -> tuple[Image.Image, bool]:
-    """(background, is_photo). The text-forward layout needs to know whether it is
-    drawing over a real generated scene — which needs a full scrim to stay legible —
-    or over our own gradient, which is already dark and looks cleaner untouched."""
-    img = _background(scene, w, h)
-    return img, img.getpixel((w // 2, h // 2)) != _gradient(w, h).getpixel((w // 2, h // 2))
+    """(background, is_photo) — a cozy-anime bedtime scene, or our gradient on failure.
 
-
-def _background(scene: str, w: int = W, h: int = H) -> Image.Image:
-    """A cozy-anime bedtime background via gpt-image-1; gradient fallback on any failure.
-
-    Parametrized by size so other formats can reuse it (the Instagram carousel cover
-    calls this at 1080x1350)."""
+    The flag matters because the text-forward layout runs copy down the full height: over
+    a real photo that needs a full scrim to stay legible, over our own gradient it does
+    not (and a scrim there just muddies it). This is where the try//except actually lives,
+    so the flag is the code path rather than a guess about the pixels.
+    """
     from io import BytesIO
 
     import generate_hook
     try:
         raw = generate_hook.generate_image(scene)
         img = Image.open(BytesIO(raw)).convert("RGB")
-        return generate_hook._cover_crop(img, w, h)
+        return generate_hook._cover_crop(img, w, h), True
     except (Exception, SystemExit) as e:
         # generate_image raises SystemExit when image creds are absent; treat any failure
-        # (missing creds, safety filter, network) as "fall back to the gradient render".
+        # (missing creds, quota, safety filter, network) as "fall back to the gradient".
         print(f"  ⚠️  pin image gen failed ({e}) — using gradient background.")
-        return _gradient(w, h)
+        return _gradient(w, h), False
+
+
+def _background(scene: str, w: int = W, h: int = H) -> Image.Image:
+    """Background only — kept for formats/carousel.py, which doesn't need the flag."""
+    return _background_kind(scene, w, h)[0]
 
 
 def _scrim(img: Image.Image, top: bool) -> None:
