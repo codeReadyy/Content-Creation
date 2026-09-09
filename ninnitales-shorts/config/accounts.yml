@@ -61,7 +61,10 @@ accounts:
     formats: [anime_cta]
     schedule_et: ["08:00", "12:30", "19:00"]
     gate: false
-    enabled: true
+    # Stays false until the second channel exists AND YOUTUBE_*_NINNITALES_ANIME are
+    # set. A connect-helper run flipped this to true on Sep 4 with no matching creds,
+    # so every daily run burned a slot on a guaranteed publish failure.
+    enabled: false
 
   # IG = LEARNED format mix (this account intentionally breaks the one-format-per-
   # account convention). The carousels-only phase (Jul 4-17) measured reach 1-2/post
