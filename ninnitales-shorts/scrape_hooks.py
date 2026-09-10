@@ -114,6 +114,12 @@ def list_recent_short_ids(channel: str, cookies: str | None = None) -> list[str]
     cmd = [
         "yt-dlp", "--flat-playlist", "--print", "id",
         "--playlist-end", str(PLAYLIST_DEPTH),
+        # YouTube's tab extractor refuses to list a channel when it can't confirm the
+        # session ("Playlists that require authentication may not extract correctly"),
+        # which killed EVERY channel listing on 2026-09-09 once the token and Azure
+        # failures stopped masking it. We only ever read public Shorts, so skipping that
+        # check is exactly what yt-dlp's own error message recommends.
+        "--extractor-args", "youtubetab:skip=authcheck",
     ]
     proxy = os.environ.get("SCRAPE_PROXY")
     if proxy:
