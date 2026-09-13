@@ -10332,5 +10332,50 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789337490-make_sleep",
+    "platform": "pinterest",
+    "title": "Gentle Tricks to Make Kids Fall Asleep Without Bedtime Battles",
+    "theme": "make_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/toddler-bedtime-routines.xml",
+    "status": "posted",
+    "posted_at": "2026-09-13T22:11:33Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789337511-through_night",
+    "platform": "pinterest",
+    "title": "Help baby sleep through the night",
+    "theme": "through_night",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-09-13T22:11:54Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789337524-bedtime_routine",
+    "platform": "pinterest",
+    "title": "Toddler bedtime routine that works",
+    "theme": "bedtime_routine",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-09-13T22:12:06Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
