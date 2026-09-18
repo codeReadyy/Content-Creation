@@ -10797,5 +10797,50 @@
     "account_id": "pinterest_ninnitales",
     "product": "ninnitales",
     "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789737428-calm_before_bed",
+    "platform": "pinterest",
+    "title": "Calm an overtired toddler before bed",
+    "theme": "calm_before_bed",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/baby-toddler-sleep-tips.xml",
+    "status": "posted",
+    "posted_at": "2026-09-18T13:17:12Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789737711-sleep_fast",
+    "platform": "pinterest",
+    "title": "How to get toddler to sleep faster",
+    "theme": "sleep_fast",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/gentle-bedtime-for-parents.xml",
+    "status": "posted",
+    "posted_at": "2026-09-18T13:21:54Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
+  },
+  {
+    "video_id": "pin-1789737723-wont_sleep",
+    "platform": "pinterest",
+    "title": "Toddler won't sleep at night",
+    "theme": "wont_sleep",
+    "source": "pin",
+    "url": "https://raw.githubusercontent.com/codeReadyy/posted-media/master/ninnitales/pinterest/calming-bedtime-stories.xml",
+    "status": "posted",
+    "posted_at": "2026-09-18T13:22:06Z",
+    "finalized": false,
+    "format": "pin",
+    "account_id": "pinterest_ninnitales",
+    "product": "ninnitales",
+    "niche": "toddler_sleep"
   }
 ]
